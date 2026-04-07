@@ -66,6 +66,92 @@ export function actionsRouter(db: Database.Database) {
   // All action execution routes require delegated auth
   router.use(requireDelegatedAuth);
 
+  // POST /api/actions/bulk — fan out a safe action across many devices.
+  // We deliberately only allow `sync` and `reboot` here: anything destructive
+  // (wipe/retire/reset/rename/rotate-laps) should still be a single-device,
+  // explicit click so an operator cannot fat-finger 600 wipes.
+  const BULK_ALLOWED: ReadonlySet<RemoteActionType> = new Set(["sync", "reboot"]);
+  router.post("/bulk", async (request, response) => {
+    const action = request.body?.action as RemoteActionType | undefined;
+    const deviceKeys = request.body?.deviceKeys;
+
+    if (!action || !BULK_ALLOWED.has(action)) {
+      response.status(400).json({
+        message: "Bulk actions only support 'sync' or 'reboot'."
+      });
+      return;
+    }
+    if (!Array.isArray(deviceKeys) || deviceKeys.length === 0) {
+      response.status(400).json({ message: "deviceKeys must be a non-empty array." });
+      return;
+    }
+    if (deviceKeys.length > 200) {
+      response.status(400).json({ message: "Bulk actions are capped at 200 devices per request." });
+      return;
+    }
+
+    const token = getDelegatedToken(request);
+    const user = getDelegatedUser(request);
+    const triggeredAt = new Date().toISOString();
+
+    const results: Array<{
+      deviceKey: string;
+      success: boolean;
+      status: number;
+      message: string;
+    }> = [];
+
+    for (const rawKey of deviceKeys) {
+      const deviceKey = String(rawKey ?? "");
+      const device = getDeviceInfo(db, deviceKey);
+      if (!device || !device.intune_id) {
+        results.push({
+          deviceKey,
+          success: false,
+          status: 404,
+          message: device ? "No Intune enrollment." : "Device not found."
+        });
+        continue;
+      }
+
+      let result: { success: boolean; status: number; message: string };
+      try {
+        result =
+          action === "sync"
+            ? await syncDevice(token, device.intune_id)
+            : await rebootDevice(token, device.intune_id);
+      } catch (error) {
+        result = {
+          success: false,
+          status: 500,
+          message: error instanceof Error ? error.message : "Action failed."
+        };
+      }
+
+      logAction(db, {
+        deviceSerial: device.serial_number,
+        deviceName: device.device_name,
+        intuneId: device.intune_id,
+        actionType: action,
+        triggeredBy: user,
+        triggeredAt,
+        graphResponseStatus: result.status,
+        notes: `[bulk] ${result.message}`
+      });
+
+      results.push({ deviceKey, ...result });
+    }
+
+    const successCount = results.filter((r) => r.success).length;
+    response.json({
+      action,
+      total: results.length,
+      successCount,
+      failureCount: results.length - successCount,
+      results
+    });
+  });
+
   // POST /api/actions/:deviceKey/:action
   router.post("/:deviceKey/:action", async (request, response) => {
     const { deviceKey, action } = request.params;

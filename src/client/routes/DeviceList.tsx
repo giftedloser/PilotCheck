@@ -1,13 +1,17 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Rows2, Rows3 } from "lucide-react";
+import { Download, Loader2, RefreshCw, RotateCcw, Rows2, Rows3, X } from "lucide-react";
+import { useState } from "react";
 
 import { DeviceFilters } from "../components/devices/DeviceFilters.js";
 import { DeviceTable, type DeviceTableDensity } from "../components/devices/DeviceTable.js";
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { Pagination } from "../components/shared/Pagination.js";
+import { Button } from "../components/ui/button.js";
 import { useDevices } from "../hooks/useDevices.js";
 import { usePreference } from "../hooks/usePreference.js";
+import { apiRequest } from "../lib/api.js";
+import type { DeviceListItem } from "../lib/types.js";
 import { cn } from "../lib/utils.js";
 
 export function DeviceListPage() {
@@ -19,6 +23,77 @@ export function DeviceListPage() {
     "comfortable"
   );
 
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState<null | "sync" | "reboot">(null);
+  const [bulkResult, setBulkResult] = useState<string | null>(null);
+
+  const toggleSelected = (deviceKey: string) => {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(deviceKey)) next.delete(deviceKey);
+      else next.add(deviceKey);
+      return next;
+    });
+  };
+  const toggleAll = (keys: string[], allSelected: boolean) => {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        for (const key of keys) next.delete(key);
+      } else {
+        for (const key of keys) next.add(key);
+      }
+      return next;
+    });
+  };
+  const clearSelection = () => setSelectedKeys(new Set());
+
+  const runBulk = async (action: "sync" | "reboot") => {
+    if (selectedKeys.size === 0) return;
+    setBulkBusy(action);
+    setBulkResult(null);
+    try {
+      const result = await apiRequest<{
+        action: string;
+        total: number;
+        successCount: number;
+        failureCount: number;
+      }>("/api/actions/bulk", {
+        method: "POST",
+        body: JSON.stringify({
+          action,
+          deviceKeys: Array.from(selectedKeys)
+        })
+      });
+      setBulkResult(
+        `${action === "sync" ? "Sync" : "Reboot"}: ${result.successCount}/${result.total} succeeded${
+          result.failureCount > 0 ? `, ${result.failureCount} failed` : ""
+        }.`
+      );
+      if (result.failureCount === 0) {
+        clearSelection();
+      }
+    } catch (error) {
+      setBulkResult(error instanceof Error ? error.message : "Bulk action failed.");
+    } finally {
+      setBulkBusy(null);
+    }
+  };
+
+  const exportCsv = () => {
+    if (!devices.data) return;
+    const csv = devicesToCsv(devices.data.items);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pilotcheck-devices-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -29,30 +104,54 @@ export function DeviceListPage() {
       <DeviceFilters />
 
       <div className="flex items-center justify-between text-[11px] text-[var(--pc-text-muted)]">
-        <div>
-          {devices.data
-            ? `${devices.data.total.toLocaleString()} device${devices.data.total === 1 ? "" : "s"}`
-            : ""}
+        <div className="flex items-center gap-3">
+          <span>
+            {devices.data
+              ? `${devices.data.total.toLocaleString()} device${devices.data.total === 1 ? "" : "s"}`
+              : ""}
+          </span>
+          <span className="text-[var(--pc-text-muted)]/60">·</span>
+          <span className="hidden sm:inline">
+            <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">j</kbd>{" "}
+            <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">k</kbd>{" "}
+            move,{" "}
+            <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">↵</kbd>{" "}
+            open,{" "}
+            <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">␣</kbd>{" "}
+            select
+          </span>
         </div>
-        <div
-          className="inline-flex items-center gap-0.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-0.5"
-          role="group"
-          aria-label="Row density"
-        >
-          <DensityButton
-            active={density === "comfortable"}
-            onClick={() => setDensity("comfortable")}
-            label="Comfortable"
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={exportCsv}
+            disabled={!devices.data || devices.data.items.length === 0}
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] text-[var(--pc-text-secondary)] transition-colors hover:bg-white/[0.04] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            title="Export current page to CSV"
           >
-            <Rows2 className="h-3 w-3" />
-          </DensityButton>
-          <DensityButton
-            active={density === "compact"}
-            onClick={() => setDensity("compact")}
-            label="Compact"
+            <Download className="h-3 w-3" />
+            Export CSV
+          </button>
+          <div
+            className="inline-flex items-center gap-0.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-0.5"
+            role="group"
+            aria-label="Row density"
           >
-            <Rows3 className="h-3 w-3" />
-          </DensityButton>
+            <DensityButton
+              active={density === "comfortable"}
+              onClick={() => setDensity("comfortable")}
+              label="Comfortable"
+            >
+              <Rows2 className="h-3 w-3" />
+            </DensityButton>
+            <DensityButton
+              active={density === "compact"}
+              onClick={() => setDensity("compact")}
+              label="Compact"
+            >
+              <Rows3 className="h-3 w-3" />
+            </DensityButton>
+          </div>
         </div>
       </div>
 
@@ -66,7 +165,13 @@ export function DeviceListPage() {
         />
       ) : devices.data ? (
         <>
-          <DeviceTable devices={devices.data.items} density={density} />
+          <DeviceTable
+            devices={devices.data.items}
+            density={density}
+            selectedKeys={selectedKeys}
+            onToggleSelected={toggleSelected}
+            onToggleAll={toggleAll}
+          />
           <Pagination
             page={devices.data.page}
             pageSize={devices.data.pageSize}
@@ -80,8 +185,96 @@ export function DeviceListPage() {
           />
         </>
       ) : null}
+
+      {/* Floating bulk action bar */}
+      {selectedKeys.size > 0 && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-6 z-40 flex justify-center px-4">
+          <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-2 shadow-2xl">
+            <span className="text-[12px] font-medium text-white">
+              {selectedKeys.size} selected
+            </span>
+            <span className="h-4 w-px bg-[var(--pc-border)]" />
+            <Button
+              variant="secondary"
+              onClick={() => runBulk("sync")}
+              disabled={bulkBusy !== null}
+              className="h-7 px-2.5 text-[11px]"
+            >
+              {bulkBusy === "sync" ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3 w-3" />
+              )}
+              Bulk sync
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => runBulk("reboot")}
+              disabled={bulkBusy !== null}
+              className="h-7 px-2.5 text-[11px]"
+            >
+              {bulkBusy === "reboot" ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <RotateCcw className="h-3 w-3" />
+              )}
+              Bulk reboot
+            </Button>
+            {bulkResult && (
+              <span className="text-[11px] text-[var(--pc-text-muted)]">{bulkResult}</span>
+            )}
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.06] hover:text-white"
+              aria-label="Clear selection"
+              title="Clear selection"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+function csvEscape(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  const str = String(value);
+  if (/[",\n\r]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+function devicesToCsv(items: DeviceListItem[]): string {
+  const headers = [
+    "deviceKey",
+    "deviceName",
+    "serialNumber",
+    "health",
+    "flags",
+    "property",
+    "assignedProfile",
+    "lastCheckinAt"
+  ];
+  const lines = [headers.join(",")];
+  for (const item of items) {
+    lines.push(
+      [
+        csvEscape(item.deviceKey),
+        csvEscape(item.deviceName),
+        csvEscape(item.serialNumber),
+        csvEscape(item.health),
+        csvEscape(item.flags.join("|")),
+        csvEscape(item.propertyLabel),
+        csvEscape(item.assignedProfileName),
+        csvEscape(item.lastCheckinAt)
+      ].join(",")
+    );
+  }
+  return lines.join("\r\n");
 }
 
 function DensityButton({
