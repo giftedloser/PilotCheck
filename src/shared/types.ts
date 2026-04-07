@@ -165,3 +165,83 @@ export interface SettingsResponse {
   graph: GraphReadiness;
   tagConfig: TagConfigRecord[];
 }
+
+// --- Auth ---
+
+export interface AuthStatus {
+  authenticated: boolean;
+  user: string | null;
+  name: string | null;
+  expiresAt: string | null;
+}
+
+// --- Remote Actions ---
+
+export type RemoteActionType =
+  | "sync"
+  | "reboot"
+  | "rename"
+  | "autopilot-reset"
+  | "retire"
+  | "wipe"
+  | "rotate-laps";
+
+export interface ActionResult {
+  success: boolean;
+  status: number;
+  message: string;
+}
+
+export interface ActionLogEntry {
+  id: number;
+  deviceSerial: string | null;
+  deviceName: string | null;
+  intuneId: string | null;
+  actionType: string;
+  triggeredBy: string;
+  triggeredAt: string;
+  graphResponseStatus: number | null;
+  notes: string | null;
+}
+
+// --- LAPS ---
+
+export interface LapsCredential {
+  accountName: string;
+  password: string;
+  backupDateTime: string | null;
+  passwordExpirationDateTime: string | null;
+}
+
+// --- Groups ---
+
+export interface GroupSummary {
+  groupId: string;
+  groupName: string;
+  membershipRule: string | null;
+  membershipType: string;
+  memberCount: number;
+  assignedProfiles: string[];
+}
+
+export interface GroupDetail {
+  groupId: string;
+  groupName: string;
+  membershipRule: string | null;
+  membershipType: string;
+  memberCount: number;
+  assignedProfiles: Array<{
+    profileId: string;
+    profileName: string;
+    deploymentMode: string | null;
+  }>;
+  members: Array<{
+    deviceKey: string;
+    deviceName: string | null;
+    serialNumber: string | null;
+    health: HealthLevel;
+    groupTag: string | null;
+    assignedProfileName: string | null;
+    flagCount: number;
+  }>;
+}

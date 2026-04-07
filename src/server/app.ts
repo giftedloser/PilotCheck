@@ -2,13 +2,19 @@ import path from "node:path";
 import fs from "node:fs";
 
 import express from "express";
+import session from "express-session";
 import pinoHttp from "pino-http";
 import type Database from "better-sqlite3";
 
+import { config } from "./config.js";
 import { logger } from "./logger.js";
+import { actionsRouter } from "./routes/actions.js";
+import { authRouter } from "./routes/auth.js";
 import { dashboardRouter } from "./routes/dashboard.js";
 import { devicesRouter } from "./routes/devices.js";
+import { groupsRouter } from "./routes/groups.js";
 import { healthRouter } from "./routes/health.js";
+import { lapsRouter } from "./routes/laps.js";
 import { profilesRouter } from "./routes/profiles.js";
 import { settingsRouter } from "./routes/settings.js";
 import { syncRouter } from "./routes/sync.js";
@@ -19,12 +25,31 @@ export function createApp(db: Database.Database) {
   app.use(express.json());
   app.use(pinoHttp({ logger }));
 
+  // Session middleware for delegated auth
+  app.use(
+    session({
+      secret: config.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: false, // localhost — set true in production
+        maxAge: 3600 * 1000 // 1 hour
+      }
+    })
+  );
+
+  // Routes
   app.use("/api/health", healthRouter(db));
+  app.use("/api/auth", authRouter());
   app.use("/api/dashboard", dashboardRouter(db));
   app.use("/api/devices", devicesRouter(db));
   app.use("/api/profiles", profilesRouter(db));
+  app.use("/api/groups", groupsRouter(db));
   app.use("/api/sync", syncRouter(db));
   app.use("/api/settings", settingsRouter(db));
+  app.use("/api/actions", actionsRouter(db));
+  app.use("/api/laps", lapsRouter(db));
 
   const clientDist = path.resolve(process.cwd(), "dist/client");
   if (fs.existsSync(clientDist)) {

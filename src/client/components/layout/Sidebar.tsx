@@ -5,10 +5,12 @@ import {
   LayoutDashboard,
   Settings2,
   ShieldCheck,
-  TabletSmartphone
+  TabletSmartphone,
+  UsersRound
 } from "lucide-react";
 
 import { cn } from "../../lib/utils.js";
+import { AuthIndicator } from "./AuthIndicator.js";
 
 const navItems = [
   {
@@ -25,6 +27,11 @@ const navItems = [
     to: "/profiles",
     label: "Profiles",
     icon: ShieldCheck
+  },
+  {
+    to: "/groups",
+    label: "Groups",
+    icon: UsersRound
   },
   {
     to: "/sync",
@@ -79,14 +86,11 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-[var(--pc-border)] px-5 py-4">
-        <div className="flex items-center justify-between text-[11px]">
+      <div className="space-y-3 border-t border-[var(--pc-border)] px-3 py-4">
+        <AuthIndicator />
+        <div className="flex items-center justify-between px-2 text-[10.5px]">
           <span className="text-[var(--pc-text-muted)]">Engine</span>
           <span className="font-mono text-[var(--pc-text-secondary)]">v0.1.0</span>
-        </div>
-        <div className="mt-1.5 flex items-center justify-between text-[11px]">
-          <span className="text-[var(--pc-text-muted)]">Cache</span>
-          <span className="font-mono text-[var(--pc-text-secondary)]">SQLite</span>
         </div>
       </div>
     </aside>

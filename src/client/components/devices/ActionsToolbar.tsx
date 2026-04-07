@@ -1,0 +1,239 @@
+import { useState } from "react";
+import {
+  AlertCircle,
+  Eraser,
+  LogOut,
+  Power,
+  RefreshCw,
+  RotateCcw,
+  Shield,
+  Terminal,
+  Type
+} from "lucide-react";
+
+import type { DeviceDetailResponse, RemoteActionType } from "../../lib/types.js";
+import { useRemoteAction } from "../../hooks/useActions.js";
+import { useAuthStatus, useLogin } from "../../hooks/useAuth.js";
+import { Button } from "../ui/button.js";
+import { Card } from "../ui/card.js";
+import { Input } from "../ui/input.js";
+import { ConfirmDialog } from "../shared/ConfirmDialog.js";
+
+interface ActionSpec {
+  type: RemoteActionType;
+  label: string;
+  icon: typeof RefreshCw;
+  description: string;
+  destructive?: boolean;
+  requireTyped?: boolean;
+  needsInput?: "newName";
+}
+
+const ACTIONS: ActionSpec[] = [
+  {
+    type: "sync",
+    label: "Sync Now",
+    icon: RefreshCw,
+    description: "Force an Intune check-in for this device. Safe, non-destructive."
+  },
+  {
+    type: "reboot",
+    label: "Reboot",
+    icon: Power,
+    description: "Send a reboot command to the device. The user will be disconnected."
+  },
+  {
+    type: "rename",
+    label: "Rename",
+    icon: Type,
+    description: "Rename the device in Intune. Requires an admin account with write permissions.",
+    needsInput: "newName"
+  },
+  {
+    type: "rotate-laps",
+    label: "Rotate LAPS",
+    icon: RotateCcw,
+    description: "Trigger a LAPS password rotation. The new password will be available after next check-in."
+  },
+  {
+    type: "autopilot-reset",
+    label: "Autopilot Reset",
+    icon: Shield,
+    description:
+      "Reset the device back to OOBE while keeping it enrolled. User data will be wiped.",
+    destructive: true,
+    requireTyped: true
+  },
+  {
+    type: "retire",
+    label: "Retire",
+    icon: LogOut,
+    description:
+      "Remove the device from Intune management and remove company data. Device remains usable.",
+    destructive: true,
+    requireTyped: true
+  },
+  {
+    type: "wipe",
+    label: "Factory Wipe",
+    icon: Eraser,
+    description:
+      "Perform a full factory reset. ALL data will be erased and the device will be unenrolled.",
+    destructive: true,
+    requireTyped: true
+  }
+];
+
+export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
+  const auth = useAuthStatus();
+  const login = useLogin();
+  const action = useRemoteAction();
+
+  const [pending, setPending] = useState<ActionSpec | null>(null);
+  const [typedConfirm, setTypedConfirm] = useState("");
+  const [newName, setNewName] = useState("");
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
+    null
+  );
+
+  const isAuthed = auth.data?.authenticated === true;
+  const deviceName = device.summary.deviceName ?? device.summary.serialNumber ?? "this device";
+
+  const handleRequest = (spec: ActionSpec) => {
+    setFeedback(null);
+    setTypedConfirm("");
+    setNewName(device.summary.deviceName ?? "");
+    setPending(spec);
+  };
+
+  const handleConfirm = async () => {
+    if (!pending) return;
+    try {
+      const body = pending.needsInput === "newName" ? { deviceName: newName } : undefined;
+      const result = await action.mutateAsync({
+        deviceKey: device.summary.deviceKey,
+        action: pending.type,
+        body
+      });
+      setFeedback({
+        type: result.success ? "success" : "error",
+        message: result.message ?? (result.success ? "Action dispatched." : "Action failed.")
+      });
+      setPending(null);
+    } catch (error) {
+      setFeedback({
+        type: "error",
+        message: error instanceof Error ? error.message : "Action failed."
+      });
+      setPending(null);
+    }
+  };
+
+  if (!isAuthed) {
+    return (
+      <Card className="p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <Terminal className="h-4 w-4 text-[var(--pc-accent)]" />
+          <span className="text-[13px] font-semibold text-white">Remote Actions</span>
+        </div>
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-3">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
+            <div>
+              <div className="text-[12.5px] font-medium text-white">Admin sign-in required</div>
+              <div className="mt-0.5 text-[11.5px] text-[var(--pc-text-muted)]">
+                Remote actions and LAPS retrieval require a delegated Microsoft account with the
+                correct Intune permissions.
+              </div>
+            </div>
+          </div>
+          <Button
+            onClick={() => login.mutate()}
+            disabled={login.isPending}
+            className="shrink-0"
+          >
+            {login.isPending ? "Opening..." : "Sign in"}
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <Card className="p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Terminal className="h-4 w-4 text-[var(--pc-accent)]" />
+            <span className="text-[13px] font-semibold text-white">Remote Actions</span>
+          </div>
+          <div className="text-[11px] text-[var(--pc-text-muted)]">
+            Signed in as <span className="text-[var(--pc-text-secondary)]">{auth.data?.user}</span>
+          </div>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {ACTIONS.map((spec) => {
+            const Icon = spec.icon;
+            return (
+              <button
+                key={spec.type}
+                type="button"
+                onClick={() => handleRequest(spec)}
+                className={`group flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left text-[12.5px] font-medium transition-colors ${
+                  spec.destructive
+                    ? "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text)] hover:border-[var(--pc-critical)]/40 hover:bg-[var(--pc-critical-muted)] hover:text-[var(--pc-critical)]"
+                    : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text)] hover:border-[var(--pc-accent)]/40 hover:bg-[var(--pc-accent-muted)] hover:text-[var(--pc-accent-hover)]"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5 shrink-0" />
+                <span>{spec.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        {feedback ? (
+          <div
+            className={`mt-4 rounded-lg border px-3 py-2 text-[12px] ${
+              feedback.type === "success"
+                ? "border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy)]/10 text-[var(--pc-healthy)]"
+                : "border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
+            }`}
+          >
+            {feedback.message}
+          </div>
+        ) : null}
+      </Card>
+
+      <ConfirmDialog
+        open={pending !== null}
+        title={pending ? `${pending.label} — ${deviceName}` : ""}
+        description={pending?.description ?? ""}
+        destructive={pending?.destructive}
+        requireTyped={pending?.requireTyped ? device.summary.serialNumber ?? "CONFIRM" : undefined}
+        typedValue={typedConfirm}
+        onTypedChange={setTypedConfirm}
+        confirmLabel={pending?.label ?? "Confirm"}
+        onConfirm={handleConfirm}
+        onCancel={() => setPending(null)}
+        isLoading={action.isPending}
+      />
+
+      {pending?.needsInput === "newName" ? (
+        <div className="fixed inset-x-0 bottom-6 z-[60] mx-auto w-full max-w-md px-4">
+          <div className="rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-3 shadow-xl">
+            <label className="block text-[11px] font-medium uppercase tracking-wide text-[var(--pc-text-muted)]">
+              New device name
+            </label>
+            <Input
+              value={newName}
+              onChange={(event) => setNewName(event.target.value)}
+              placeholder="e.g. CG-LOBBY-001"
+              className="mt-1.5 w-full"
+              autoFocus
+            />
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}

@@ -1,0 +1,129 @@
+import { requestWithDelegatedToken } from "../auth/delegated-auth.js";
+
+export type RemoteActionType =
+  | "sync_device"
+  | "reboot"
+  | "rename"
+  | "autopilot_reset"
+  | "retire"
+  | "wipe"
+  | "rotate_laps";
+
+interface ActionResult {
+  success: boolean;
+  status: number;
+  message: string;
+}
+
+export async function syncDevice(
+  token: string,
+  intuneId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/managedDevices/${intuneId}/syncDevice`,
+    { method: "POST" }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? "Sync initiated. Device will check in within ~5 minutes." : `Sync failed with status ${status}.`
+  };
+}
+
+export async function rebootDevice(
+  token: string,
+  intuneId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/managedDevices/${intuneId}/rebootNow`,
+    { method: "POST" }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? "Reboot command sent. May take 5-30 minutes." : `Reboot failed with status ${status}.`
+  };
+}
+
+export async function renameDevice(
+  token: string,
+  intuneId: string,
+  newName: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/managedDevices/${intuneId}/setDeviceName`,
+    { method: "POST", body: { deviceName: newName } }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? `Rename to "${newName}" queued. Takes effect after next sync.` : `Rename failed with status ${status}.`
+  };
+}
+
+export async function autopilotReset(
+  token: string,
+  intuneId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/managedDevices/${intuneId}/wipe`,
+    { method: "POST", body: { keepEnrollmentData: true, keepUserData: false } }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? "Autopilot reset initiated. Device will re-provision." : `Autopilot reset failed with status ${status}.`
+  };
+}
+
+export async function retireDevice(
+  token: string,
+  intuneId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/managedDevices/${intuneId}/retire`,
+    { method: "POST" }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? "Retire command sent. Corporate data will be removed." : `Retire failed with status ${status}.`
+  };
+}
+
+export async function wipeDevice(
+  token: string,
+  intuneId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/managedDevices/${intuneId}/wipe`,
+    { method: "POST", body: { keepEnrollmentData: false, keepUserData: false } }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? "Full wipe initiated. Device will factory reset." : `Wipe failed with status ${status}.`
+  };
+}
+
+export async function rotateLapsPassword(
+  token: string,
+  intuneId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/managedDevices/${intuneId}/rotateLocalAdminPassword`,
+    { method: "POST" }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? "LAPS rotation initiated. New password after next check-in." : `LAPS rotation failed with status ${status}.`
+  };
+}

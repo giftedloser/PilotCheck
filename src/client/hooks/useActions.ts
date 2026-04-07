@@ -1,0 +1,25 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import type { ActionResult, RemoteActionType } from "../lib/types.js";
+import { apiRequest } from "../lib/api.js";
+
+interface ActionPayload {
+  deviceKey: string;
+  action: RemoteActionType;
+  body?: Record<string, unknown>;
+}
+
+export function useRemoteAction() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ deviceKey, action, body }: ActionPayload) =>
+      apiRequest<ActionResult>(`/api/actions/${deviceKey}/${action}`, {
+        method: "POST",
+        body: body ? JSON.stringify(body) : undefined
+      }),
+    onSuccess: (_result, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["device", variables.deviceKey] });
+      queryClient.invalidateQueries({ queryKey: ["actions", "logs"] });
+    }
+  });
+}

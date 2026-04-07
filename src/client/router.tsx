@@ -5,6 +5,7 @@ import { AppShell } from "./components/layout/AppShell.js";
 import { DashboardPage } from "./routes/Dashboard.js";
 import { DeviceDetailPage } from "./routes/DeviceDetail.js";
 import { DeviceListPage } from "./routes/DeviceList.js";
+import { GroupInspectorPage } from "./routes/GroupInspector.js";
 import { ProfileAuditPage } from "./routes/ProfileAudit.js";
 import { SettingsPage } from "./routes/Settings.js";
 import { SyncStatusPage } from "./routes/SyncStatus.js";
@@ -56,6 +57,12 @@ const profilesRoute = createRoute({
   component: ProfileAuditPage
 });
 
+const groupsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/groups",
+  component: GroupInspectorPage
+});
+
 const syncRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/sync",
@@ -73,6 +80,7 @@ const routeTree = rootRoute.addChildren([
   devicesRoute,
   deviceDetailRoute,
   profilesRoute,
+  groupsRoute,
   syncRoute,
   settingsRoute
 ]);

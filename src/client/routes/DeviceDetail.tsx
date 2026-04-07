@@ -1,10 +1,12 @@
 import { Link, useParams } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 
+import { ActionsToolbar } from "../components/devices/ActionsToolbar.js";
 import { AssignmentPanel } from "../components/devices/AssignmentPanel.js";
 import { AssignmentPathPanel } from "../components/devices/AssignmentPathPanel.js";
 import { DiagnosticPanel } from "../components/devices/DiagnosticPanel.js";
 import { IdentityPanel } from "../components/devices/IdentityPanel.js";
+import { LapsWidget } from "../components/devices/LapsWidget.js";
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { useDevice } from "../hooks/useDevices.js";
 
@@ -39,6 +41,8 @@ export function DeviceDetailPage() {
       />
 
       <IdentityPanel device={device.data} />
+      <ActionsToolbar device={device.data} />
+      <LapsWidget device={device.data} />
       <AssignmentPathPanel path={device.data.assignmentPath} />
       <AssignmentPanel device={device.data} />
       <DiagnosticPanel device={device.data} />
