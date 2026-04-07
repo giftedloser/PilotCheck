@@ -1,5 +1,13 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  ChevronRight,
+  Fingerprint,
+  GitBranch,
+  Radio,
+  Target
+} from "lucide-react";
 
 import { ActionHistory } from "../components/devices/ActionHistory.js";
 import { ActionsToolbar } from "../components/devices/ActionsToolbar.js";
@@ -13,6 +21,126 @@ import { RuleViolationsPanel } from "../components/devices/RuleViolationsPanel.j
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { StatusBadge } from "../components/shared/StatusBadge.js";
 import { useDevice } from "../hooks/useDevices.js";
+import type { FlagCode, FlagExplanation, HealthLevel } from "../lib/types.js";
+import { cn } from "../lib/utils.js";
+
+type BreakpointKey = "identity" | "targeting" | "enrollment" | "drift";
+
+const BREAKPOINT_BUCKETS: Record<BreakpointKey, FlagCode[]> = {
+  identity: ["identity_conflict", "missing_ztdid"],
+  targeting: [
+    "not_in_target_group",
+    "tag_mismatch",
+    "no_profile_assigned",
+    "deployment_mode_mismatch"
+  ],
+  enrollment: [
+    "no_autopilot_record",
+    "profile_assignment_failed",
+    "profile_assigned_not_enrolled",
+    "orphaned_autopilot",
+    "provisioning_stalled"
+  ],
+  drift: ["hybrid_join_risk", "user_mismatch", "compliance_drift"]
+};
+
+const BREAKPOINT_META: Record<
+  BreakpointKey,
+  { label: string; description: string; icon: typeof Fingerprint }
+> = {
+  identity: {
+    label: "Identity",
+    description: "Who is this device across systems",
+    icon: Fingerprint
+  },
+  targeting: {
+    label: "Targeting",
+    description: "Group membership & profile assignment",
+    icon: Target
+  },
+  enrollment: {
+    label: "Enrollment",
+    description: "Autopilot record & Intune check-in",
+    icon: Radio
+  },
+  drift: {
+    label: "Drift",
+    description: "Compliance, hybrid join, primary user",
+    icon: GitBranch
+  }
+};
+
+function bucketDiagnostics(diagnostics: FlagExplanation[]) {
+  const buckets: Record<
+    BreakpointKey,
+    { issues: FlagExplanation[]; severity: Exclude<HealthLevel, "healthy" | "unknown"> | null }
+  > = {
+    identity: { issues: [], severity: null },
+    targeting: { issues: [], severity: null },
+    enrollment: { issues: [], severity: null },
+    drift: { issues: [], severity: null }
+  };
+  const severityRank: Record<string, number> = { info: 1, warning: 2, critical: 3 };
+  for (const diag of diagnostics) {
+    for (const key of Object.keys(BREAKPOINT_BUCKETS) as BreakpointKey[]) {
+      if (BREAKPOINT_BUCKETS[key].includes(diag.code)) {
+        buckets[key].issues.push(diag);
+        const current = buckets[key].severity;
+        if (!current || severityRank[diag.severity] > severityRank[current]) {
+          buckets[key].severity = diag.severity;
+        }
+        break;
+      }
+    }
+  }
+  return buckets;
+}
+
+function BreakpointChip({
+  bucketKey,
+  count,
+  severity,
+  issues
+}: {
+  bucketKey: BreakpointKey;
+  count: number;
+  severity: Exclude<HealthLevel, "healthy" | "unknown"> | null;
+  issues: FlagExplanation[];
+}) {
+  const meta = BREAKPOINT_META[bucketKey];
+  const Icon = count === 0 ? CheckCircle2 : meta.icon;
+  const tone =
+    count === 0
+      ? "border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
+      : severity === "critical"
+        ? "border-[var(--pc-critical)]/40 bg-[var(--pc-critical-muted)] text-rose-100"
+        : severity === "warning"
+          ? "border-[var(--pc-warning)]/40 bg-[var(--pc-warning-muted)] text-amber-100"
+          : "border-[var(--pc-info)]/40 bg-[var(--pc-info-muted)] text-sky-100";
+  const title =
+    count === 0
+      ? `${meta.label}: clear — ${meta.description}`
+      : `${meta.label} (${count}): ${issues.map((i) => i.title).join(" • ")}`;
+  return (
+    <div
+      title={title}
+      className={cn(
+        "flex min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[11.5px]",
+        tone
+      )}
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0" />
+      <div className="min-w-0">
+        <div className="text-[10px] font-semibold uppercase tracking-wider opacity-80">
+          {meta.label}
+        </div>
+        <div className="text-[12px] font-semibold tabular-nums leading-tight">
+          {count === 0 ? "Clear" : `${count} ${count === 1 ? "issue" : "issues"}`}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const DEVICES_DEFAULT_SEARCH = {
   search: undefined,
@@ -65,6 +193,7 @@ export function DeviceDetailPage() {
 
   const data = device.data;
   const displayName = data.summary.deviceName ?? data.summary.serialNumber ?? deviceKey;
+  const breakpoints = bucketDiagnostics(data.diagnostics);
 
   return (
     <div className="space-y-6">
@@ -125,6 +254,19 @@ export function DeviceDetailPage() {
               {data.summary.diagnosis}
             </p>
           </div>
+        </div>
+
+        {/* Breakpoint chips — at-a-glance which subsystem is failing */}
+        <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {(Object.keys(BREAKPOINT_BUCKETS) as BreakpointKey[]).map((key) => (
+            <BreakpointChip
+              key={key}
+              bucketKey={key}
+              count={breakpoints[key].issues.length}
+              severity={breakpoints[key].severity}
+              issues={breakpoints[key].issues}
+            />
+          ))}
         </div>
       </header>
 

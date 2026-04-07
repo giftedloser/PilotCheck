@@ -1,5 +1,17 @@
-import { useState } from "react";
-import { Boxes, CheckCircle2, KeyRound, Plus, Tag, Trash2, XCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import {
+  Boxes,
+  CheckCircle2,
+  Download,
+  KeyRound,
+  Plus,
+  Tag,
+  Trash2,
+  Upload,
+  XCircle
+} from "lucide-react";
+
+import { useToast } from "../components/shared/toast.js";
 
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { RulesSection } from "../components/settings/RulesSection.js";
@@ -10,6 +22,7 @@ import { Card } from "../components/ui/card.js";
 import { Input } from "../components/ui/input.js";
 import { useAuthStatus, useLogin, useLogout } from "../hooks/useAuth.js";
 import { useSettings, useTagConfigMutations } from "../hooks/useSettings.js";
+import type { TagConfigRecord } from "../lib/types.js";
 
 const REQUIRED_ENV = [
   { key: "GRAPH_TENANT_ID", purpose: "Entra tenant" },
@@ -29,6 +42,9 @@ export function SettingsPage() {
   const login = useLogin();
   const logout = useLogout();
   const mutations = useTagConfigMutations();
+  const toast = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
 
   const [form, setForm] = useState({
     groupTag: "",
@@ -51,6 +67,77 @@ export function SettingsPage() {
   const graphConfigured = settings.data.graph.configured;
   const missing = settings.data.graph.missing;
   const isAuthed = auth.data?.authenticated === true;
+
+  const exportTagConfig = () => {
+    const payload = JSON.stringify(settings.data?.tagConfig ?? [], null, 2);
+    const blob = new Blob([payload], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `pilotcheck-tag-config-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    toast.push({
+      variant: "success",
+      title: "Exported tag mappings",
+      description: `${settings.data?.tagConfig.length ?? 0} entries written to JSON.`
+    });
+  };
+
+  const importTagConfig = async (file: File) => {
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const parsed: unknown = JSON.parse(text);
+      if (!Array.isArray(parsed)) {
+        throw new Error("Expected a JSON array of tag mappings.");
+      }
+      const records = parsed.map((entry, index): TagConfigRecord => {
+        if (typeof entry !== "object" || entry === null) {
+          throw new Error(`Entry ${index} is not an object.`);
+        }
+        const obj = entry as Record<string, unknown>;
+        if (typeof obj.groupTag !== "string" || typeof obj.propertyLabel !== "string") {
+          throw new Error(`Entry ${index} missing groupTag or propertyLabel.`);
+        }
+        return {
+          groupTag: obj.groupTag,
+          propertyLabel: obj.propertyLabel,
+          expectedProfileNames: Array.isArray(obj.expectedProfileNames)
+            ? (obj.expectedProfileNames as unknown[]).filter(
+                (item): item is string => typeof item === "string"
+              )
+            : [],
+          expectedGroupNames: Array.isArray(obj.expectedGroupNames)
+            ? (obj.expectedGroupNames as unknown[]).filter(
+                (item): item is string => typeof item === "string"
+              )
+            : []
+        };
+      });
+      let succeeded = 0;
+      for (const record of records) {
+        await mutations.create.mutateAsync(record);
+        succeeded += 1;
+      }
+      toast.push({
+        variant: "success",
+        title: "Tag mappings imported",
+        description: `${succeeded} of ${records.length} entries upserted.`
+      });
+    } catch (error) {
+      toast.push({
+        variant: "error",
+        title: "Import failed",
+        description: error instanceof Error ? error.message : "Could not parse the file."
+      });
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -245,13 +332,45 @@ export function SettingsPage() {
 
       {/* Section 4: Tag mapping */}
       <section className="space-y-3">
-        <div className="flex items-baseline gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--pc-text-secondary)]">
             4. Group Tag → Profile Mapping
           </h2>
           <span className="text-[11px] text-[var(--pc-text-muted)]">
             Tells the engine what each Autopilot group tag should resolve to
           </span>
+          <div className="ml-auto flex items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) void importTagConfig(file);
+              }}
+            />
+            <Button
+              variant="secondary"
+              className="h-8 px-2.5 text-[11.5px]"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={importing}
+              title="Import tag mappings from JSON (upserts by group tag)"
+            >
+              <Upload className="h-3.5 w-3.5" />
+              {importing ? "Importing…" : "Import JSON"}
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-8 px-2.5 text-[11.5px]"
+              onClick={exportTagConfig}
+              disabled={(settings.data?.tagConfig.length ?? 0) === 0}
+              title="Download all tag mappings as JSON"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export JSON
+            </Button>
+          </div>
         </div>
 
         <Card className="p-5">
