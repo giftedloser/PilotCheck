@@ -10,6 +10,7 @@ import {
 
 import { FailurePatterns } from "../components/dashboard/FailurePatterns.js";
 import { HealthSummary } from "../components/dashboard/HealthSummary.js";
+import { HealthTrendChart } from "../components/dashboard/HealthTrendChart.js";
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { SyncIndicator } from "../components/shared/SyncIndicator.js";
@@ -174,8 +175,11 @@ export function DashboardPage() {
         </Card>
       </div>
 
-      {/* Health distribution */}
-      <HealthSummary counts={dashboard.data.counts} />
+      {/* Health distribution + trend */}
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <HealthSummary counts={dashboard.data.counts} />
+        <HealthTrendChart data={dashboard.data.healthTrend} />
+      </div>
 
       {/* Main content: Failures + Breakpoints */}
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">

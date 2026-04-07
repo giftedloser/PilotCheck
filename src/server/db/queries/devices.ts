@@ -8,7 +8,8 @@ import type {
   DeviceHistoryResponse,
   DeviceListItem,
   FlagCode,
-  HealthLevel
+  HealthLevel,
+  HealthTrendPoint
 } from "../../../shared/types.js";
 import type {
   AutopilotRow,
@@ -447,6 +448,61 @@ export function countNewlyUnhealthy(db: Database.Database, sinceIso: string): nu
   return count;
 }
 
+/**
+ * Returns one health snapshot per UTC day for the last `days` days. For each
+ * day we look up the latest history row per device whose `computed_at` is
+ * on-or-before that day's end and bucket by `overall_health`. Devices that
+ * had no history yet on that day are simply not counted (they didn't exist
+ * to PilotCheck yet).
+ */
+export function getHealthTrend(db: Database.Database, days: number): HealthTrendPoint[] {
+  const now = new Date();
+  const points: HealthTrendPoint[] = [];
+
+  // We pre-compile the per-device "latest state at-or-before this cutoff"
+  // statement once and reuse it across day buckets.
+  const latestPerDeviceStmt = db.prepare(
+    `SELECT device_key, overall_health
+       FROM device_state_history h
+      WHERE computed_at = (
+        SELECT MAX(computed_at) FROM device_state_history
+        WHERE device_key = h.device_key AND computed_at <= ?
+      )`
+  );
+
+  for (let i = days - 1; i >= 0; i--) {
+    const dayDate = new Date(now);
+    dayDate.setUTCDate(dayDate.getUTCDate() - i);
+    const yyyy = dayDate.getUTCFullYear();
+    const mm = String(dayDate.getUTCMonth() + 1).padStart(2, "0");
+    const dd = String(dayDate.getUTCDate()).padStart(2, "0");
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+    const cutoff = `${dateStr}T23:59:59.999Z`;
+
+    const rows = latestPerDeviceStmt.all(cutoff) as Array<{
+      device_key: string;
+      overall_health: HealthLevel;
+    }>;
+
+    const point: HealthTrendPoint = {
+      date: dateStr,
+      healthy: 0,
+      info: 0,
+      warning: 0,
+      critical: 0
+    };
+    for (const row of rows) {
+      if (row.overall_health === "healthy") point.healthy++;
+      else if (row.overall_health === "info") point.info++;
+      else if (row.overall_health === "warning") point.warning++;
+      else if (row.overall_health === "critical") point.critical++;
+    }
+    points.push(point);
+  }
+
+  return points;
+}
+
 export function getDashboard(db: Database.Database): DashboardResponse {
   const rows = db.prepare("SELECT overall_health, active_flags FROM device_state").all() as Array<{
     overall_health: DashboardResponse["counts"][keyof DashboardResponse["counts"]];
@@ -496,12 +552,14 @@ export function getDashboard(db: Database.Database): DashboardResponse {
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const newlyUnhealthy24h = countNewlyUnhealthy(db, since);
+  const healthTrend = getHealthTrend(db, 14);
 
   return {
     lastSync: lastSync?.completed_at ?? null,
     counts,
     failurePatterns,
     driftCount,
-    newlyUnhealthy24h
+    newlyUnhealthy24h,
+    healthTrend
   };
 }

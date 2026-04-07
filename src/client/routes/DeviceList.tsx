@@ -4,9 +4,11 @@ import { useState } from "react";
 
 import { DeviceFilters } from "../components/devices/DeviceFilters.js";
 import { DeviceTable, type DeviceTableDensity } from "../components/devices/DeviceTable.js";
+import { SavedViews } from "../components/devices/SavedViews.js";
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { Pagination } from "../components/shared/Pagination.js";
+import { useToast } from "../components/shared/toast.js";
 import { Button } from "../components/ui/button.js";
 import { useDevices } from "../hooks/useDevices.js";
 import { usePreference } from "../hooks/usePreference.js";
@@ -23,9 +25,9 @@ export function DeviceListPage() {
     "comfortable"
   );
 
+  const toast = useToast();
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState<null | "sync" | "reboot">(null);
-  const [bulkResult, setBulkResult] = useState<string | null>(null);
 
   const toggleSelected = (deviceKey: string) => {
     setSelectedKeys((prev) => {
@@ -51,7 +53,7 @@ export function DeviceListPage() {
   const runBulk = async (action: "sync" | "reboot") => {
     if (selectedKeys.size === 0) return;
     setBulkBusy(action);
-    setBulkResult(null);
+    const label = action === "sync" ? "Sync" : "Reboot";
     try {
       const result = await apiRequest<{
         action: string;
@@ -65,23 +67,34 @@ export function DeviceListPage() {
           deviceKeys: Array.from(selectedKeys)
         })
       });
-      setBulkResult(
-        `${action === "sync" ? "Sync" : "Reboot"}: ${result.successCount}/${result.total} succeeded${
-          result.failureCount > 0 ? `, ${result.failureCount} failed` : ""
-        }.`
-      );
       if (result.failureCount === 0) {
+        toast.push({
+          variant: "success",
+          title: `Bulk ${action} queued`,
+          description: `${result.successCount} of ${result.total} devices accepted.`
+        });
         clearSelection();
+      } else {
+        toast.push({
+          variant: "warning",
+          title: `Bulk ${action} partially completed`,
+          description: `${result.successCount} succeeded, ${result.failureCount} failed.`,
+          durationMs: 8000
+        });
       }
     } catch (error) {
-      setBulkResult(error instanceof Error ? error.message : "Bulk action failed.");
+      toast.push({
+        variant: "error",
+        title: `${label} failed`,
+        description: error instanceof Error ? error.message : "Bulk action failed."
+      });
     } finally {
       setBulkBusy(null);
     }
   };
 
   const exportCsv = () => {
-    if (!devices.data) return;
+    if (!devices.data || devices.data.items.length === 0) return;
     const csv = devicesToCsv(devices.data.items);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -92,6 +105,11 @@ export function DeviceListPage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    toast.push({
+      variant: "success",
+      title: "CSV exported",
+      description: `${devices.data.items.length} devices saved.`
+    });
   };
 
   return (
@@ -101,6 +119,7 @@ export function DeviceListPage() {
         title="Device Queue"
         description="Investigate join, enrollment, and assignment problems across the estate. Filter by health, flag, or property to narrow your triage list."
       />
+      <SavedViews />
       <DeviceFilters />
 
       <div className="flex items-center justify-between text-[11px] text-[var(--pc-text-muted)]">
@@ -220,9 +239,6 @@ export function DeviceListPage() {
               )}
               Bulk reboot
             </Button>
-            {bulkResult && (
-              <span className="text-[11px] text-[var(--pc-text-muted)]">{bulkResult}</span>
-            )}
             <button
               type="button"
               onClick={clearSelection}

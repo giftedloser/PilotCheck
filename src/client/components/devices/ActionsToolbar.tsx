@@ -18,6 +18,7 @@ import { Button } from "../ui/button.js";
 import { Card } from "../ui/card.js";
 import { Input } from "../ui/input.js";
 import { ConfirmDialog } from "../shared/ConfirmDialog.js";
+import { useToast } from "../shared/toast.js";
 
 interface ActionSpec {
   type: RemoteActionType;
@@ -88,19 +89,16 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
   const auth = useAuthStatus();
   const login = useLogin();
   const action = useRemoteAction();
+  const toast = useToast();
 
   const [pending, setPending] = useState<ActionSpec | null>(null);
   const [typedConfirm, setTypedConfirm] = useState("");
   const [newName, setNewName] = useState("");
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
-    null
-  );
 
   const isAuthed = auth.data?.authenticated === true;
   const deviceName = device.summary.deviceName ?? device.summary.serialNumber ?? "this device";
 
   const handleRequest = (spec: ActionSpec) => {
-    setFeedback(null);
     setTypedConfirm("");
     setNewName(device.summary.deviceName ?? "");
     setPending(spec);
@@ -108,22 +106,25 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
 
   const handleConfirm = async () => {
     if (!pending) return;
+    const spec = pending;
     try {
-      const body = pending.needsInput === "newName" ? { deviceName: newName } : undefined;
+      const body = spec.needsInput === "newName" ? { deviceName: newName } : undefined;
       const result = await action.mutateAsync({
         deviceKey: device.summary.deviceKey,
-        action: pending.type,
+        action: spec.type,
         body
       });
-      setFeedback({
-        type: result.success ? "success" : "error",
-        message: result.message ?? (result.success ? "Action dispatched." : "Action failed.")
+      toast.push({
+        variant: result.success ? "success" : "error",
+        title: `${spec.label} ${result.success ? "dispatched" : "failed"}`,
+        description: result.message ?? (result.success ? "Action sent to Intune." : "Action failed.")
       });
       setPending(null);
     } catch (error) {
-      setFeedback({
-        type: "error",
-        message: error instanceof Error ? error.message : "Action failed."
+      toast.push({
+        variant: "error",
+        title: `${spec.label} failed`,
+        description: error instanceof Error ? error.message : "Action failed."
       });
       setPending(null);
     }
@@ -191,17 +192,6 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
             );
           })}
         </div>
-        {feedback ? (
-          <div
-            className={`mt-4 rounded-lg border px-3 py-2 text-[12px] ${
-              feedback.type === "success"
-                ? "border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy)]/10 text-[var(--pc-healthy)]"
-                : "border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
-            }`}
-          >
-            {feedback.message}
-          </div>
-        ) : null}
       </Card>
 
       <ConfirmDialog

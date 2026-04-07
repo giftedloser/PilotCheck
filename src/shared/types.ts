@@ -107,6 +107,21 @@ export interface DashboardResponse {
   driftCount: number;
   /** Devices that transitioned into warning/critical in the last 24 hours. */
   newlyUnhealthy24h: number;
+  /**
+   * Daily snapshot of the health distribution over the last N days, oldest
+   * first. Each entry is computed from the most recent device_state_history
+   * row per device whose computed_at is on-or-before that day's end.
+   */
+  healthTrend: HealthTrendPoint[];
+}
+
+export interface HealthTrendPoint {
+  /** ISO date (YYYY-MM-DD). */
+  date: string;
+  healthy: number;
+  info: number;
+  warning: number;
+  critical: number;
 }
 
 export interface ProfileAuditSummary {
