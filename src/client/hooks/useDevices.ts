@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import type { DeviceDetailResponse } from "../lib/types.js";
+import type { DeviceDetailResponse, DeviceHistoryResponse } from "../lib/types.js";
 import { apiRequest } from "../lib/api.js";
 
 export function useDevices(search: Record<string, string | number | undefined>) {
@@ -27,5 +27,13 @@ export function useDevice(deviceKey: string) {
   return useQuery({
     queryKey: ["device", deviceKey],
     queryFn: () => apiRequest<DeviceDetailResponse>(`/api/devices/${deviceKey}`)
+  });
+}
+
+export function useDeviceHistory(deviceKey: string) {
+  return useQuery({
+    queryKey: ["device-history", deviceKey],
+    queryFn: () =>
+      apiRequest<DeviceHistoryResponse>(`/api/devices/${deviceKey}/history`)
   });
 }

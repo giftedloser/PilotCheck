@@ -4,8 +4,11 @@ import type {
   AssignmentPath,
   DashboardResponse,
   DeviceDetailResponse,
+  DeviceHistoryEntry,
+  DeviceHistoryResponse,
   DeviceListItem,
-  FlagCode
+  FlagCode,
+  HealthLevel
 } from "../../../shared/types.js";
 import type {
   AutopilotRow,
@@ -51,6 +54,7 @@ interface DeviceStateRow {
   identity_conflict: number;
   assignment_path: string;
   profile_assignment_status: string | null;
+  active_rule_ids: string | null;
 }
 
 export function loadStateEngineInput(db: Database.Database) {
@@ -95,7 +99,7 @@ export function replaceDeviceStates(
       deployment_mode_mismatch, hybrid_join_configured, hybrid_join_risk, user_assignment_match,
       compliance_state, provisioning_stalled, tag_mismatch, assignment_path, assignment_chain_complete,
       assignment_break_point, active_flags, flag_count, overall_health, diagnosis, match_confidence,
-      matched_on, identity_conflict, computed_at
+      matched_on, identity_conflict, active_rule_ids, computed_at
     ) VALUES (
       @device_key, @serial_number, @autopilot_id, @intune_id, @entra_id, @device_name, @property_label,
       @group_tag, @assigned_profile_name, @autopilot_assigned_user_upn, @intune_primary_user_upn,
@@ -104,7 +108,7 @@ export function replaceDeviceStates(
       @deployment_mode_mismatch, @hybrid_join_configured, @hybrid_join_risk, @user_assignment_match,
       @compliance_state, @provisioning_stalled, @tag_mismatch, @assignment_path, @assignment_chain_complete,
       @assignment_break_point, @active_flags, @flag_count, @overall_health, @diagnosis, @match_confidence,
-      @matched_on, @identity_conflict, @computed_at
+      @matched_on, @identity_conflict, @active_rule_ids, @computed_at
     )
   `);
 
@@ -114,17 +118,35 @@ export function replaceDeviceStates(
     ) VALUES (?, ?, ?, ?, ?)
   `);
 
+  // Only write a history row when the (health, flags) state hash actually
+  // changes. This keeps the table cheap to grow and means each row marks a
+  // real transition rather than every successful sync.
+  const latestByDevice = db.prepare(
+    `SELECT overall_health, active_flags FROM device_state_history
+     WHERE device_key = ?
+     ORDER BY computed_at DESC LIMIT 1`
+  );
+
   const transaction = db.transaction((payload: typeof rows) => {
     db.prepare("DELETE FROM device_state").run();
     for (const row of payload) {
       insert.run(row);
-      insertHistory.run(
-        row.device_key,
-        row.serial_number ?? null,
-        row.computed_at,
-        row.overall_health,
-        row.active_flags
-      );
+      const previous = latestByDevice.get(row.device_key) as
+        | { overall_health: string; active_flags: string }
+        | undefined;
+      const changed =
+        !previous ||
+        previous.overall_health !== row.overall_health ||
+        previous.active_flags !== row.active_flags;
+      if (changed) {
+        insertHistory.run(
+          row.device_key,
+          row.serial_number ?? null,
+          row.computed_at,
+          row.overall_health,
+          row.active_flags
+        );
+      }
     }
   });
 
@@ -232,7 +254,30 @@ export function listDeviceStates(
   };
 }
 
-export function getDeviceDetail(db: Database.Database, deviceKey: string): DeviceDetailResponse | null {
+export function getDeviceDetail(
+  db: Database.Database,
+  deviceKey: string
+): DeviceDetailResponse | null {
+  const ruleLookup = new Map(
+    (
+      db
+        .prepare("SELECT id, name, severity, description FROM rule_definitions")
+        .all() as Array<{
+        id: string;
+        name: string;
+        severity: string;
+        description: string;
+      }>
+    ).map((row) => [row.id, row])
+  );
+  return getDeviceDetailWithRules(db, deviceKey, ruleLookup);
+}
+
+function getDeviceDetailWithRules(
+  db: Database.Database,
+  deviceKey: string,
+  ruleLookup: Map<string, { id: string; name: string; severity: string; description: string }>
+): DeviceDetailResponse | null {
   const row = db
     .prepare("SELECT * FROM device_state WHERE device_key = ?")
     .get(deviceKey) as DeviceStateRow | undefined;
@@ -289,12 +334,117 @@ export function getDeviceDetail(db: Database.Database, deviceKey: string): Devic
       breakPoint: parsedAssignment.breakPoint
     },
     diagnostics: parsedAssignment.diagnostics ?? [],
+    ruleViolations: safeJsonParse<string[]>(row.active_rule_ids ?? "[]", [])
+      .map((ruleId) => {
+        const rule = ruleLookup.get(ruleId);
+        if (!rule) return null;
+        return {
+          ruleId: rule.id,
+          ruleName: rule.name,
+          severity: (rule.severity as "info" | "warning" | "critical") ?? "warning",
+          description: rule.description
+        };
+      })
+      .filter((v): v is NonNullable<typeof v> => v !== null),
     sourceRefs: {
       autopilotRawJson: autopilotRaw,
       intuneRawJson: intuneRaw,
       entraRawJson: entraRaw
     }
   };
+}
+
+export function getDeviceHistory(
+  db: Database.Database,
+  deviceKey: string,
+  limit = 50
+): DeviceHistoryResponse {
+  const rows = db
+    .prepare(
+      `SELECT computed_at, overall_health, active_flags
+       FROM device_state_history
+       WHERE device_key = ?
+       ORDER BY computed_at DESC
+       LIMIT ?`
+    )
+    .all(deviceKey, limit) as Array<{
+    computed_at: string;
+    overall_health: HealthLevel;
+    active_flags: string;
+  }>;
+
+  // Walk in chronological order so we can compute diffs against the prior
+  // state, then reverse for the response (newest first).
+  const ascending = [...rows].reverse();
+  const entries: DeviceHistoryEntry[] = [];
+  let prevFlags: FlagCode[] = [];
+  let prevHealth: HealthLevel | null = null;
+
+  for (const row of ascending) {
+    const flags = safeJsonParse<FlagCode[]>(row.active_flags, []);
+    const flagSet = new Set(flags);
+    const prevSet = new Set(prevFlags);
+    const added = flags.filter((f) => !prevSet.has(f));
+    const removed = prevFlags.filter((f) => !flagSet.has(f));
+    entries.push({
+      computedAt: row.computed_at,
+      health: row.overall_health,
+      flags,
+      addedFlags: added,
+      removedFlags: removed,
+      previousHealth: prevHealth
+    });
+    prevFlags = flags;
+    prevHealth = row.overall_health;
+  }
+
+  return {
+    deviceKey,
+    entries: entries.reverse()
+  };
+}
+
+/**
+ * Count of devices that became unhealthy (warning/critical) within the last
+ * 24 hours, based on the most recent two history transitions per device.
+ */
+export function countNewlyUnhealthy(db: Database.Database, sinceIso: string): number {
+  const rows = db
+    .prepare(
+      `SELECT device_key, overall_health, computed_at
+       FROM device_state_history
+       WHERE computed_at >= ?
+       ORDER BY device_key, computed_at ASC`
+    )
+    .all(sinceIso) as Array<{
+    device_key: string;
+    overall_health: HealthLevel;
+    computed_at: string;
+  }>;
+
+  // Look up the prior state (just before the window) for each device that
+  // had transitions in the window so we can tell "became unhealthy" from
+  // "was already unhealthy".
+  const priorStmt = db.prepare(
+    `SELECT overall_health FROM device_state_history
+     WHERE device_key = ? AND computed_at < ?
+     ORDER BY computed_at DESC LIMIT 1`
+  );
+
+  const seen = new Set<string>();
+  let count = 0;
+  for (const row of rows) {
+    if (seen.has(row.device_key)) continue;
+    seen.add(row.device_key);
+    if (row.overall_health !== "warning" && row.overall_health !== "critical") continue;
+    const prior = priorStmt.get(row.device_key, sinceIso) as
+      | { overall_health: HealthLevel }
+      | undefined;
+    if (!prior || (prior.overall_health !== "warning" && prior.overall_health !== "critical")) {
+      count += 1;
+    }
+  }
+  return count;
 }
 
 export function getDashboard(db: Database.Database): DashboardResponse {
@@ -344,10 +494,14 @@ export function getDashboard(db: Database.Database): DashboardResponse {
           : "info") as "critical" | "warning" | "info"
     }));
 
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const newlyUnhealthy24h = countNewlyUnhealthy(db, since);
+
   return {
     lastSync: lastSync?.completed_at ?? null,
     counts,
     failurePatterns,
-    driftCount
+    driftCount,
+    newlyUnhealthy24h
   };
 }

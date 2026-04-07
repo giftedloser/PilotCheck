@@ -2,7 +2,11 @@ import { Router } from "express";
 
 import type Database from "better-sqlite3";
 
-import { getDeviceDetail, listDeviceStates } from "../db/queries/devices.js";
+import {
+  getDeviceDetail,
+  getDeviceHistory,
+  listDeviceStates
+} from "../db/queries/devices.js";
 
 export function devicesRouter(db: Database.Database) {
   const router = Router();
@@ -29,6 +33,10 @@ export function devicesRouter(db: Database.Database) {
       return;
     }
     response.json(device);
+  });
+
+  router.get("/:deviceKey/history", (request, response) => {
+    response.json(getDeviceHistory(db, request.params.deviceKey));
   });
 
   return router;

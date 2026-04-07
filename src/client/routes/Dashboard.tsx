@@ -17,10 +17,12 @@ import { Button } from "../components/ui/button.js";
 import { Card } from "../components/ui/card.js";
 import { humanizeFlag } from "../lib/flags.js";
 import { useDashboard } from "../hooks/useDashboard.js";
+import { useSettings } from "../hooks/useSettings.js";
 import { useTriggerSync } from "../hooks/useSync.js";
 
 export function DashboardPage() {
   const dashboard = useDashboard();
+  const settings = useSettings();
   const sync = useTriggerSync();
 
   if (dashboard.isLoading) return <LoadingState label="Loading dashboard…" />;
@@ -89,8 +91,27 @@ export function DashboardPage() {
     }
   ];
 
+  const setupIncomplete =
+    settings.data?.tagConfig.length === 0 || dashboard.data.lastSync === null;
+
   return (
     <div className="space-y-6">
+      {setupIncomplete ? (
+        <Link
+          to="/setup"
+          className="flex items-center gap-3 rounded-lg border border-[var(--pc-accent)]/40 bg-[var(--pc-accent-muted)] px-4 py-3 text-[12.5px] text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/60"
+        >
+          <ShieldCheck className="h-4 w-4 text-[var(--pc-accent)]" />
+          <span className="flex-1">
+            <span className="font-medium text-white">Finish first-run setup</span>
+            <span className="ml-2 text-[var(--pc-text-muted)]">
+              Configure Graph credentials, run an initial sync, and add at least one tag mapping.
+            </span>
+          </span>
+          <ChevronRight className="h-3.5 w-3.5 text-[var(--pc-text-muted)]" />
+        </Link>
+      ) : null}
+
       <PageHeader
         eyebrow="Overview"
         title="Estate Health"
@@ -107,11 +128,20 @@ export function DashboardPage() {
       />
 
       {/* Top KPI row */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Card className="px-5 py-4">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Total Devices</div>
           <div className="mt-1 text-3xl font-semibold tabular-nums text-white">{totalDevices}</div>
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">In current cache</div>
+        </Card>
+        <Card className="px-5 py-4">
+          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">New Today</div>
+          <div className="mt-1 text-3xl font-semibold tabular-nums text-white">
+            {dashboard.data.newlyUnhealthy24h}
+          </div>
+          <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">
+            Devices that became unhealthy in 24h
+          </div>
         </Card>
         <Card className="px-5 py-4">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Impacted</div>

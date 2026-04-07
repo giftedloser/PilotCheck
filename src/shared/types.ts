@@ -88,6 +88,7 @@ export interface DeviceDetailResponse {
   };
   assignmentPath: AssignmentPath;
   diagnostics: FlagExplanation[];
+  ruleViolations: RuleViolation[];
   sourceRefs: {
     autopilotRawJson: string | null;
     intuneRawJson: string | null;
@@ -104,6 +105,8 @@ export interface DashboardResponse {
     severity: Exclude<HealthLevel, "healthy" | "unknown">;
   }>;
   driftCount: number;
+  /** Devices that transitioned into warning/critical in the last 24 hours. */
+  newlyUnhealthy24h: number;
 }
 
 export interface ProfileAuditSummary {
@@ -164,6 +167,76 @@ export interface GraphReadiness {
 export interface SettingsResponse {
   graph: GraphReadiness;
   tagConfig: TagConfigRecord[];
+}
+
+// --- Rule Engine v1 ---
+
+export type RuleSeverity = "info" | "warning" | "critical";
+export type RuleScope = "global" | "property" | "profile";
+
+/**
+ * Tiny predicate DSL. Leaf nodes are `{ field, op, value }`. Compound
+ * nodes wrap children with logical operators. Kept intentionally small —
+ * the escape hatch for complex logic should be a real plugin, not more DSL.
+ */
+export type RulePredicate =
+  | { type: "leaf"; field: string; op: RuleOp; value: string | number | boolean | null }
+  | { type: "and"; children: RulePredicate[] }
+  | { type: "or"; children: RulePredicate[] }
+  | { type: "not"; child: RulePredicate };
+
+export type RuleOp =
+  | "eq"
+  | "neq"
+  | "contains"
+  | "not_contains"
+  | "starts_with"
+  | "ends_with"
+  | "exists"
+  | "missing"
+  | "older_than_hours"
+  | "newer_than_hours"
+  | "in"
+  | "not_in";
+
+export interface RuleDefinition {
+  id: string;
+  name: string;
+  description: string;
+  severity: RuleSeverity;
+  scope: RuleScope;
+  /** When scope = property | profile, the value to match against. */
+  scopeValue: string | null;
+  enabled: boolean;
+  predicate: RulePredicate;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RuleViolation {
+  ruleId: string;
+  ruleName: string;
+  severity: RuleSeverity;
+  description: string;
+}
+
+// --- History / Drift Timeline ---
+
+export interface DeviceHistoryEntry {
+  computedAt: string;
+  health: HealthLevel;
+  flags: FlagCode[];
+  /** Flags that appeared in this entry but were absent in the previous one. */
+  addedFlags: FlagCode[];
+  /** Flags that were present in the previous entry but absent here. */
+  removedFlags: FlagCode[];
+  /** Health level of the previous entry, or null if this is the first one. */
+  previousHealth: HealthLevel | null;
+}
+
+export interface DeviceHistoryResponse {
+  deviceKey: DeviceKey;
+  entries: DeviceHistoryEntry[];
 }
 
 // --- Auth ---

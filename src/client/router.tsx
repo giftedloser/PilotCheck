@@ -8,6 +8,7 @@ import { DeviceListPage } from "./routes/DeviceList.js";
 import { GroupInspectorPage } from "./routes/GroupInspector.js";
 import { ProfileAuditPage } from "./routes/ProfileAudit.js";
 import { SettingsPage } from "./routes/Settings.js";
+import { SetupPage } from "./routes/Setup.js";
 import { SyncStatusPage } from "./routes/SyncStatus.js";
 
 const rootRoute = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -75,6 +76,12 @@ const settingsRoute = createRoute({
   component: SettingsPage
 });
 
+const setupRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/setup",
+  component: SetupPage
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   devicesRoute,
@@ -82,7 +89,8 @@ const routeTree = rootRoute.addChildren([
   profilesRoute,
   groupsRoute,
   syncRoute,
-  settingsRoute
+  settingsRoute,
+  setupRoute
 ]);
 
 export function createAppRouter(queryClient: QueryClient) {
@@ -90,7 +98,9 @@ export function createAppRouter(queryClient: QueryClient) {
     routeTree,
     context: {
       queryClient
-    }
+    },
+    scrollRestoration: true,
+    defaultPreload: "intent"
   });
 }
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Boxes, CheckCircle2, KeyRound, Plus, Tag, Trash2, XCircle } from "lucide-react";
 
 import { PageHeader } from "../components/layout/PageHeader.js";
+import { RulesSection } from "../components/settings/RulesSection.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { SourceBadge } from "../components/shared/SourceBadge.js";
 import { Button } from "../components/ui/button.js";
@@ -409,6 +410,9 @@ export function SettingsPage() {
           </div>
         )}
       </section>
+
+      {/* Section 5: Custom rules */}
+      <RulesSection />
     </div>
   );
 }

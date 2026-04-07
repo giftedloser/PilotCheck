@@ -3,10 +3,12 @@ import type Database from "better-sqlite3";
 import type { AssignmentPath, FlagCode, TagConfigRecord } from "../../shared/types.js";
 import { config } from "../config.js";
 import { loadStateEngineInput, replaceDeviceStates } from "../db/queries/devices.js";
+import { listRules } from "../db/queries/rules.js";
 import type { GroupRow, ProfileRow } from "../db/types.js";
 import { computeOverallHealth } from "./compute-health.js";
 import { correlateDevices } from "./correlate.js";
 import { buildFlagExplanations, generateDiagnosis } from "./diagnostics.js";
+import { evaluateRules, type RuleContext } from "./evaluate-rules.js";
 import { asArray, normalizeString } from "./normalize.js";
 
 const diagnosisOrder: FlagCode[] = [
@@ -41,6 +43,7 @@ function firstOf<T>(values: T[]) {
 
 export function computeAllDeviceStates(db: Database.Database) {
   const input = loadStateEngineInput(db);
+  const rules = listRules(db);
   const correlations = correlateDevices(input);
   const previousByKey = new Map(input.previousStates.map((row) => [row.device_key, row]));
   const previousBySerial = new Map(
@@ -279,7 +282,7 @@ export function computeAllDeviceStates(db: Database.Database) {
     } satisfies Record<FlagCode, boolean>;
 
     const activeFlags = diagnosisOrder.filter((flag) => flags[flag]);
-    const overallHealth = computeOverallHealth(activeFlags);
+    const baseHealth = computeOverallHealth(activeFlags);
     const computedAt = new Date().toISOString();
     const context = {
       deviceName: bundle.intuneRecord?.device_name ?? bundle.entraRecord?.display_name ?? null,
@@ -297,6 +300,45 @@ export function computeAllDeviceStates(db: Database.Database) {
     };
     const diagnostics = buildFlagExplanations(activeFlags, context);
     const diagnosis = generateDiagnosis(activeFlags, context);
+
+    // Custom rule evaluation runs after the built-in flag pass so the
+    // rule context can include derived state like assignment chain
+    // completeness and the resolved property label.
+    const ruleContext: RuleContext = {
+      deviceName: context.deviceName,
+      serialNumber: context.serialNumber,
+      propertyLabel: tagConfig?.propertyLabel ?? groupTag ?? null,
+      groupTag,
+      assignedProfileName: context.assignedProfileName,
+      profileAssignmentStatus: context.profileAssignmentStatus,
+      autopilotAssignedUserUpn: context.autopilotAssignedUserUpn,
+      intunePrimaryUserUpn: context.intunePrimaryUserUpn,
+      lastCheckinAt: context.lastCheckinAt,
+      complianceState: context.complianceState,
+      trustType: context.trustType,
+      deploymentMode: effectiveMode,
+      hasAutopilotRecord: Boolean(hasAutopilotRecord),
+      hasIntuneRecord: Boolean(hasIntuneRecord),
+      hasEntraRecord: Boolean(hasEntraRecord),
+      hybridJoinConfigured,
+      assignmentChainComplete: assignmentPath.chainComplete,
+      assignmentBreakPoint: assignmentPath.breakPoint,
+      flagCount: activeFlags.length,
+      osVersion: bundle.intuneRecord?.os_version ?? null
+    };
+    const ruleViolations = evaluateRules(rules, ruleContext);
+    const ruleSeverities = new Set(ruleViolations.map((v) => v.severity));
+    const ruleHealth = ruleSeverities.has("critical")
+      ? "critical"
+      : ruleSeverities.has("warning")
+        ? "warning"
+        : ruleSeverities.has("info")
+          ? "info"
+          : "healthy";
+    // Take the worst of (built-in flags) and (custom rule violations).
+    const healthRank = { healthy: 0, info: 1, warning: 2, critical: 3, unknown: 0 } as const;
+    const overallHealth =
+      healthRank[ruleHealth] > healthRank[baseHealth] ? ruleHealth : baseHealth;
 
     return {
       device_key: bundle.deviceKey,
@@ -339,6 +381,7 @@ export function computeAllDeviceStates(db: Database.Database) {
       match_confidence: bundle.matchConfidence,
       matched_on: bundle.matchedOn,
       identity_conflict: Number(bundle.identityConflict),
+      active_rule_ids: JSON.stringify(ruleViolations.map((v) => v.ruleId)),
       computed_at: computedAt
     };
   });

@@ -6,8 +6,10 @@ import { ActionsToolbar } from "../components/devices/ActionsToolbar.js";
 import { AssignmentPanel } from "../components/devices/AssignmentPanel.js";
 import { AssignmentPathPanel } from "../components/devices/AssignmentPathPanel.js";
 import { DiagnosticPanel } from "../components/devices/DiagnosticPanel.js";
+import { HistoryPanel } from "../components/devices/HistoryPanel.js";
 import { IdentityPanel } from "../components/devices/IdentityPanel.js";
 import { LapsWidget } from "../components/devices/LapsWidget.js";
+import { RuleViolationsPanel } from "../components/devices/RuleViolationsPanel.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { StatusBadge } from "../components/shared/StatusBadge.js";
 import { useDevice } from "../hooks/useDevices.js";
@@ -155,6 +157,7 @@ export function DeviceDetailPage() {
           description="What the state engine found and why it matters"
         />
         <DiagnosticPanel device={data} />
+        <RuleViolationsPanel device={data} />
       </section>
 
       {/* Section 4: Operate — admin tools */}
@@ -167,6 +170,16 @@ export function DeviceDetailPage() {
         <ActionsToolbar device={data} />
         <LapsWidget device={data} />
         <ActionHistory device={data} />
+      </section>
+
+      {/* Section 5: History — when did this device's state actually change */}
+      <section className="space-y-3">
+        <SectionHeading
+          number={5}
+          title="History"
+          description="State transitions over time — when this device changed and what flipped"
+        />
+        <HistoryPanel device={data} />
       </section>
     </div>
   );
