@@ -3,8 +3,13 @@ import { Download, Loader2, RefreshCw, RotateCcw, Rows2, Rows3, X } from "lucide
 import { useState } from "react";
 
 import { BulkActionConfirm } from "../components/devices/BulkActionConfirm.js";
+import { ColumnPicker } from "../components/devices/ColumnPicker.js";
 import { DeviceFilters } from "../components/devices/DeviceFilters.js";
 import { DeviceTable, type DeviceTableDensity } from "../components/devices/DeviceTable.js";
+import {
+  DEFAULT_VISIBLE_COLUMNS,
+  type DeviceColumnId
+} from "../components/devices/DeviceTableColumns.js";
 import { SavedViews } from "../components/devices/SavedViews.js";
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
@@ -24,6 +29,10 @@ export function DeviceListPage() {
   const [density, setDensity] = usePreference<DeviceTableDensity>(
     "device-density",
     "comfortable"
+  );
+  const [visibleColumnIds, setVisibleColumnIds] = usePreference<DeviceColumnId[]>(
+    "device-columns",
+    DEFAULT_VISIBLE_COLUMNS
   );
 
   const toast = useToast();
@@ -149,6 +158,7 @@ export function DeviceListPage() {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <ColumnPicker value={visibleColumnIds} onChange={setVisibleColumnIds} />
           <button
             type="button"
             onClick={exportCsv}
@@ -195,6 +205,7 @@ export function DeviceListPage() {
           <DeviceTable
             devices={devices.data.items}
             density={density}
+            visibleColumnIds={visibleColumnIds}
             selectedKeys={selectedKeys}
             onToggleSelected={toggleSelected}
             onToggleAll={toggleAll}

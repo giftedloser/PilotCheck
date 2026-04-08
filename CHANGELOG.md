@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Device queue **column picker** — registry-driven popover lets operators
+  toggle Primary User, Compliance, Property, and Deployment Mode columns
+  on or off. Choices persist via `usePreference` and the Device column
+  is locked on so the queue can never be rendered headerless.
+- Per-flag **diagnostic playbooks** on Device Detail — each flag now
+  ships templated portal links, Graph PowerShell, Graph REST URLs, and
+  doc links so techs can act in one click instead of context-switching.
+- **End-to-end engine tests** for `computeAllDeviceStates` (15 tests)
+  feeding crafted Autopilot/Intune/Entra fixtures through
+  `persistSnapshot` and asserting which flags fire — including a
+  word-boundary regression guard for `hybrid_join_risk` and a
+  case-insensitive UPN match for `user_mismatch`.
 - Profile inspector drawer on the Profile Audit page — segmented health
   bar, click-through queue filters, targeting groups, common-problems
   grid, and a 25-row device breakdown without losing page context.

@@ -1,19 +1,22 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { formatDistanceToNow } from "date-fns";
 import { ChevronRight } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import type { DeviceListItem } from "../../lib/types.js";
 import { cn } from "../../lib/utils.js";
-import { FlagChip } from "../shared/FlagChip.js";
-import { StatusBadge } from "../shared/StatusBadge.js";
 import { Card } from "../ui/card.js";
+import {
+  DEFAULT_VISIBLE_COLUMNS,
+  resolveVisibleColumns,
+  type DeviceColumnId
+} from "./DeviceTableColumns.js";
 
 export type DeviceTableDensity = "comfortable" | "compact";
 
 interface DeviceTableProps {
   devices: DeviceListItem[];
   density?: DeviceTableDensity;
+  visibleColumnIds?: DeviceColumnId[];
   selectedKeys?: Set<string>;
   onToggleSelected?: (deviceKey: string) => void;
   onToggleAll?: (deviceKeys: string[], allSelected: boolean) => void;
@@ -22,6 +25,7 @@ interface DeviceTableProps {
 export function DeviceTable({
   devices,
   density = "comfortable",
+  visibleColumnIds = DEFAULT_VISIBLE_COLUMNS,
   selectedKeys,
   onToggleSelected,
   onToggleAll
@@ -32,6 +36,7 @@ export function DeviceTable({
   const cellX = "px-4";
   const cell = cn(cellX, cellY);
   const selectionEnabled = Boolean(selectedKeys && onToggleSelected);
+  const columns = useMemo(() => resolveVisibleColumns(visibleColumnIds), [visibleColumnIds]);
 
   // j/k row navigation, Enter to open. We rely on tabIndex={0} on each row
   // and let the browser track the focused element so it survives re-renders.
@@ -118,12 +123,11 @@ export function DeviceTable({
                   />
                 </th>
               )}
-              <th className="px-4 py-3 text-left">Device</th>
-              <th className="px-4 py-3 text-left">Serial</th>
-              <th className="px-4 py-3 text-left">Health</th>
-              <th className="px-4 py-3 text-left">Flags</th>
-              <th className="px-4 py-3 text-left">Profile</th>
-              <th className="px-4 py-3 text-left">Last Seen</th>
+              {columns.map((col) => (
+                <th key={col.id} className="px-4 py-3 text-left">
+                  {col.label}
+                </th>
+              ))}
               <th className="w-8 px-2 py-3" />
             </tr>
           </thead>
@@ -154,56 +158,11 @@ export function DeviceTable({
                       />
                     </td>
                   )}
-                  <td className={cn("max-w-[260px]", cell)}>
-                    <Link
-                      to="/devices/$deviceKey"
-                      params={{ deviceKey: device.deviceKey }}
-                      className="block truncate font-medium text-white hover:text-[var(--pc-accent-hover)]"
-                      title={device.deviceName ?? device.serialNumber ?? device.deviceKey}
-                    >
-                      {device.deviceName ?? device.serialNumber ?? device.deviceKey}
-                    </Link>
-                    {density === "comfortable" && device.propertyLabel && (
-                      <div
-                        className="mt-0.5 truncate text-[11px] text-[var(--pc-text-muted)]"
-                        title={device.propertyLabel}
-                      >
-                        {device.propertyLabel}
-                      </div>
-                    )}
-                  </td>
-                  <td
-                    className={cn(cell, "font-mono text-[12px] text-[var(--pc-text-secondary)]")}
-                    title={device.serialNumber ?? undefined}
-                  >
-                    {device.serialNumber ?? "\u2014"}
-                  </td>
-                  <td className={cell}>
-                    <StatusBadge health={device.health} />
-                  </td>
-                  <td className={cell}>
-                    <div className="flex flex-wrap gap-1">
-                      {device.flags.slice(0, 2).map((flag) => (
-                        <FlagChip key={flag} flag={flag} />
-                      ))}
-                      {device.flags.length > 2 && (
-                        <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-[var(--pc-text-muted)]">
-                          +{device.flags.length - 2}
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td
-                    className={cn("max-w-[200px] truncate text-[var(--pc-text-secondary)]", cell)}
-                    title={device.assignedProfileName ?? undefined}
-                  >
-                    {device.assignedProfileName ?? "\u2014"}
-                  </td>
-                  <td className={cn(cell, "text-[var(--pc-text-muted)]")}>
-                    {device.lastCheckinAt
-                      ? formatDistanceToNow(new Date(device.lastCheckinAt), { addSuffix: true })
-                      : "Never"}
-                  </td>
+                  {columns.map((col) => (
+                    <td key={col.id} className={cn(cell, col.cellClassName)}>
+                      {col.render(device, density)}
+                    </td>
+                  ))}
                   <td className={cn("px-2", cellY)}>
                     <Link
                       to="/devices/$deviceKey"
