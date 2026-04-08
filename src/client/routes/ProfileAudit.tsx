@@ -1,12 +1,16 @@
+import { useState } from "react";
+
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { SourceBadge } from "../components/shared/SourceBadge.js";
 import { ProfileCard } from "../components/profiles/ProfileCard.js";
+import { ProfileDrawer } from "../components/profiles/ProfileDrawer.js";
 import { ProfileHealthBreakdown } from "../components/profiles/ProfileHealthBreakdown.js";
 import { useProfiles } from "../hooks/useProfiles.js";
 
 export function ProfileAuditPage() {
   const profiles = useProfiles();
+  const [openProfileId, setOpenProfileId] = useState<string | null>(null);
 
   if (profiles.isLoading) return <LoadingState label="Loading profiles…" />;
   if (profiles.isError || !profiles.data) {
@@ -35,12 +39,20 @@ export function ProfileAuditPage() {
         <div className="grid gap-5 xl:grid-cols-2">
           {profiles.data.map((profile) => (
             <div key={profile.profileId} className="space-y-3">
-              <ProfileCard profile={profile} />
+              <ProfileCard
+                profile={profile}
+                onInspect={() => setOpenProfileId(profile.profileId)}
+              />
               <ProfileHealthBreakdown profile={profile} />
             </div>
           ))}
         </div>
       )}
+
+      <ProfileDrawer
+        profileId={openProfileId}
+        onClose={() => setOpenProfileId(null)}
+      />
     </div>
   );
 }
