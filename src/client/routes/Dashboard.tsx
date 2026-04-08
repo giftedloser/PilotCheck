@@ -116,8 +116,8 @@ export function DashboardPage() {
 
       <PageHeader
         eyebrow="Overview"
-        title="Estate Health"
-        description="End-to-end visibility across Autopilot, Intune, and Entra ID — surfacing devices whose join, enrollment, configuration, or compliance state is drifting from intent."
+        title="Windows Fleet Health"
+        description="Triage Windows devices across Autopilot, Intune, and Entra ID — surfacing devices whose join, enrollment, configuration, or compliance state is drifting from intent. Windows-only by design."
         actions={
           <>
             <SyncIndicator lastSync={dashboard.data.lastSync} />
@@ -171,7 +171,7 @@ export function DashboardPage() {
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">
             {topPattern
               ? `${topPattern.count} devices affected`
-              : "Estate looks healthy"}
+              : "Fleet looks healthy"}
           </div>
         </Card>
       </div>

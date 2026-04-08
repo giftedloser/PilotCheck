@@ -134,7 +134,7 @@ export function DeviceListPage() {
       <PageHeader
         eyebrow="Triage"
         title="Device Queue"
-        description="Investigate join, enrollment, and assignment problems across the estate. Filter by health, flag, or property to narrow your triage list."
+        description="Investigate join, enrollment, and assignment problems across your Windows fleet. Filter by health, flag, or property to narrow your triage list."
       />
       <SavedViews />
       <DeviceFilters />

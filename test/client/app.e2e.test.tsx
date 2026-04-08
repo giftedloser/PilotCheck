@@ -125,7 +125,7 @@ describe("client drilldown", () => {
     );
 
     // Dashboard renders
-    expect(await screen.findByText("Estate Health")).toBeInTheDocument();
+    expect(await screen.findByText("Windows Fleet Health")).toBeInTheDocument();
 
     // Drill into the Critical Devices quick-action link → device queue
     fireEvent.click(screen.getByText("Critical Devices"));

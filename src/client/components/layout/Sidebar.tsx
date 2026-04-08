@@ -78,7 +78,7 @@ export function Sidebar() {
         </div>
         <div>
           <div className="text-[15px] font-semibold tracking-tight text-white">PilotCheck</div>
-          <div className="text-[11px] text-[var(--pc-text-muted)]">Endpoint State Validation</div>
+          <div className="text-[11px] text-[var(--pc-text-muted)]">Windows Autopilot · Intune · Entra</div>
         </div>
       </div>
 

@@ -28,7 +28,7 @@ export function ProfileAuditPage() {
       <PageHeader
         eyebrow="Inspect"
         title="Deployment Profiles"
-        description="Audit Intune deployment profiles as shared failure domains. Identify targeting gaps, missing assignments, hybrid-join risk, and tag mismatches across the estate."
+        description="Audit Intune deployment profiles as shared failure domains. Identify targeting gaps, missing assignments, hybrid-join risk, and tag mismatches across the Windows fleet."
         actions={<SourceBadge source="intune" />}
       />
       {profiles.data.length === 0 ? (

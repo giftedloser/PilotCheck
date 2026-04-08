@@ -131,7 +131,7 @@ export function ActionAuditPage() {
       <PageHeader
         eyebrow="System"
         title="Action Audit"
-        description="Cross-device timeline of every remote action dispatched from PilotCheck. Use this when an operator needs to confirm a fix landed, or when investigating an estate-wide incident."
+        description="Cross-device timeline of every remote action dispatched from PilotCheck. Use this when an operator needs to confirm a fix landed, or when investigating a fleet-wide incident."
       />
 
       <div className="grid gap-4 sm:grid-cols-3">

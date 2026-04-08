@@ -126,7 +126,7 @@ export function CommandPalette() {
         type: "page",
         id: "page-dashboard",
         title: "Dashboard",
-        hint: "Estate health overview",
+        hint: "Windows fleet overview",
         icon: LayoutDashboard,
         action: () => go("/")
       },
