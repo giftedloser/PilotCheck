@@ -24,7 +24,8 @@ export type DeviceColumnId =
   | "user"
   | "compliance"
   | "property"
-  | "deploymentMode";
+  | "deploymentMode"
+  | "correlation";
 
 export interface DeviceColumnDef {
   id: DeviceColumnId;
@@ -163,6 +164,27 @@ export const DEVICE_COLUMNS: DeviceColumnDef[] = [
     defaultVisible: false,
     cellClassName: "text-[var(--pc-text-secondary)]",
     render: (device) => device.deploymentMode ?? dash
+  },
+  {
+    id: "correlation",
+    label: "Correlation",
+    defaultVisible: false,
+    render: (device) => {
+      const conf = device.matchConfidence;
+      const style =
+        conf === "high"
+          ? "bg-[var(--pc-healthy-muted)] text-emerald-200 ring-1 ring-[var(--pc-healthy)]/40"
+          : conf === "medium"
+            ? "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/40"
+            : "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/40";
+      return (
+        <span
+          className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10.5px] font-medium capitalize ${style}`}
+        >
+          {conf}
+        </span>
+      );
+    }
   }
 ];
 
