@@ -139,11 +139,36 @@ export const DEVICE_COLUMNS: DeviceColumnDef[] = [
     id: "lastSeen",
     label: "Last Seen",
     defaultVisible: true,
-    cellClassName: "text-[var(--pc-text-muted)]",
-    render: (device) =>
-      device.lastCheckinAt
-        ? formatDistanceToNow(new Date(device.lastCheckinAt), { addSuffix: true })
-        : "Never"
+    render: (device) => {
+      if (!device.lastCheckinAt) {
+        return <span className="text-[var(--pc-text-muted)]">Never</span>;
+      }
+      const ageMs = Date.now() - new Date(device.lastCheckinAt).getTime();
+      const staleHours = 24;
+      const isStale = ageMs > staleHours * 60 * 60 * 1000;
+      const label = formatDistanceToNow(new Date(device.lastCheckinAt), { addSuffix: true });
+      return (
+        <span
+          className={
+            isStale
+              ? "text-[var(--pc-warning)] font-medium"
+              : "text-[var(--pc-text-muted)]"
+          }
+          title={
+            isStale
+              ? `Stale — last check-in was ${label}. Data may not reflect current device state.`
+              : device.lastCheckinAt
+          }
+        >
+          {label}
+          {isStale && (
+            <span className="ml-1 inline-flex items-center rounded bg-[var(--pc-warning-muted)] px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[var(--pc-warning)]">
+              stale
+            </span>
+          )}
+        </span>
+      );
+    }
   },
   {
     id: "user",
