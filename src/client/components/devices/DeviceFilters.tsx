@@ -117,8 +117,24 @@ export function DeviceFilters() {
         ) : null}
       </div>
 
-      {(search.flag || search.profile || search.property) && (
-        <div className="flex flex-wrap gap-1.5 text-[11px]">
+      {hasAnyFilter && (
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+          <span className="mr-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--pc-text-muted)]">
+            Active
+          </span>
+          {search.search && (
+            <ActiveTag
+              label={`Search: "${search.search.length > 24 ? `${search.search.slice(0, 22)}…` : search.search}"`}
+              onClear={() => setSearch(() => ({ search: undefined }))}
+            />
+          )}
+          {search.health && (
+            <ActiveTag
+              label={`Health: ${search.health}`}
+              variant={search.health as Exclude<HealthLevel, "unknown">}
+              onClear={() => setSearch(() => ({ health: undefined }))}
+            />
+          )}
           {search.flag && (
             <ActiveTag
               label={`Flag: ${FLAG_INFO[search.flag as FlagCode]?.label ?? search.flag}`}
@@ -143,15 +159,37 @@ export function DeviceFilters() {
   );
 }
 
-function ActiveTag({ label, onClear }: { label: string; onClear: () => void }) {
+const CHIP_VARIANT_STYLES: Record<string, string> = {
+  critical: "border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)] text-red-200",
+  warning: "border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] text-amber-200",
+  info: "border-[var(--pc-info)]/30 bg-[var(--pc-info-muted)] text-sky-200",
+  healthy: "border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy-muted)] text-emerald-200"
+};
+
+function ActiveTag({
+  label,
+  variant,
+  onClear
+}: {
+  label: string;
+  variant?: Exclude<HealthLevel, "unknown">;
+  onClear: () => void;
+}) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--pc-border)] bg-white/[0.04] px-2.5 py-1 text-[var(--pc-text-secondary)]">
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1",
+        variant && CHIP_VARIANT_STYLES[variant]
+          ? CHIP_VARIANT_STYLES[variant]
+          : "border-[var(--pc-border)] bg-white/[0.04] text-[var(--pc-text-secondary)]"
+      )}
+    >
       {label}
       <button
         type="button"
         onClick={onClear}
-        className="text-[var(--pc-text-muted)] hover:text-white"
-        aria-label="Remove filter"
+        className="ml-0.5 rounded-full p-0.5 text-current opacity-60 transition-opacity hover:opacity-100"
+        aria-label={`Remove ${label} filter`}
       >
         <X className="h-3 w-3" />
       </button>

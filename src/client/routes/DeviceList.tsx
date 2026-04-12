@@ -1,5 +1,5 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Download, Loader2, RefreshCw, RotateCcw, Rows2, Rows3, X } from "lucide-react";
+import { Download, Filter, Loader2, RefreshCw, RotateCcw, Rows2, Rows3, X } from "lucide-react";
 import { useState } from "react";
 
 import { BulkActionConfirm } from "../components/devices/BulkActionConfirm.js";
@@ -141,10 +141,16 @@ export function DeviceListPage() {
 
       <div className="flex items-center justify-between text-[11px] text-[var(--pc-text-muted)]">
         <div className="flex items-center gap-3">
-          <span>
+          <span className="inline-flex items-center gap-1.5">
+            {Boolean(search.search || search.health || search.flag || search.property || search.profile) && (
+              <Filter className="h-3 w-3 text-[var(--pc-accent)]" />
+            )}
             {devices.data
               ? `${devices.data.total.toLocaleString()} device${devices.data.total === 1 ? "" : "s"}`
               : ""}
+            {devices.data && Boolean(search.search || search.health || search.flag || search.property || search.profile) && (
+              <span className="text-[var(--pc-accent)]">filtered</span>
+            )}
           </span>
           <span className="text-[var(--pc-text-muted)]/60">·</span>
           <span className="hidden sm:inline">
@@ -209,6 +215,22 @@ export function DeviceListPage() {
             selectedKeys={selectedKeys}
             onToggleSelected={toggleSelected}
             onToggleAll={toggleAll}
+            hasActiveFilters={Boolean(
+              search.search || search.health || search.flag || search.property || search.profile
+            )}
+            onClearFilters={() =>
+              navigate({
+                search: () => ({
+                  search: undefined,
+                  health: undefined,
+                  flag: undefined,
+                  property: undefined,
+                  profile: undefined,
+                  page: 1,
+                  pageSize: search.pageSize ?? 25
+                })
+              })
+            }
           />
           <Pagination
             page={devices.data.page}

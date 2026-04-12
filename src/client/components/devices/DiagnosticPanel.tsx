@@ -34,23 +34,67 @@ export function DiagnosticPanel({ device }: { device: DeviceDetailResponse }) {
       </div>
 
       {/* Primary diagnosis */}
-      <div className="mb-5 flex items-start gap-3 rounded-lg bg-[var(--pc-warning-muted)] p-4">
-        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
-        <div className="text-[13px] leading-relaxed text-amber-100">
+      <div
+        className={`mb-5 flex items-start gap-3 rounded-lg p-4 ${
+          device.summary.health === "critical"
+            ? "bg-[var(--pc-critical-muted)]"
+            : device.summary.health === "healthy"
+              ? "bg-[var(--pc-healthy-muted)]"
+              : device.summary.health === "info"
+                ? "bg-[var(--pc-info-muted)]"
+                : "bg-[var(--pc-warning-muted)]"
+        }`}
+      >
+        {device.summary.health === "healthy" ? (
+          <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-healthy)]" />
+        ) : (
+          <AlertCircle
+            className={`mt-0.5 h-4 w-4 shrink-0 ${
+              device.summary.health === "critical"
+                ? "text-[var(--pc-critical)]"
+                : device.summary.health === "info"
+                  ? "text-[var(--pc-info)]"
+                  : "text-[var(--pc-warning)]"
+            }`}
+          />
+        )}
+        <div
+          className={`text-[13px] leading-relaxed ${
+            device.summary.health === "critical"
+              ? "text-red-100"
+              : device.summary.health === "healthy"
+                ? "text-emerald-100"
+                : device.summary.health === "info"
+                  ? "text-sky-100"
+                  : "text-amber-100"
+          }`}
+        >
           {device.summary.diagnosis}
         </div>
       </div>
 
       {/* Detailed diagnostics */}
-      <div className="space-y-3">
-        {device.diagnostics.map((diagnostic) => (
-          <DiagnosticCard
-            key={diagnostic.code}
-            diagnostic={diagnostic}
-            playbook={getPlaybook(diagnostic.code, playbookContext)}
-          />
-        ))}
-      </div>
+      {device.diagnostics.length === 0 ? (
+        <div className="flex items-center gap-3 rounded-lg border border-dashed border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy-muted)] px-4 py-3">
+          <CheckCircle className="h-4 w-4 text-[var(--pc-healthy)]" />
+          <div>
+            <div className="text-[13px] font-medium text-emerald-100">No issues detected</div>
+            <div className="text-[11.5px] text-emerald-200/70">
+              The state engine found no problems with this device's identity, targeting, enrollment, or drift posture.
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {device.diagnostics.map((diagnostic) => (
+            <DiagnosticCard
+              key={diagnostic.code}
+              diagnostic={diagnostic}
+              playbook={getPlaybook(diagnostic.code, playbookContext)}
+            />
+          ))}
+        </div>
+      )}
     </Card>
   );
 }
@@ -64,7 +108,20 @@ function DiagnosticCard({
 }) {
   return (
     <div className="rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-4">
-      <div className="text-[13px] font-semibold text-white">{diagnostic.title}</div>
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+            diagnostic.severity === "critical"
+              ? "bg-[var(--pc-critical-muted)] text-red-200"
+              : diagnostic.severity === "warning"
+                ? "bg-[var(--pc-warning-muted)] text-amber-200"
+                : "bg-[var(--pc-info-muted)] text-sky-200"
+          }`}
+        >
+          {diagnostic.severity}
+        </span>
+        <span className="text-[13px] font-semibold text-white">{diagnostic.title}</span>
+      </div>
       <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--pc-text-secondary)]">
         {diagnostic.summary}
       </p>

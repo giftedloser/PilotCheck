@@ -21,11 +21,12 @@ import { Card } from "../components/ui/card.js";
 import { humanizeFlag } from "../lib/flags.js";
 import { useDashboard } from "../hooks/useDashboard.js";
 import { useSettings } from "../hooks/useSettings.js";
-import { useTriggerSync } from "../hooks/useSync.js";
+import { useSyncStatus, useTriggerSync } from "../hooks/useSync.js";
 
 export function DashboardPage() {
   const dashboard = useDashboard();
   const settings = useSettings();
+  const syncStatus = useSyncStatus();
   const sync = useTriggerSync();
 
   if (dashboard.isLoading) return <LoadingState label="Loading dashboard…" />;
@@ -121,7 +122,11 @@ export function DashboardPage() {
         description="Triage Windows devices across Autopilot, Intune, and Entra ID — surfacing devices whose join, enrollment, configuration, or compliance state is drifting from intent. Windows-only by design."
         actions={
           <>
-            <SyncIndicator lastSync={dashboard.data.lastSync} />
+            <SyncIndicator
+              lastSync={dashboard.data.lastSync}
+              inProgress={syncStatus.data?.inProgress}
+              lastError={syncStatus.data?.lastError}
+            />
             <Button onClick={() => sync.mutate()} disabled={sync.isPending}>
               <RefreshCcw className="h-3.5 w-3.5" />
               Sync Now

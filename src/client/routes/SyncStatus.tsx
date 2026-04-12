@@ -87,7 +87,11 @@ export function SyncStatusPage() {
         <Card className="px-4 py-3.5">
           <div className="text-[11px] font-medium text-[var(--pc-text-muted)]">Last Synced</div>
           <div className="mt-1.5">
-            <SyncIndicator lastSync={status.data.lastCompletedAt} />
+            <SyncIndicator
+              lastSync={status.data.lastCompletedAt}
+              inProgress={status.data.inProgress}
+              lastError={status.data.lastError}
+            />
           </div>
         </Card>
       </div>

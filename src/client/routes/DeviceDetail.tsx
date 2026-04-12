@@ -13,12 +13,14 @@ import { ActionHistory } from "../components/devices/ActionHistory.js";
 import { ActionsToolbar } from "../components/devices/ActionsToolbar.js";
 import { AssignmentPanel } from "../components/devices/AssignmentPanel.js";
 import { AssignmentPathPanel } from "../components/devices/AssignmentPathPanel.js";
+import { CopySummaryButton } from "../components/devices/CopySummaryButton.js";
 import { DeviceShortcuts } from "../components/devices/DeviceShortcuts.js";
 import { DiagnosticPanel } from "../components/devices/DiagnosticPanel.js";
 import { HistoryPanel } from "../components/devices/HistoryPanel.js";
 import { IdentityPanel } from "../components/devices/IdentityPanel.js";
 import { LapsWidget } from "../components/devices/LapsWidget.js";
 import { RuleViolationsPanel } from "../components/devices/RuleViolationsPanel.js";
+import { SourceJsonPanel } from "../components/devices/SourceJsonPanel.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { StatusBadge } from "../components/shared/StatusBadge.js";
 import { useDevice } from "../hooks/useDevices.js";
@@ -47,27 +49,31 @@ const BREAKPOINT_BUCKETS: Record<BreakpointKey, FlagCode[]> = {
 
 const BREAKPOINT_META: Record<
   BreakpointKey,
-  { label: string; description: string; icon: typeof Fingerprint }
+  { label: string; description: string; icon: typeof Fingerprint; scrollTo: string }
 > = {
   identity: {
     label: "Identity",
     description: "Who is this device across systems",
-    icon: Fingerprint
+    icon: Fingerprint,
+    scrollTo: "section-identity"
   },
   targeting: {
     label: "Targeting",
     description: "Group membership & profile assignment",
-    icon: Target
+    icon: Target,
+    scrollTo: "section-targeting"
   },
   enrollment: {
     label: "Enrollment",
     description: "Autopilot record & Intune check-in",
-    icon: Radio
+    icon: Radio,
+    scrollTo: "section-diagnostics"
   },
   drift: {
     label: "Drift",
     description: "Compliance, hybrid join, primary user",
-    icon: GitBranch
+    icon: GitBranch,
+    scrollTo: "section-diagnostics"
   }
 };
 
@@ -122,11 +128,17 @@ function BreakpointChip({
     count === 0
       ? `${meta.label}: clear — ${meta.description}`
       : `${meta.label} (${count}): ${issues.map((i) => i.title).join(" • ")}`;
+  const scrollTarget = meta.scrollTo;
   return (
-    <div
+    <button
+      type="button"
       title={title}
+      onClick={() => {
+        const el = document.getElementById(scrollTarget);
+        el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }}
       className={cn(
-        "flex min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[11.5px]",
+        "flex min-w-0 items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[11.5px] transition-opacity hover:opacity-80",
         tone
       )}
     >
@@ -139,7 +151,7 @@ function BreakpointChip({
           {count === 0 ? "Clear" : `${count} ${count === 1 ? "issue" : "issues"}`}
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -219,19 +231,22 @@ export function DeviceDetailPage() {
             {displayName}
           </span>
         </nav>
-        <div className="hidden items-center gap-2 text-[10.5px] text-[var(--pc-text-muted)] sm:flex">
-          <kbd className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-1 py-px font-mono text-[10px]">
-            r
-          </kbd>
-          refresh
-          <kbd className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-1 py-px font-mono text-[10px]">
-            s
-          </kbd>
-          sync
-          <kbd className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-1 py-px font-mono text-[10px]">
-            b
-          </kbd>
-          back
+        <div className="hidden items-center gap-3 sm:flex">
+          <CopySummaryButton device={data} />
+          <div className="flex items-center gap-2 text-[10.5px] text-[var(--pc-text-muted)]">
+            <kbd className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-1 py-px font-mono text-[10px]">
+              r
+            </kbd>
+            refresh
+            <kbd className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-1 py-px font-mono text-[10px]">
+              s
+            </kbd>
+            sync
+            <kbd className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-1 py-px font-mono text-[10px]">
+              b
+            </kbd>
+            back
+          </div>
         </div>
       </div>
 
@@ -265,6 +280,22 @@ export function DeviceDetailPage() {
                 {data.diagnostics.length} active{" "}
                 {data.diagnostics.length === 1 ? "issue" : "issues"}
               </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Fingerprint className="h-3 w-3" />
+                Correlation{" "}
+                <span
+                  className={cn(
+                    "rounded px-1.5 py-0.5 text-[10.5px] font-medium capitalize",
+                    data.identity.matchConfidence === "high"
+                      ? "bg-[var(--pc-healthy-muted)] text-emerald-200"
+                      : data.identity.matchConfidence === "medium"
+                        ? "bg-[var(--pc-warning-muted)] text-amber-200"
+                        : "bg-[var(--pc-critical-muted)] text-red-200"
+                  )}
+                >
+                  {data.identity.matchConfidence}
+                </span>
+              </span>
             </div>
           </div>
           <div className="flex flex-col items-start gap-2 lg:items-end">
@@ -277,6 +308,18 @@ export function DeviceDetailPage() {
             </p>
           </div>
         </div>
+
+        {/* Name-joined correlation warning */}
+        {data.identity.nameJoined && (
+          <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3.5 py-2.5">
+            <Fingerprint className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
+            <div className="text-[12px] leading-relaxed text-amber-100">
+              <span className="font-semibold">Name-only correlation.</span>{" "}
+              This device's source records were linked by display name only — the weakest join signal.
+              Verify identity before trusting cross-system diagnostics.
+            </div>
+          </div>
+        )}
 
         {/* Breakpoint chips — at-a-glance which subsystem is failing */}
         <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -293,7 +336,7 @@ export function DeviceDetailPage() {
       </header>
 
       {/* Section 1: Identity — who is this device, across systems */}
-      <section className="space-y-3">
+      <section id="section-identity" className="scroll-mt-4 space-y-3">
         <SectionHeading
           number={1}
           title="Identity"
@@ -303,7 +346,7 @@ export function DeviceDetailPage() {
       </section>
 
       {/* Section 2: Configuration — what it's meant to be */}
-      <section className="space-y-3">
+      <section id="section-targeting" className="scroll-mt-4 space-y-3">
         <SectionHeading
           number={2}
           title="Expected Configuration"
@@ -314,7 +357,7 @@ export function DeviceDetailPage() {
       </section>
 
       {/* Section 3: Diagnostics — why it's not what it should be */}
-      <section className="space-y-3">
+      <section id="section-diagnostics" className="scroll-mt-4 space-y-3">
         <SectionHeading
           number={3}
           title="Diagnostics"
@@ -325,7 +368,7 @@ export function DeviceDetailPage() {
       </section>
 
       {/* Section 4: Operate — admin tools */}
-      <section className="space-y-3">
+      <section id="section-operate" className="scroll-mt-4 space-y-3">
         <SectionHeading
           number={4}
           title="Operate"
@@ -337,13 +380,23 @@ export function DeviceDetailPage() {
       </section>
 
       {/* Section 5: History — when did this device's state actually change */}
-      <section className="space-y-3">
+      <section id="section-history" className="scroll-mt-4 space-y-3">
         <SectionHeading
           number={5}
           title="History"
           description="State transitions over time — when this device changed and what flipped"
         />
         <HistoryPanel device={data} />
+      </section>
+
+      {/* Section 6: Source Data — raw Graph JSON for verification */}
+      <section id="section-source" className="scroll-mt-4 space-y-3">
+        <SectionHeading
+          number={6}
+          title="Source Data"
+          description="Raw JSON from Microsoft Graph — verify what the engine is working with"
+        />
+        <SourceJsonPanel device={data} />
       </section>
     </div>
   );

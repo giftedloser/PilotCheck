@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, SearchX, Inbox } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 
 import type { DeviceListItem } from "../../lib/types.js";
@@ -20,6 +20,10 @@ interface DeviceTableProps {
   selectedKeys?: Set<string>;
   onToggleSelected?: (deviceKey: string) => void;
   onToggleAll?: (deviceKeys: string[], allSelected: boolean) => void;
+  /** True when any filter/search is active — changes the empty-state message. */
+  hasActiveFilters?: boolean;
+  /** Called when the user clicks "Clear filters" in the empty state. */
+  onClearFilters?: () => void;
 }
 
 export function DeviceTable({
@@ -28,7 +32,9 @@ export function DeviceTable({
   visibleColumnIds = DEFAULT_VISIBLE_COLUMNS,
   selectedKeys,
   onToggleSelected,
-  onToggleAll
+  onToggleAll,
+  hasActiveFilters = false,
+  onClearFilters
 }: DeviceTableProps) {
   const navigate = useNavigate();
   const tableRef = useRef<HTMLTableElement>(null);
@@ -90,8 +96,37 @@ export function DeviceTable({
 
   if (devices.length === 0) {
     return (
-      <Card className="px-5 py-10 text-center text-[13px] text-[var(--pc-text-muted)]">
-        No devices match the current filters.
+      <Card className="flex flex-col items-center px-5 py-14 text-center">
+        {hasActiveFilters ? (
+          <>
+            <SearchX className="mb-3 h-8 w-8 text-[var(--pc-text-muted)]/60" />
+            <p className="text-[14px] font-medium text-[var(--pc-text-secondary)]">
+              No devices match the current filters
+            </p>
+            <p className="mt-1 max-w-sm text-[12px] text-[var(--pc-text-muted)]">
+              Try broadening your search or removing a filter to see more results.
+            </p>
+            {onClearFilters && (
+              <button
+                type="button"
+                onClick={onClearFilters}
+                className="mt-4 rounded-md border border-[var(--pc-border)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/50 hover:text-white"
+              >
+                Clear all filters
+              </button>
+            )}
+          </>
+        ) : (
+          <>
+            <Inbox className="mb-3 h-8 w-8 text-[var(--pc-text-muted)]/60" />
+            <p className="text-[14px] font-medium text-[var(--pc-text-secondary)]">
+              No devices yet
+            </p>
+            <p className="mt-1 max-w-sm text-[12px] text-[var(--pc-text-muted)]">
+              Devices will appear here after the first sync pulls data from Microsoft Graph.
+            </p>
+          </>
+        )}
       </Card>
     );
   }
