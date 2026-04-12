@@ -55,6 +55,13 @@ export interface FlagExplanation {
   whyItMatters: string;
   checks: string[];
   rawData: string[];
+  /**
+   * Non-null when the flag's confidence is weakened by the device's
+   * correlation quality — e.g. name-only join, low confidence, or
+   * identity conflict. The operator should see this before acting on the
+   * flag. Null when correlation is strong enough to trust the diagnostic.
+   */
+  caveat: string | null;
 }
 
 export interface DeviceListItem {

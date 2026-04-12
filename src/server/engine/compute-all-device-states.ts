@@ -296,7 +296,9 @@ export function computeAllDeviceStates(db: Database.Database) {
       intunePrimaryUserUpn: bundle.intuneRecord?.primary_user_upn ?? null,
       assignmentPath,
       lastCheckinAt: bundle.intuneRecord?.last_sync_datetime ?? null,
-      complianceState: bundle.intuneRecord?.compliance_state ?? null
+      complianceState: bundle.intuneRecord?.compliance_state ?? null,
+      matchConfidence: bundle.matchConfidence,
+      identityConflict: bundle.identityConflict
     };
     const diagnostics = buildFlagExplanations(activeFlags, context);
     const diagnosis = generateDiagnosis(activeFlags, context);

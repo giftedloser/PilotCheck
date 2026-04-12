@@ -1,5 +1,6 @@
 import {
   AlertCircle,
+  AlertTriangle,
   BookOpen,
   CheckCircle,
   Copy,
@@ -70,6 +71,15 @@ function DiagnosticCard({
       <p className="mt-1 text-[12px] leading-relaxed text-[var(--pc-text-muted)]">
         {diagnostic.whyItMatters}
       </p>
+
+      {diagnostic.caveat ? (
+        <div className="mt-2.5 flex items-start gap-2 rounded-md border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3 py-2">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--pc-warning)]" />
+          <p className="text-[11.5px] leading-relaxed text-amber-100">
+            {diagnostic.caveat}
+          </p>
+        </div>
+      ) : null}
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <div>

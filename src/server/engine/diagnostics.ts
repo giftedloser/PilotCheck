@@ -1,4 +1,4 @@
-import type { AssignmentPath, FlagCode, FlagExplanation } from "../../shared/types.js";
+import type { AssignmentPath, FlagCode, FlagExplanation, MatchConfidence } from "../../shared/types.js";
 import { getFlagSeverity } from "./compute-health.js";
 
 interface DiagnosticContext {
@@ -13,6 +13,38 @@ interface DiagnosticContext {
   assignmentPath: AssignmentPath;
   lastCheckinAt: string | null;
   complianceState: string | null;
+  /** Correlation quality — used to inject caveats on cross-system flags. */
+  matchConfidence: MatchConfidence;
+  identityConflict: boolean;
+}
+
+/**
+ * Flags that compare data across Autopilot, Intune, and/or Entra — their
+ * diagnostic value is reduced when the records in the bundle may not
+ * actually belong to the same physical device.
+ */
+const CROSS_SYSTEM_FLAGS: Set<FlagCode> = new Set([
+  "no_autopilot_record",
+  "user_mismatch",
+  "hybrid_join_risk",
+  "orphaned_autopilot",
+  "missing_ztdid",
+  "deployment_mode_mismatch",
+  "profile_assigned_not_enrolled",
+  "provisioning_stalled",
+  "not_in_target_group",
+  "tag_mismatch"
+]);
+
+function buildCaveat(context: DiagnosticContext, code: FlagCode): string | null {
+  if (!CROSS_SYSTEM_FLAGS.has(code)) return null;
+  if (context.identityConflict) {
+    return "Identity conflict detected on this device. The records this flag compares may not belong to the same physical device — verify the correlation before acting on this diagnostic.";
+  }
+  if (context.matchConfidence === "low") {
+    return "This device's records were correlated by display name only (low confidence). The flag may be a false positive if the records do not actually represent the same physical device.";
+  }
+  return null;
 }
 
 const flagCopy: Record<
@@ -126,7 +158,8 @@ export function buildFlagExplanations(flags: FlagCode[], context: DiagnosticCont
   return flags.map((code) => ({
     code,
     severity: getFlagSeverity(code),
-    ...flagCopy[code](context)
+    ...flagCopy[code](context),
+    caveat: buildCaveat(context, code)
   }));
 }
 
