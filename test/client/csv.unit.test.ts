@@ -1,0 +1,98 @@
+import { describe, expect, it } from "vitest";
+
+import { csvEscape, devicesToCsv } from "../../src/client/lib/csv.js";
+import type { DeviceListItem } from "../../src/client/lib/types.js";
+
+describe("csvEscape", () => {
+  it("returns empty string for null and undefined", () => {
+    expect(csvEscape(null)).toBe("");
+    expect(csvEscape(undefined)).toBe("");
+  });
+
+  it("passes through plain strings", () => {
+    expect(csvEscape("hello")).toBe("hello");
+  });
+
+  it("wraps and escapes strings containing commas", () => {
+    expect(csvEscape("Lodge, Gilpin")).toBe('"Lodge, Gilpin"');
+  });
+
+  it("wraps and escapes strings containing quotes", () => {
+    expect(csvEscape('say "hi"')).toBe('"say ""hi"""');
+  });
+
+  it("wraps strings containing newlines", () => {
+    expect(csvEscape("line1\nline2")).toBe('"line1\nline2"');
+  });
+
+  it("converts numbers to string", () => {
+    expect(csvEscape(42)).toBe("42");
+  });
+});
+
+describe("devicesToCsv", () => {
+  const makeDevice = (overrides: Partial<DeviceListItem> = {}): DeviceListItem => ({
+    deviceKey: "dk-1",
+    deviceName: "DESKTOP-001",
+    serialNumber: "CZC123",
+    health: "healthy" as const,
+    flags: [],
+    activeRules: [],
+    propertyLabel: "Lodge",
+    assignedProfileName: "AP-Lodge-UserDriven",
+    lastCheckinAt: "2026-04-10T12:00:00.000Z",
+    matchConfidence: "high" as const,
+    autopilotAssignedUserUpn: null,
+    intunePrimaryUserUpn: null,
+    complianceState: null,
+    deploymentMode: null,
+    ...overrides
+  });
+
+  it("produces a header row plus one data row", () => {
+    const csv = devicesToCsv([makeDevice()]);
+    const lines = csv.split("\r\n");
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toBe(
+      "deviceKey,deviceName,serialNumber,health,flags,property,assignedProfile,lastCheckinAt"
+    );
+  });
+
+  it("joins flags with pipe separator", () => {
+    const csv = devicesToCsv([
+      makeDevice({ flags: ["identity_conflict", "missing_ztdid"] })
+    ]);
+    const dataLine = csv.split("\r\n")[1];
+    expect(dataLine).toContain("identity_conflict|missing_ztdid");
+  });
+
+  it("handles null fields gracefully", () => {
+    const csv = devicesToCsv([
+      makeDevice({
+        deviceName: null,
+        serialNumber: null,
+        propertyLabel: null,
+        assignedProfileName: null,
+        lastCheckinAt: null
+      })
+    ]);
+    const dataLine = csv.split("\r\n")[1];
+    // Should contain empty fields, not "null"
+    expect(dataLine).not.toContain("null");
+    expect(dataLine).toBe("dk-1,,,healthy,,,," );
+  });
+
+  it("escapes values that contain commas", () => {
+    const csv = devicesToCsv([
+      makeDevice({ propertyLabel: "Lodge, Gilpin" })
+    ]);
+    expect(csv).toContain('"Lodge, Gilpin"');
+  });
+
+  it("returns just a header for empty input", () => {
+    const csv = devicesToCsv([]);
+    expect(csv).toBe(
+      "deviceKey,deviceName,serialNumber,health,flags,property,assignedProfile,lastCheckinAt"
+    );
+  });
+});

@@ -19,7 +19,7 @@ import { Button } from "../components/ui/button.js";
 import { useDevices } from "../hooks/useDevices.js";
 import { usePreference } from "../hooks/usePreference.js";
 import { apiRequest } from "../lib/api.js";
-import type { DeviceListItem } from "../lib/types.js";
+import { devicesToCsv } from "../lib/csv.js";
 import { cn } from "../lib/utils.js";
 
 export function DeviceListPage() {
@@ -305,44 +305,6 @@ export function DeviceListPage() {
       )}
     </div>
   );
-}
-
-function csvEscape(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  const str = String(value);
-  if (/[",\n\r]/.test(str)) {
-    return `"${str.replace(/"/g, '""')}"`;
-  }
-  return str;
-}
-
-function devicesToCsv(items: DeviceListItem[]): string {
-  const headers = [
-    "deviceKey",
-    "deviceName",
-    "serialNumber",
-    "health",
-    "flags",
-    "property",
-    "assignedProfile",
-    "lastCheckinAt"
-  ];
-  const lines = [headers.join(",")];
-  for (const item of items) {
-    lines.push(
-      [
-        csvEscape(item.deviceKey),
-        csvEscape(item.deviceName),
-        csvEscape(item.serialNumber),
-        csvEscape(item.health),
-        csvEscape(item.flags.join("|")),
-        csvEscape(item.propertyLabel),
-        csvEscape(item.assignedProfileName),
-        csvEscape(item.lastCheckinAt)
-      ].join(",")
-    );
-  }
-  return lines.join("\r\n");
 }
 
 function DensityButton({
