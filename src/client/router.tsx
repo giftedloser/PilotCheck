@@ -8,6 +8,7 @@ import { DeviceDetailPage } from "./routes/DeviceDetail.js";
 import { DeviceListPage } from "./routes/DeviceList.js";
 import { GroupInspectorPage } from "./routes/GroupInspector.js";
 import { ProfileAuditPage } from "./routes/ProfileAudit.js";
+import { ProvisioningBuilderPage } from "./routes/ProvisioningBuilder.js";
 import { SettingsPage } from "./routes/Settings.js";
 import { SetupPage } from "./routes/Setup.js";
 import { SyncStatusPage } from "./routes/SyncStatus.js";
@@ -83,6 +84,12 @@ const setupRoute = createRoute({
   component: SetupPage
 });
 
+const provisioningRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/provisioning",
+  component: ProvisioningBuilderPage
+});
+
 const actionAuditRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/actions",
@@ -98,6 +105,7 @@ const routeTree = rootRoute.addChildren([
   syncRoute,
   settingsRoute,
   setupRoute,
+  provisioningRoute,
   actionAuditRoute
 ]);
 

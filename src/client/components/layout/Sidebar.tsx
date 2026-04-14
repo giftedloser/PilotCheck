@@ -3,6 +3,7 @@ import {
   Activity,
   Building2,
   DatabaseZap,
+  GitBranch,
   History,
   LayoutDashboard,
   Settings2,
@@ -38,7 +39,8 @@ const navGroups: NavGroup[] = [
     label: "Inspect",
     items: [
       { to: "/profiles", label: "Profiles", icon: ShieldCheck },
-      { to: "/groups", label: "Groups", icon: UsersRound }
+      { to: "/groups", label: "Groups", icon: UsersRound },
+      { to: "/provisioning", label: "Provisioning", icon: GitBranch }
     ]
   },
   {

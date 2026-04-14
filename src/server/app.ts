@@ -16,6 +16,7 @@ import { groupsRouter } from "./routes/groups.js";
 import { healthRouter } from "./routes/health.js";
 import { bitlockerRouter } from "./routes/bitlocker.js";
 import { lapsRouter } from "./routes/laps.js";
+import { provisioningRouter } from "./routes/provisioning.js";
 import { profilesRouter } from "./routes/profiles.js";
 import { rulesRouter } from "./routes/rules.js";
 import { settingsRouter } from "./routes/settings.js";
@@ -61,6 +62,7 @@ export function createApp(db: Database.Database) {
   app.use("/api/actions", actionsRouter(db));
   app.use("/api/laps", lapsRouter(db));
   app.use("/api/bitlocker", bitlockerRouter(db));
+  app.use("/api/provisioning", provisioningRouter(db));
 
   const clientDist = path.resolve(process.cwd(), "dist/client");
   if (fs.existsSync(clientDist)) {
