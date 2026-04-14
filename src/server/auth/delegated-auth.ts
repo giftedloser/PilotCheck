@@ -5,7 +5,8 @@ import { config } from "../config.js";
 const SCOPES = [
   "DeviceLocalCredential.Read.All",
   "DeviceManagementManagedDevices.ReadWrite.All",
-  "DeviceManagementManagedDevices.PrivilegedOperations.All"
+  "DeviceManagementManagedDevices.PrivilegedOperations.All",
+  "BitLockerKey.Read.All"
 ];
 
 let msalInstance: ConfidentialClientApplication | null = null;

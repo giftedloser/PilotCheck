@@ -13,6 +13,7 @@ import { ActionHistory } from "../components/devices/ActionHistory.js";
 import { ActionsToolbar } from "../components/devices/ActionsToolbar.js";
 import { AppStatusPanel } from "../components/devices/AppStatusPanel.js";
 import { AssignmentPanel } from "../components/devices/AssignmentPanel.js";
+import { BitLockerWidget } from "../components/devices/BitLockerWidget.js";
 import { AssignmentPathPanel } from "../components/devices/AssignmentPathPanel.js";
 import { buildSummaryText, CopySummaryButton } from "../components/devices/CopySummaryButton.js";
 import { CompliancePoliciesPanel } from "../components/devices/CompliancePoliciesPanel.js";
@@ -423,6 +424,7 @@ export function DeviceDetailPage() {
         />
         <ActionsToolbar device={data} />
         <LapsWidget device={data} />
+        <BitLockerWidget device={data} />
         <RelatedDevicesPanel device={data} />
         <ActionHistory device={data} />
       </section>
