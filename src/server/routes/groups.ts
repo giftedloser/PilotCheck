@@ -1,6 +1,10 @@
 import { Router } from "express";
 import type Database from "better-sqlite3";
 
+import { requireDelegatedAuth, getDelegatedToken, getDelegatedUser } from "../auth/auth-middleware.js";
+import { createGroup, updateMembershipRule, addDeviceToGroup, removeDeviceFromGroup } from "../actions/group-actions.js";
+import { logAction } from "../db/queries/actions.js";
+
 export function groupsRouter(db: Database.Database) {
   const router = Router();
 
@@ -157,6 +161,147 @@ export function groupsRouter(db: Database.Database) {
       serialNumber: device.serial_number,
       entraId: device.entra_id
     });
+  });
+
+  // --- Write operations (require delegated auth) ---
+
+  // POST /api/groups — create a new Entra group
+  router.post("/", requireDelegatedAuth, async (request, response) => {
+    const token = getDelegatedToken(request);
+    const user = getDelegatedUser(request);
+    const { displayName, membershipType, membershipRule } = request.body ?? {};
+
+    if (!displayName || typeof displayName !== "string") {
+      response.status(400).json({ message: "displayName is required." });
+      return;
+    }
+    if (membershipType !== "assigned" && membershipType !== "dynamic") {
+      response.status(400).json({ message: "membershipType must be 'assigned' or 'dynamic'." });
+      return;
+    }
+    if (membershipType === "dynamic" && (!membershipRule || typeof membershipRule !== "string")) {
+      response.status(400).json({ message: "membershipRule is required for dynamic groups." });
+      return;
+    }
+
+    const result = await createGroup(token, displayName, membershipType, membershipRule);
+
+    logAction(db, {
+      deviceSerial: null,
+      deviceName: null,
+      intuneId: null,
+      actionType: "create_group",
+      triggeredBy: user,
+      triggeredAt: new Date().toISOString(),
+      graphResponseStatus: result.status,
+      notes: `${displayName} (${membershipType}) — ${result.message}`
+    });
+
+    response.status(result.success ? 201 : result.status).json(result);
+  });
+
+  // PATCH /api/groups/:groupId — update membership rule
+  router.patch("/:groupId", requireDelegatedAuth, async (request, response) => {
+    const token = getDelegatedToken(request);
+    const user = getDelegatedUser(request);
+    const { groupId } = request.params;
+    const { membershipRule } = request.body ?? {};
+
+    if (!membershipRule || typeof membershipRule !== "string") {
+      response.status(400).json({ message: "membershipRule is required." });
+      return;
+    }
+
+    const result = await updateMembershipRule(token, groupId, membershipRule);
+
+    logAction(db, {
+      deviceSerial: null,
+      deviceName: null,
+      intuneId: null,
+      actionType: "update_group_rule",
+      triggeredBy: user,
+      triggeredAt: new Date().toISOString(),
+      graphResponseStatus: result.status,
+      notes: `Group ${groupId} — ${result.message}`
+    });
+
+    response.status(result.success ? 200 : result.status).json(result);
+  });
+
+  // POST /api/groups/:groupId/members — add device to group
+  router.post("/:groupId/members", requireDelegatedAuth, async (request, response) => {
+    const token = getDelegatedToken(request);
+    const user = getDelegatedUser(request);
+    const { groupId } = request.params;
+    const { deviceKey } = request.body ?? {};
+
+    if (!deviceKey || typeof deviceKey !== "string") {
+      response.status(400).json({ message: "deviceKey is required." });
+      return;
+    }
+
+    const device = db
+      .prepare(`SELECT entra_id, device_name, serial_number FROM device_state WHERE device_key = ?`)
+      .get(deviceKey) as { entra_id: string | null; device_name: string | null; serial_number: string | null } | undefined;
+
+    if (!device) {
+      response.status(404).json({ message: "Device not found." });
+      return;
+    }
+    if (!device.entra_id) {
+      response.status(400).json({ message: "Device has no Entra ID." });
+      return;
+    }
+
+    const result = await addDeviceToGroup(token, groupId, device.entra_id);
+
+    logAction(db, {
+      deviceSerial: device.serial_number,
+      deviceName: device.device_name,
+      intuneId: null,
+      actionType: "add_to_group",
+      triggeredBy: user,
+      triggeredAt: new Date().toISOString(),
+      graphResponseStatus: result.status,
+      notes: `Group ${groupId} — ${result.message}`
+    });
+
+    response.status(result.success ? 200 : result.status).json(result);
+  });
+
+  // DELETE /api/groups/:groupId/members/:deviceKey — remove device from group
+  router.delete("/:groupId/members/:deviceKey", requireDelegatedAuth, async (request, response) => {
+    const token = getDelegatedToken(request);
+    const user = getDelegatedUser(request);
+    const { groupId, deviceKey } = request.params;
+
+    const device = db
+      .prepare(`SELECT entra_id, device_name, serial_number FROM device_state WHERE device_key = ?`)
+      .get(deviceKey) as { entra_id: string | null; device_name: string | null; serial_number: string | null } | undefined;
+
+    if (!device) {
+      response.status(404).json({ message: "Device not found." });
+      return;
+    }
+    if (!device.entra_id) {
+      response.status(400).json({ message: "Device has no Entra ID." });
+      return;
+    }
+
+    const result = await removeDeviceFromGroup(token, groupId, device.entra_id);
+
+    logAction(db, {
+      deviceSerial: device.serial_number,
+      deviceName: device.device_name,
+      intuneId: null,
+      actionType: "remove_from_group",
+      triggeredBy: user,
+      triggeredAt: new Date().toISOString(),
+      graphResponseStatus: result.status,
+      notes: `Group ${groupId} — ${result.message}`
+    });
+
+    response.status(result.success ? 200 : result.status).json(result);
   });
 
   return router;
