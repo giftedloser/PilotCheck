@@ -350,6 +350,21 @@ function getDeviceDetailWithRules(
       ).all(row.entra_id) as Array<{ group_id: string; display_name: string; membership_type: string }>)
     : [];
 
+  // Compliance policy states for this device
+  const compliancePolicies = row.intune_id
+    ? (db.prepare(
+        `SELECT policy_id, policy_name, state, last_reported_at
+         FROM device_compliance_states
+         WHERE device_id = ?
+         ORDER BY policy_name`
+      ).all(row.intune_id) as Array<{
+        policy_id: string;
+        policy_name: string | null;
+        state: string;
+        last_reported_at: string | null;
+      }>)
+    : [];
+
   const parsedAssignment = safeJsonParse<
     AssignmentPath & { diagnostics?: DeviceDetailResponse["diagnostics"] }
   >(row.assignment_path, {
@@ -430,6 +445,12 @@ function getDeviceDetailWithRules(
       enrollmentDate: entraSource?.registration_datetime ?? null,
       lastCheckinAt: intuneSource?.last_sync_datetime ?? null
     },
+    compliancePolicies: compliancePolicies.map((p) => ({
+      policyId: p.policy_id,
+      policyName: p.policy_name ?? "Unknown Policy",
+      state: p.state,
+      lastReportedAt: p.last_reported_at
+    })),
     sourceRefs: {
       autopilotRawJson: autopilotRaw,
       intuneRawJson: intuneRaw,

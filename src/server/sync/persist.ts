@@ -87,6 +87,14 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     INSERT INTO autopilot_profile_assignments (profile_id, group_id, last_synced_at)
     VALUES (@profile_id, @group_id, @last_synced_at)
   `);
+  const insertCompliancePolicy = db.prepare(`
+    INSERT INTO compliance_policies (id, display_name, description, platform, last_synced_at, raw_json)
+    VALUES (@id, @display_name, @description, @platform, @last_synced_at, @raw_json)
+  `);
+  const insertDeviceComplianceState = db.prepare(`
+    INSERT INTO device_compliance_states (id, device_id, policy_id, policy_name, state, last_reported_at, last_synced_at)
+    VALUES (@id, @device_id, @policy_id, @policy_name, @state, @last_reported_at, @last_synced_at)
+  `);
   const upsertTagConfig = db.prepare(`
     INSERT INTO tag_config (group_tag, expected_profile_names, expected_group_names, property_label)
     VALUES (?, ?, ?, ?)
@@ -104,6 +112,8 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     db.prepare("DELETE FROM group_memberships").run();
     db.prepare("DELETE FROM autopilot_profiles").run();
     db.prepare("DELETE FROM autopilot_profile_assignments").run();
+    db.prepare("DELETE FROM compliance_policies").run();
+    db.prepare("DELETE FROM device_compliance_states").run();
 
     for (const row of payload.autopilotRows) {
       const existing = existingAutopilot.get(row.id);
@@ -134,6 +144,12 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     }
     for (const row of payload.profileAssignmentRows) {
       insertProfileAssignment.run(row);
+    }
+    for (const row of payload.compliancePolicies ?? []) {
+      insertCompliancePolicy.run(row);
+    }
+    for (const row of payload.deviceComplianceStates ?? []) {
+      insertDeviceComplianceState.run(row);
     }
     for (const row of payload.tagConfigRows ?? []) {
       upsertTagConfig.run(

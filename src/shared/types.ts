@@ -131,6 +131,12 @@ export interface DeviceDetailResponse {
     enrollmentDate: string | null;
     lastCheckinAt: string | null;
   };
+  compliancePolicies: Array<{
+    policyId: string;
+    policyName: string;
+    state: string;
+    lastReportedAt: string | null;
+  }>;
   sourceRefs: {
     autopilotRawJson: string | null;
     intuneRawJson: string | null;

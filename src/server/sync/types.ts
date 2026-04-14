@@ -1,5 +1,7 @@
 import type {
   AutopilotRow,
+  CompliancePolicyRow,
+  DeviceComplianceStateRow,
   EntraRow,
   GroupMembershipRow,
   GroupRow,
@@ -16,6 +18,8 @@ export interface SnapshotPayload {
   membershipRows: GroupMembershipRow[];
   profileRows: ProfileRow[];
   profileAssignmentRows: ProfileAssignmentRow[];
+  compliancePolicies?: CompliancePolicyRow[];
+  deviceComplianceStates?: DeviceComplianceStateRow[];
   tagConfigRows?: Array<{
     groupTag: string;
     expectedProfileNames: string[];

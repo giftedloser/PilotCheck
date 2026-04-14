@@ -85,6 +85,10 @@ const deviceDetailPayload = {
     }
   ],
   ruleViolations: [],
+  compliancePolicies: [
+    { policyId: "cp-1", policyName: "BitLocker Encryption", state: "compliant", lastReportedAt: "2026-04-12T00:00:00Z" },
+    { policyId: "cp-2", policyName: "Windows Firewall", state: "noncompliant", lastReportedAt: "2026-04-12T00:00:00Z" }
+  ],
   hardware: {
     model: "EliteBook 840 G8",
     manufacturer: "HP",

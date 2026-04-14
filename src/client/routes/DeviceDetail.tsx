@@ -14,6 +14,7 @@ import { ActionsToolbar } from "../components/devices/ActionsToolbar.js";
 import { AssignmentPanel } from "../components/devices/AssignmentPanel.js";
 import { AssignmentPathPanel } from "../components/devices/AssignmentPathPanel.js";
 import { buildSummaryText, CopySummaryButton } from "../components/devices/CopySummaryButton.js";
+import { CompliancePoliciesPanel } from "../components/devices/CompliancePoliciesPanel.js";
 import { DeviceShortcuts } from "../components/devices/DeviceShortcuts.js";
 import { DiagnosticPanel } from "../components/devices/DiagnosticPanel.js";
 import { GroupMembershipsPanel } from "../components/devices/GroupMembershipsPanel.js";
@@ -405,6 +406,7 @@ export function DeviceDetailPage() {
           description="What the state engine found and why it matters"
         />
         <DiagnosticPanel device={data} />
+        <CompliancePoliciesPanel device={data} />
         <RuleViolationsPanel device={data} />
       </section>
 

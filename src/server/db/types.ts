@@ -79,3 +79,22 @@ export interface ProfileAssignmentRow {
   group_id: string;
   last_synced_at: string;
 }
+
+export interface CompliancePolicyRow {
+  id: string;
+  display_name: string;
+  description: string | null;
+  platform: string | null;
+  last_synced_at: string;
+  raw_json: string | null;
+}
+
+export interface DeviceComplianceStateRow {
+  id: string;
+  device_id: string;
+  policy_id: string;
+  policy_name: string | null;
+  state: string;
+  last_reported_at: string | null;
+  last_synced_at: string;
+}
