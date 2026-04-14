@@ -379,9 +379,9 @@ export function SettingsPage() {
             <Plus className="h-4 w-4 text-[var(--pc-accent)]" />
             <div className="text-[13px] font-semibold text-white">Add mapping</div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="text-[11px] font-medium text-[var(--pc-text-muted)]">
+          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className="block text-[11px] font-medium text-[var(--pc-text-muted)]">
                 Group tag
               </label>
               <Input
@@ -392,14 +392,14 @@ export function SettingsPage() {
                 }
                 onBlur={() => setTouched((p) => ({ ...p, groupTag: true }))}
                 aria-invalid={touched.groupTag && !form.groupTag.trim()}
-                className="mt-1"
+                className="w-full"
               />
               {touched.groupTag && !form.groupTag.trim() && (
-                <p className="mt-1 text-[11px] text-[var(--pc-critical)]">Group tag is required.</p>
+                <p className="text-[11px] text-[var(--pc-critical)]">Group tag is required.</p>
               )}
             </div>
-            <div>
-              <label className="text-[11px] font-medium text-[var(--pc-text-muted)]">
+            <div className="space-y-1">
+              <label className="block text-[11px] font-medium text-[var(--pc-text-muted)]">
                 Property label
               </label>
               <Input
@@ -410,14 +410,14 @@ export function SettingsPage() {
                 }
                 onBlur={() => setTouched((p) => ({ ...p, propertyLabel: true }))}
                 aria-invalid={touched.propertyLabel && !form.propertyLabel.trim()}
-                className="mt-1"
+                className="w-full"
               />
               {touched.propertyLabel && !form.propertyLabel.trim() && (
-                <p className="mt-1 text-[11px] text-[var(--pc-critical)]">Property label is required.</p>
+                <p className="text-[11px] text-[var(--pc-critical)]">Property label is required.</p>
               )}
             </div>
-            <div>
-              <label className="text-[11px] font-medium text-[var(--pc-text-muted)]">
+            <div className="space-y-1">
+              <label className="block text-[11px] font-medium text-[var(--pc-text-muted)]">
                 Expected profiles (comma-separated)
               </label>
               <Input
@@ -429,11 +429,11 @@ export function SettingsPage() {
                     expectedProfileNames: event.target.value
                   }))
                 }
-                className="mt-1"
+                className="w-full"
               />
             </div>
-            <div>
-              <label className="text-[11px] font-medium text-[var(--pc-text-muted)]">
+            <div className="space-y-1">
+              <label className="block text-[11px] font-medium text-[var(--pc-text-muted)]">
                 Expected groups (comma-separated)
               </label>
               <Input
@@ -445,7 +445,7 @@ export function SettingsPage() {
                     expectedGroupNames: event.target.value
                   }))
                 }
-                className="mt-1"
+                className="w-full"
               />
             </div>
           </div>

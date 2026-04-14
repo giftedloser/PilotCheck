@@ -4,11 +4,14 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
   CheckCircle2,
+  ClipboardCopy,
   Copy,
   GitBranch,
   Loader2,
+  Rows3,
   Search,
   ShieldCheck,
+  StretchHorizontal,
   Tag,
   Users,
   XCircle
@@ -65,6 +68,7 @@ export function ProvisioningBuilderPage() {
   const [searchTag, setSearchTag] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [compact, setCompact] = useState(false);
 
   const discover = useQuery({
     queryKey: ["provisioning-discover", searchTag],
@@ -141,6 +145,38 @@ export function ProvisioningBuilderPage() {
     }
   };
 
+  const handleExportSummary = async () => {
+    const lines = [
+      `PilotCheck Provisioning Review — ${new Date().toLocaleString()}`,
+      `${"─".repeat(56)}`,
+      `Group Tag:          ${data?.groupTag ?? "Not loaded"}`,
+      `Devices with tag:   ${data?.deviceCount ?? "—"}`,
+      ``,
+      `Selected Group:     ${selectedGroup?.groupName ?? "None"}`,
+      `  Membership type:  ${selectedGroup ? formatMembershipType(selectedGroup.membershipType) : "—"}`,
+      `  Group ID:         ${selectedGroup?.groupId ?? "—"}`,
+      ``,
+      `Selected Profile:   ${selectedProfile?.profileName ?? "None"}`,
+      `  Deployment mode:  ${selectedProfile ? formatDeploymentMode(selectedProfile.deploymentMode) : "—"}`,
+      `  Profile ID:       ${selectedProfile?.profileId ?? "—"}`,
+      `  Assigned via:     ${selectedProfileViaGroup?.groupName ?? selectedProfile?.viaGroupId ?? "—"}`,
+      ``
+    ];
+    if (validate.data) {
+      lines.push(`Validation:         ${validate.data.valid ? "PASS" : "FAIL"}`);
+      for (const e of validate.data.errors) lines.push(`  ERROR: ${e}`);
+      for (const w of validate.data.warnings) lines.push(`  WARN:  ${w}`);
+    } else {
+      lines.push(`Validation:         Not run`);
+    }
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      toast.push({ variant: "success", title: "Summary copied", description: "Paste into a ticket or change request." });
+    } catch {
+      toast.push({ variant: "error", title: "Copy failed", description: "Could not write to clipboard." });
+    }
+  };
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -152,6 +188,26 @@ export function ProvisioningBuilderPage() {
             <SourceBadge source="autopilot" />
             <SourceBadge source="entra" />
             <SourceBadge source="derived" />
+            <button
+              type="button"
+              onClick={() => setCompact((p) => !p)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-white"
+              title={compact ? "Switch to comfortable view" : "Switch to compact view"}
+            >
+              {compact ? <StretchHorizontal className="h-3 w-3" /> : <Rows3 className="h-3 w-3" />}
+              {compact ? "Comfortable" : "Compact"}
+            </button>
+            {data ? (
+              <button
+                type="button"
+                onClick={() => void handleExportSummary()}
+                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-white"
+                title="Copy operator summary to clipboard"
+              >
+                <ClipboardCopy className="h-3 w-3" />
+                Export Summary
+              </button>
+            ) : null}
           </>
         }
       />
@@ -277,6 +333,18 @@ export function ProvisioningBuilderPage() {
             />
           </div>
 
+          {data && data.deviceCount === 0 && data.matchingGroups.length === 0 ? (
+            <Card className="border-dashed px-5 py-6 text-center">
+              <div className="text-[13px] font-semibold text-[var(--pc-text-secondary)]">
+                No devices or groups match this tag
+              </div>
+              <div className="mx-auto mt-2 max-w-md text-[12px] leading-relaxed text-[var(--pc-text-muted)]">
+                Check the tag spelling matches your Autopilot hardware order ID. If the tag is new,
+                devices may not have synced yet — run a sync from the Sync page and try again.
+              </div>
+            </Card>
+          ) : null}
+
           {discover.isError ? (
             <ErrorState
               title="Discovery failed"
@@ -346,9 +414,15 @@ export function ProvisioningBuilderPage() {
                   </div>
 
                   {data.matchingGroups.length === 0 ? (
-                    <EmptyPanel message={`No groups found referencing "${data.groupTag}".`} />
+                    <EmptyPanel
+                      message={`No groups found referencing "${data.groupTag}".`}
+                      guidance="Check that an Entra group exists with a dynamic membership rule containing this tag value, or that a group display name includes the tag string."
+                    />
                   ) : (
                     <div className="max-h-[520px] space-y-2 overflow-auto px-3 py-3">
+                      <div className="sticky top-0 z-10 -mx-3 -mt-3 mb-2 border-b border-[var(--pc-border)] bg-[var(--pc-surface)] px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
+                        {data.matchingGroups.length} group{data.matchingGroups.length !== 1 ? "s" : ""} — click to select
+                      </div>
                       {data.matchingGroups.map((group) => (
                         <button
                           key={group.groupId}
@@ -359,7 +433,8 @@ export function ProvisioningBuilderPage() {
                             )
                           }
                           className={cn(
-                            "w-full rounded-xl border px-4 py-3 text-left transition-colors",
+                            "w-full rounded-xl border text-left transition-colors",
+                            compact ? "px-3 py-2" : "px-4 py-3",
                             selectedGroupId === group.groupId
                               ? "border-[var(--pc-accent)] bg-[var(--pc-accent-muted)]"
                               : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-raised)]"
@@ -367,7 +442,7 @@ export function ProvisioningBuilderPage() {
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <div className="text-[13px] font-medium text-white">
+                              <div className={cn("font-medium text-white", compact ? "text-[12px]" : "text-[13px]")}>
                                 {group.groupName}
                               </div>
                               <div className="mt-1 flex flex-wrap items-center gap-2 text-[10.5px] uppercase tracking-wide text-[var(--pc-text-muted)]">
@@ -384,14 +459,16 @@ export function ProvisioningBuilderPage() {
                             </div>
                             <SelectionBadge active={selectedGroupId === group.groupId} />
                           </div>
-                          <div className="mt-3 rounded-lg border border-white/6 bg-black/10 px-3 py-2">
-                            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
-                              Membership Rule
+                          {!compact && (
+                            <div className="mt-3 rounded-lg border border-white/6 bg-black/10 px-3 py-2">
+                              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
+                                Membership Rule
+                              </div>
+                              <div className="font-mono text-[11px] leading-relaxed text-[var(--pc-text-secondary)]">
+                                {group.membershipRule ?? "No dynamic rule stored for this group."}
+                              </div>
                             </div>
-                            <div className="font-mono text-[11px] leading-relaxed text-[var(--pc-text-secondary)]">
-                              {group.membershipRule ?? "No dynamic rule stored for this group."}
-                            </div>
-                          </div>
+                          )}
                         </button>
                       ))}
                     </div>
@@ -417,9 +494,19 @@ export function ProvisioningBuilderPage() {
                   </div>
 
                   {data.matchingProfiles.length === 0 ? (
-                    <EmptyPanel message="No deployment profiles are assigned to the discovered groups." />
+                    <EmptyPanel
+                      message="No deployment profiles are assigned to the discovered groups."
+                      guidance={
+                        data.matchingGroups.length > 0
+                          ? "Groups were found, but none have an Autopilot deployment profile assigned. Assign a profile to one of the discovered groups in the Intune portal."
+                          : "Discover matching groups first — profiles are found through group→profile assignments."
+                      }
+                    />
                   ) : (
                     <div className="max-h-[520px] space-y-2 overflow-auto px-3 py-3">
+                      <div className="sticky top-0 z-10 -mx-3 -mt-3 mb-2 border-b border-[var(--pc-border)] bg-[var(--pc-surface)] px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
+                        {data.matchingProfiles.length} profile{data.matchingProfiles.length !== 1 ? "s" : ""} — click to select
+                      </div>
                       {data.matchingProfiles.map((profile) => {
                         const viaGroup =
                           data.matchingGroups.find(
@@ -438,7 +525,8 @@ export function ProvisioningBuilderPage() {
                               )
                             }
                             className={cn(
-                              "w-full rounded-xl border px-4 py-3 text-left transition-colors",
+                              "w-full rounded-xl border text-left transition-colors",
+                              compact ? "px-3 py-2" : "px-4 py-3",
                               selectedProfileId === profile.profileId
                                 ? "border-[var(--pc-accent)] bg-[var(--pc-accent-muted)]"
                                 : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-raised)]"
@@ -446,7 +534,7 @@ export function ProvisioningBuilderPage() {
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <div className="text-[13px] font-medium text-white">
+                                <div className={cn("font-medium text-white", compact ? "text-[12px]" : "text-[13px]")}>
                                   {profile.profileName}
                                 </div>
                                 <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[var(--pc-text-secondary)]">
@@ -866,10 +954,17 @@ function SelectionBadge({ active }: { active: boolean }) {
   );
 }
 
-function EmptyPanel({ message }: { message: string }) {
+function EmptyPanel({ message, guidance }: { message: string; guidance?: string }) {
   return (
-    <div className="px-5 py-8 text-[12px] leading-relaxed text-[var(--pc-text-muted)]">
-      {message}
+    <div className="px-5 py-8">
+      <div className="text-[12px] leading-relaxed text-[var(--pc-text-muted)]">
+        {message}
+      </div>
+      {guidance ? (
+        <div className="mt-3 rounded-lg border border-dashed border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/35 px-3 py-2.5 text-[11px] leading-relaxed text-[var(--pc-text-muted)]">
+          {guidance}
+        </div>
+      ) : null}
     </div>
   );
 }
