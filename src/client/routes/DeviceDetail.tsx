@@ -11,6 +11,7 @@ import {
 
 import { ActionHistory } from "../components/devices/ActionHistory.js";
 import { ActionsToolbar } from "../components/devices/ActionsToolbar.js";
+import { AppStatusPanel } from "../components/devices/AppStatusPanel.js";
 import { AssignmentPanel } from "../components/devices/AssignmentPanel.js";
 import { AssignmentPathPanel } from "../components/devices/AssignmentPathPanel.js";
 import { buildSummaryText, CopySummaryButton } from "../components/devices/CopySummaryButton.js";
@@ -409,6 +410,7 @@ export function DeviceDetailPage() {
         <DiagnosticPanel device={data} />
         <CompliancePoliciesPanel device={data} />
         <ConfigProfilesPanel device={data} />
+        <AppStatusPanel device={data} />
         <RuleViolationsPanel device={data} />
       </section>
 

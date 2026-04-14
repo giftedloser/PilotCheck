@@ -118,3 +118,23 @@ export interface DeviceConfigStateRow {
   last_reported_at: string | null;
   last_synced_at: string;
 }
+
+export interface MobileAppRow {
+  id: string;
+  display_name: string;
+  description: string | null;
+  app_type: string | null;
+  publisher: string | null;
+  last_synced_at: string;
+  raw_json: string | null;
+}
+
+export interface DeviceAppInstallStateRow {
+  id: string;
+  device_id: string;
+  app_id: string;
+  app_name: string | null;
+  install_state: string;
+  error_code: string | null;
+  last_synced_at: string;
+}

@@ -2,12 +2,14 @@ import type {
   AutopilotRow,
   CompliancePolicyRow,
   ConfigProfileRow,
+  DeviceAppInstallStateRow,
   DeviceComplianceStateRow,
   DeviceConfigStateRow,
   EntraRow,
   GroupMembershipRow,
   GroupRow,
   IntuneRow,
+  MobileAppRow,
   ProfileAssignmentRow,
   ProfileRow
 } from "../db/types.js";
@@ -24,6 +26,8 @@ export interface SnapshotPayload {
   deviceComplianceStates?: DeviceComplianceStateRow[];
   configProfiles?: ConfigProfileRow[];
   deviceConfigStates?: DeviceConfigStateRow[];
+  mobileApps?: MobileAppRow[];
+  deviceAppInstallStates?: DeviceAppInstallStateRow[];
   tagConfigRows?: Array<{
     groupTag: string;
     expectedProfileNames: string[];

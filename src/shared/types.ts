@@ -143,6 +143,12 @@ export interface DeviceDetailResponse {
     state: string;
     lastReportedAt: string | null;
   }>;
+  appInstallStates: Array<{
+    appId: string;
+    appName: string;
+    installState: string;
+    errorCode: string | null;
+  }>;
   sourceRefs: {
     autopilotRawJson: string | null;
     intuneRawJson: string | null;

@@ -103,6 +103,14 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     INSERT INTO device_config_states (id, device_id, profile_id, profile_name, state, last_reported_at, last_synced_at)
     VALUES (@id, @device_id, @profile_id, @profile_name, @state, @last_reported_at, @last_synced_at)
   `);
+  const insertMobileApp = db.prepare(`
+    INSERT INTO mobile_apps (id, display_name, description, app_type, publisher, last_synced_at, raw_json)
+    VALUES (@id, @display_name, @description, @app_type, @publisher, @last_synced_at, @raw_json)
+  `);
+  const insertDeviceAppInstallState = db.prepare(`
+    INSERT INTO device_app_install_states (id, device_id, app_id, app_name, install_state, error_code, last_synced_at)
+    VALUES (@id, @device_id, @app_id, @app_name, @install_state, @error_code, @last_synced_at)
+  `);
   const upsertTagConfig = db.prepare(`
     INSERT INTO tag_config (group_tag, expected_profile_names, expected_group_names, property_label)
     VALUES (?, ?, ?, ?)
@@ -124,6 +132,8 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     db.prepare("DELETE FROM device_compliance_states").run();
     db.prepare("DELETE FROM config_profiles").run();
     db.prepare("DELETE FROM device_config_states").run();
+    db.prepare("DELETE FROM mobile_apps").run();
+    db.prepare("DELETE FROM device_app_install_states").run();
 
     for (const row of payload.autopilotRows) {
       const existing = existingAutopilot.get(row.id);
@@ -166,6 +176,12 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     }
     for (const row of payload.deviceConfigStates ?? []) {
       insertDeviceConfigState.run(row);
+    }
+    for (const row of payload.mobileApps ?? []) {
+      insertMobileApp.run(row);
+    }
+    for (const row of payload.deviceAppInstallStates ?? []) {
+      insertDeviceAppInstallState.run(row);
     }
     for (const row of payload.tagConfigRows ?? []) {
       upsertTagConfig.run(

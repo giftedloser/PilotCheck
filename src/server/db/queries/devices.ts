@@ -380,6 +380,21 @@ function getDeviceDetailWithRules(
       }>)
     : [];
 
+  // App install states for this device
+  const appInstallStates = row.intune_id
+    ? (db.prepare(
+        `SELECT app_id, app_name, install_state, error_code
+         FROM device_app_install_states
+         WHERE device_id = ?
+         ORDER BY app_name`
+      ).all(row.intune_id) as Array<{
+        app_id: string;
+        app_name: string | null;
+        install_state: string;
+        error_code: string | null;
+      }>)
+    : [];
+
   const parsedAssignment = safeJsonParse<
     AssignmentPath & { diagnostics?: DeviceDetailResponse["diagnostics"] }
   >(row.assignment_path, {
@@ -471,6 +486,12 @@ function getDeviceDetailWithRules(
       profileName: p.profile_name ?? "Unknown Profile",
       state: p.state,
       lastReportedAt: p.last_reported_at
+    })),
+    appInstallStates: appInstallStates.map((a) => ({
+      appId: a.app_id,
+      appName: a.app_name ?? "Unknown App",
+      installState: a.install_state,
+      errorCode: a.error_code
     })),
     sourceRefs: {
       autopilotRawJson: autopilotRaw,

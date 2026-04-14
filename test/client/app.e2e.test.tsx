@@ -92,6 +92,9 @@ const deviceDetailPayload = {
   configProfiles: [
     { profileId: "cfg-1", profileName: "Wi-Fi Corporate", state: "succeeded", lastReportedAt: "2026-04-12T00:00:00Z" }
   ],
+  appInstallStates: [
+    { appId: "app-1", appName: "Microsoft Teams", installState: "installed", errorCode: null }
+  ],
   hardware: {
     model: "EliteBook 840 G8",
     manufacturer: "HP",

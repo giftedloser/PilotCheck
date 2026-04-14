@@ -14,6 +14,7 @@ import { syncGroups } from "./group-sync.js";
 import { syncProfiles } from "./profile-sync.js";
 import { syncCompliancePolicies } from "./compliance-sync.js";
 import { syncConfigProfiles } from "./config-profile-sync.js";
+import { syncAppAssignments } from "./app-sync.js";
 
 const state = {
   inProgress: false,
@@ -73,9 +74,10 @@ export async function fullSync(
 
     // Compliance + config profile syncs need Intune device IDs, so they run after the initial fetch
     const intuneIds = intuneRows.map((r) => r.id);
-    const [complianceSync, configProfileSync] = await Promise.all([
+    const [complianceSync, configProfileSync, appSync] = await Promise.all([
       syncCompliancePolicies(client, intuneIds),
-      syncConfigProfiles(client, intuneIds)
+      syncConfigProfiles(client, intuneIds),
+      syncAppAssignments(client, intuneIds)
     ]);
 
     persistSnapshot(db, {
@@ -89,7 +91,9 @@ export async function fullSync(
       compliancePolicies: complianceSync.policies,
       deviceComplianceStates: complianceSync.deviceStates,
       configProfiles: configProfileSync.profiles,
-      deviceConfigStates: configProfileSync.deviceStates
+      deviceConfigStates: configProfileSync.deviceStates,
+      mobileApps: appSync.apps,
+      deviceAppInstallStates: appSync.deviceStates
     });
 
     const devicesSynced = computeAllDeviceStates(db);
