@@ -137,6 +137,12 @@ export interface DeviceDetailResponse {
     state: string;
     lastReportedAt: string | null;
   }>;
+  configProfiles: Array<{
+    profileId: string;
+    profileName: string;
+    state: string;
+    lastReportedAt: string | null;
+  }>;
   sourceRefs: {
     autopilotRawJson: string | null;
     intuneRawJson: string | null;

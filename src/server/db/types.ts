@@ -98,3 +98,23 @@ export interface DeviceComplianceStateRow {
   last_reported_at: string | null;
   last_synced_at: string;
 }
+
+export interface ConfigProfileRow {
+  id: string;
+  display_name: string;
+  description: string | null;
+  platform: string | null;
+  profile_type: string | null;
+  last_synced_at: string;
+  raw_json: string | null;
+}
+
+export interface DeviceConfigStateRow {
+  id: string;
+  device_id: string;
+  profile_id: string;
+  profile_name: string | null;
+  state: string;
+  last_reported_at: string | null;
+  last_synced_at: string;
+}

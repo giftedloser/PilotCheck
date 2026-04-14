@@ -13,6 +13,7 @@ import { syncEntraDevices } from "./entra-sync.js";
 import { syncGroups } from "./group-sync.js";
 import { syncProfiles } from "./profile-sync.js";
 import { syncCompliancePolicies } from "./compliance-sync.js";
+import { syncConfigProfiles } from "./config-profile-sync.js";
 
 const state = {
   inProgress: false,
@@ -70,11 +71,12 @@ export async function fullSync(
       syncProfiles(client)
     ]);
 
-    // Compliance sync needs Intune device IDs, so it runs after the initial fetch
-    const complianceSync = await syncCompliancePolicies(
-      client,
-      intuneRows.map((r) => r.id)
-    );
+    // Compliance + config profile syncs need Intune device IDs, so they run after the initial fetch
+    const intuneIds = intuneRows.map((r) => r.id);
+    const [complianceSync, configProfileSync] = await Promise.all([
+      syncCompliancePolicies(client, intuneIds),
+      syncConfigProfiles(client, intuneIds)
+    ]);
 
     persistSnapshot(db, {
       autopilotRows,
@@ -85,7 +87,9 @@ export async function fullSync(
       profileRows: profileSync.profiles,
       profileAssignmentRows: profileSync.assignments,
       compliancePolicies: complianceSync.policies,
-      deviceComplianceStates: complianceSync.deviceStates
+      deviceComplianceStates: complianceSync.deviceStates,
+      configProfiles: configProfileSync.profiles,
+      deviceConfigStates: configProfileSync.deviceStates
     });
 
     const devicesSynced = computeAllDeviceStates(db);

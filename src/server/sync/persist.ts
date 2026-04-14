@@ -95,6 +95,14 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     INSERT INTO device_compliance_states (id, device_id, policy_id, policy_name, state, last_reported_at, last_synced_at)
     VALUES (@id, @device_id, @policy_id, @policy_name, @state, @last_reported_at, @last_synced_at)
   `);
+  const insertConfigProfile = db.prepare(`
+    INSERT INTO config_profiles (id, display_name, description, platform, profile_type, last_synced_at, raw_json)
+    VALUES (@id, @display_name, @description, @platform, @profile_type, @last_synced_at, @raw_json)
+  `);
+  const insertDeviceConfigState = db.prepare(`
+    INSERT INTO device_config_states (id, device_id, profile_id, profile_name, state, last_reported_at, last_synced_at)
+    VALUES (@id, @device_id, @profile_id, @profile_name, @state, @last_reported_at, @last_synced_at)
+  `);
   const upsertTagConfig = db.prepare(`
     INSERT INTO tag_config (group_tag, expected_profile_names, expected_group_names, property_label)
     VALUES (?, ?, ?, ?)
@@ -114,6 +122,8 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     db.prepare("DELETE FROM autopilot_profile_assignments").run();
     db.prepare("DELETE FROM compliance_policies").run();
     db.prepare("DELETE FROM device_compliance_states").run();
+    db.prepare("DELETE FROM config_profiles").run();
+    db.prepare("DELETE FROM device_config_states").run();
 
     for (const row of payload.autopilotRows) {
       const existing = existingAutopilot.get(row.id);
@@ -150,6 +160,12 @@ export function persistSnapshot(db: Database.Database, payload: SnapshotPayload)
     }
     for (const row of payload.deviceComplianceStates ?? []) {
       insertDeviceComplianceState.run(row);
+    }
+    for (const row of payload.configProfiles ?? []) {
+      insertConfigProfile.run(row);
+    }
+    for (const row of payload.deviceConfigStates ?? []) {
+      insertDeviceConfigState.run(row);
     }
     for (const row of payload.tagConfigRows ?? []) {
       upsertTagConfig.run(

@@ -365,6 +365,21 @@ function getDeviceDetailWithRules(
       }>)
     : [];
 
+  // Config profile states for this device
+  const configProfileStates = row.intune_id
+    ? (db.prepare(
+        `SELECT profile_id, profile_name, state, last_reported_at
+         FROM device_config_states
+         WHERE device_id = ?
+         ORDER BY profile_name`
+      ).all(row.intune_id) as Array<{
+        profile_id: string;
+        profile_name: string | null;
+        state: string;
+        last_reported_at: string | null;
+      }>)
+    : [];
+
   const parsedAssignment = safeJsonParse<
     AssignmentPath & { diagnostics?: DeviceDetailResponse["diagnostics"] }
   >(row.assignment_path, {
@@ -448,6 +463,12 @@ function getDeviceDetailWithRules(
     compliancePolicies: compliancePolicies.map((p) => ({
       policyId: p.policy_id,
       policyName: p.policy_name ?? "Unknown Policy",
+      state: p.state,
+      lastReportedAt: p.last_reported_at
+    })),
+    configProfiles: configProfileStates.map((p) => ({
+      profileId: p.profile_id,
+      profileName: p.profile_name ?? "Unknown Profile",
       state: p.state,
       lastReportedAt: p.last_reported_at
     })),

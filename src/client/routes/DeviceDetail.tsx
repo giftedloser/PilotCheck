@@ -15,6 +15,7 @@ import { AssignmentPanel } from "../components/devices/AssignmentPanel.js";
 import { AssignmentPathPanel } from "../components/devices/AssignmentPathPanel.js";
 import { buildSummaryText, CopySummaryButton } from "../components/devices/CopySummaryButton.js";
 import { CompliancePoliciesPanel } from "../components/devices/CompliancePoliciesPanel.js";
+import { ConfigProfilesPanel } from "../components/devices/ConfigProfilesPanel.js";
 import { DeviceShortcuts } from "../components/devices/DeviceShortcuts.js";
 import { DiagnosticPanel } from "../components/devices/DiagnosticPanel.js";
 import { GroupMembershipsPanel } from "../components/devices/GroupMembershipsPanel.js";
@@ -407,6 +408,7 @@ export function DeviceDetailPage() {
         />
         <DiagnosticPanel device={data} />
         <CompliancePoliciesPanel device={data} />
+        <ConfigProfilesPanel device={data} />
         <RuleViolationsPanel device={data} />
       </section>
 
