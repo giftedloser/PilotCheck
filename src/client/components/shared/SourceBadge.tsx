@@ -17,7 +17,7 @@ const SOURCE_META: Record<
     label: "Autopilot",
     full: "Windows Autopilot deployment service",
     ring: "ring-sky-500/30",
-    bg: "bg-sky-500/10 text-sky-200",
+    bg: "bg-sky-500/10 text-[var(--pc-info)]",
     dot: "bg-sky-400"
   },
   intune: {
@@ -31,21 +31,21 @@ const SOURCE_META: Record<
     label: "Entra ID",
     full: "Microsoft Entra ID (directory object)",
     ring: "ring-emerald-500/30",
-    bg: "bg-emerald-500/10 text-emerald-200",
+    bg: "bg-emerald-500/10 text-[var(--pc-healthy)]",
     dot: "bg-emerald-400"
   },
   graph: {
     label: "Graph",
     full: "Microsoft Graph (live API call)",
     ring: "ring-amber-500/30",
-    bg: "bg-amber-500/10 text-amber-200",
+    bg: "bg-amber-500/10 text-[var(--pc-warning)]",
     dot: "bg-amber-400"
   },
   derived: {
     label: "Derived",
     full: "Computed by the PilotCheck state engine",
     ring: "ring-white/15",
-    bg: "bg-white/[0.06] text-[var(--pc-text-secondary)]",
+    bg: "bg-[var(--pc-tint-hover)] text-[var(--pc-text-secondary)]",
     dot: "bg-[var(--pc-text-muted)]"
   }
 };
@@ -98,13 +98,13 @@ export function SourceSectionHeader({
     <div className="mb-4 flex items-start justify-between gap-3">
       <div className="flex min-w-0 items-start gap-3">
         {icon ? (
-          <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.04] text-[var(--pc-accent)]">
+          <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--pc-tint-subtle)] text-[var(--pc-accent)]">
             {icon}
           </div>
         ) : null}
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-[13px] font-semibold text-white">{title}</span>
+            <span className="text-[13px] font-semibold text-[var(--pc-text)]">{title}</span>
             <SourceBadge source={source} />
           </div>
           {description ? (

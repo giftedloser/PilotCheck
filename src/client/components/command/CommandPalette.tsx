@@ -287,7 +287,7 @@ export function CommandPalette() {
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search devices, jump to a page, run an action..."
-            className="flex-1 bg-transparent text-[14px] text-white outline-none placeholder:text-[var(--pc-text-muted)]"
+            className="flex-1 bg-transparent text-[14px] text-[var(--pc-text)] outline-none placeholder:text-[var(--pc-text-muted)]"
           />
           <kbd className="rounded border border-[var(--pc-border)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--pc-text-muted)]">
             Esc
@@ -424,8 +424,8 @@ function CommandGroup({
                 className={cn(
                   "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-[13px] transition-colors",
                   isActive
-                    ? "bg-[var(--pc-accent-muted)] text-white"
-                    : "text-[var(--pc-text-secondary)] hover:bg-white/[0.04]"
+                    ? "bg-[var(--pc-accent-muted)] text-[var(--pc-text)]"
+                    : "text-[var(--pc-text-secondary)] hover:bg-[var(--pc-tint-subtle)]"
                 )}
               >
                 <Icon
@@ -435,7 +435,7 @@ function CommandGroup({
                   )}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium text-white">{item.title}</div>
+                  <div className="truncate font-medium text-[var(--pc-text)]">{item.title}</div>
                   <div className="truncate text-[11px] text-[var(--pc-text-muted)]">
                     {item.hint}
                   </div>

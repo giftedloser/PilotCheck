@@ -183,7 +183,7 @@ export function KeyboardShortcuts() {
         <div className="flex items-center justify-between border-b border-[var(--pc-border)] px-5 py-4">
           <div className="flex items-center gap-2">
             <Keyboard className="h-4 w-4 text-[var(--pc-accent)]" />
-            <div className="text-[13px] font-semibold text-white">Keyboard shortcuts</div>
+            <div className="text-[13px] font-semibold text-[var(--pc-text)]">Keyboard shortcuts</div>
           </div>
           <button
             type="button"

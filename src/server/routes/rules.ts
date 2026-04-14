@@ -77,7 +77,7 @@ export function rulesRouter(db: Database.Database) {
       return;
     }
     const created = createRule(db, result.data as RuleInput);
-    computeAllDeviceStates(db);
+    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
     response.status(201).json(created);
   });
 
@@ -92,7 +92,7 @@ export function rulesRouter(db: Database.Database) {
       response.status(404).json({ message: "Rule not found." });
       return;
     }
-    computeAllDeviceStates(db);
+    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
     response.json(updated);
   });
 
@@ -102,7 +102,7 @@ export function rulesRouter(db: Database.Database) {
       response.status(404).json({ message: "Rule not found." });
       return;
     }
-    computeAllDeviceStates(db);
+    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
     response.status(204).send();
   });
 

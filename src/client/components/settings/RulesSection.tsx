@@ -3,6 +3,7 @@ import { Plus, ScrollText, ToggleLeft, ToggleRight, Trash2 } from "lucide-react"
 
 import { useRuleMutations, useRules, type RuleInputPayload } from "../../hooks/useRules.js";
 import type { RuleDefinition, RuleOp, RuleSeverity } from "../../lib/types.js";
+import { ConfirmDialog } from "../shared/ConfirmDialog.js";
 import { Button } from "../ui/button.js";
 import { Card } from "../ui/card.js";
 import { Input } from "../ui/input.js";
@@ -62,9 +63,9 @@ const OP_OPTIONS: Array<{ value: RuleOp; label: string; needsValue: boolean }> =
 ];
 
 const SEVERITY_BADGE: Record<RuleSeverity, string> = {
-  critical: "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/40",
-  warning: "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/40",
-  info: "bg-[var(--pc-info-muted)] text-sky-200 ring-1 ring-[var(--pc-info)]/40"
+  critical: "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/40",
+  warning: "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)] ring-1 ring-[var(--pc-warning)]/40",
+  info: "bg-[var(--pc-info-muted)] text-[var(--pc-info)] ring-1 ring-[var(--pc-info)]/40"
 };
 
 interface FormState {
@@ -146,6 +147,7 @@ export function RulesSection() {
   const mutations = useRuleMutations();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<RuleDefinition | null>(null);
 
   const opMeta = OP_OPTIONS.find((o) => o.value === form.op);
   const currentFieldType = fieldType(form.field);
@@ -175,7 +177,7 @@ export function RulesSection() {
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <ScrollText className="h-4 w-4 text-[var(--pc-accent)]" />
-            <div className="text-[13px] font-semibold text-white">Rule definitions</div>
+            <div className="text-[13px] font-semibold text-[var(--pc-text)]">Rule definitions</div>
           </div>
           <Button
             variant={showForm ? "secondary" : "default"}
@@ -358,14 +360,14 @@ export function RulesSection() {
                 </button>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <div className="text-[13px] font-semibold text-white">{rule.name}</div>
+                    <div className="text-[13px] font-semibold text-[var(--pc-text)]">{rule.name}</div>
                     <span
                       className={`rounded-md px-1.5 py-0.5 text-[10px] font-medium capitalize ${SEVERITY_BADGE[rule.severity]}`}
                     >
                       {rule.severity}
                     </span>
                     {!rule.enabled ? (
-                      <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-[var(--pc-text-muted)]">
+                      <span className="rounded-md bg-[var(--pc-tint-subtle)] px-1.5 py-0.5 text-[10px] text-[var(--pc-text-muted)]">
                         Disabled
                       </span>
                     ) : null}
@@ -382,7 +384,7 @@ export function RulesSection() {
                 <Button
                   variant="destructive"
                   className="h-8 px-2.5"
-                  onClick={() => mutations.remove.mutate(rule.id)}
+                  onClick={() => setDeleteTarget(rule)}
                   aria-label={`Delete ${rule.name}`}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -392,6 +394,19 @@ export function RulesSection() {
           </ul>
         )}
       </Card>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete rule"
+        description={`Permanently remove the rule "${deleteTarget?.name ?? ""}"? Devices will no longer be evaluated against this rule.`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (deleteTarget) mutations.remove.mutate(deleteTarget.id);
+          setDeleteTarget(null);
+        }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </section>
   );
 }

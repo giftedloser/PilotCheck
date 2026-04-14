@@ -107,7 +107,7 @@ export function DashboardPage() {
         >
           <ShieldCheck className="h-4 w-4 text-[var(--pc-accent)]" />
           <span className="flex-1">
-            <span className="font-medium text-white">Finish first-run setup</span>
+            <span className="font-medium text-[var(--pc-text)]">Finish first-run setup</span>
             <span className="ml-2 text-[var(--pc-text-muted)]">
               Configure Graph credentials, run an initial sync, and add at least one tag mapping.
             </span>
@@ -139,12 +139,12 @@ export function DashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <Card className="px-5 py-4">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Total Devices</div>
-          <div className="mt-1 text-3xl font-semibold tabular-nums text-white">{totalDevices}</div>
+          <div className="mt-1 text-3xl font-semibold tabular-nums text-[var(--pc-text)]">{totalDevices}</div>
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">In current cache</div>
         </Card>
         <Card className="px-5 py-4">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">New Today</div>
-          <div className="mt-1 text-3xl font-semibold tabular-nums text-white">
+          <div className="mt-1 text-3xl font-semibold tabular-nums text-[var(--pc-text)]">
             {dashboard.data.newlyUnhealthy24h}
           </div>
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">
@@ -153,16 +153,16 @@ export function DashboardPage() {
         </Card>
         <Card className="px-5 py-4">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Impacted</div>
-          <div className="mt-1 text-3xl font-semibold tabular-nums text-white">{impactedDevices}</div>
+          <div className="mt-1 text-3xl font-semibold tabular-nums text-[var(--pc-text)]">{impactedDevices}</div>
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">Outside expected state</div>
         </Card>
         <Card className="px-5 py-4">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Stability</div>
           <div className="mt-1 flex items-end gap-1.5">
-            <span className="text-3xl font-semibold tabular-nums text-white">{stabilityRate}</span>
+            <span className="text-3xl font-semibold tabular-nums text-[var(--pc-text)]">{stabilityRate}</span>
             <span className="mb-1 text-[15px] font-medium text-[var(--pc-text-muted)]">%</span>
           </div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--pc-tint-hover)]">
             <div
               className="h-full rounded-full bg-[var(--pc-healthy)] transition-all"
               style={{ width: `${Math.max(stabilityRate, 3)}%` }}
@@ -171,7 +171,7 @@ export function DashboardPage() {
         </Card>
         <Card className="px-5 py-4">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Top Signal</div>
-          <div className="mt-1 truncate text-[15px] font-semibold text-white">
+          <div className="mt-1 truncate text-[15px] font-semibold text-[var(--pc-text)]">
             {topPattern ? humanizeFlag(topPattern.flag) : "No Issues"}
           </div>
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">
@@ -190,7 +190,7 @@ export function DashboardPage() {
             const issues = cq.nameJoinedCount + cq.identityConflictCount;
             return (
               <>
-                <div className="mt-1 text-3xl font-semibold tabular-nums text-white">
+                <div className="mt-1 text-3xl font-semibold tabular-nums text-[var(--pc-text)]">
                   {issues}
                 </div>
                 <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">
@@ -233,7 +233,7 @@ export function DashboardPage() {
           {/* Breakpoint buckets */}
           <Card className="overflow-hidden">
             <div className="border-b border-[var(--pc-border)] px-5 py-4">
-              <div className="text-[13px] font-semibold text-white">Breakpoint Areas</div>
+              <div className="text-[13px] font-semibold text-[var(--pc-text)]">Breakpoint Areas</div>
               <div className="mt-0.5 text-[12px] text-[var(--pc-text-muted)]">
                 Where provisioning chains are failing
               </div>
@@ -245,9 +245,9 @@ export function DashboardPage() {
                     <bucket.icon className={`h-4 w-4 ${bucket.color}`} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-medium text-white">{bucket.label}</div>
+                    <div className="text-[13px] font-medium text-[var(--pc-text)]">{bucket.label}</div>
                   </div>
-                  <div className="text-[17px] font-semibold tabular-nums text-white">
+                  <div className="text-[17px] font-semibold tabular-nums text-[var(--pc-text)]">
                     {bucket.count}
                   </div>
                 </div>
@@ -258,19 +258,19 @@ export function DashboardPage() {
           {/* Quick links */}
           <Card className="overflow-hidden">
             <div className="border-b border-[var(--pc-border)] px-5 py-4">
-              <div className="text-[13px] font-semibold text-white">Quick Actions</div>
+              <div className="text-[13px] font-semibold text-[var(--pc-text)]">Quick Actions</div>
             </div>
             <div className="divide-y divide-[var(--pc-border)]">
               <Link
                 to="/devices"
                 search={{ search: undefined, health: "critical", flag: undefined, property: undefined, profile: undefined, page: 1, pageSize: 25 }}
-                className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-white/[0.02]"
+                className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-[var(--pc-tint-subtle)]"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--pc-critical-muted)]">
                     <AlertTriangle className="h-3.5 w-3.5 text-[var(--pc-critical)]" />
                   </div>
-                  <span className="text-[13px] font-medium text-white">Critical Devices</span>
+                  <span className="text-[13px] font-medium text-[var(--pc-text)]">Critical Devices</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[13px] font-semibold tabular-nums text-[var(--pc-text-secondary)]">
@@ -281,26 +281,26 @@ export function DashboardPage() {
               </Link>
               <Link
                 to="/profiles"
-                className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-white/[0.02]"
+                className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-[var(--pc-tint-subtle)]"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--pc-accent-muted)]">
                     <ShieldCheck className="h-3.5 w-3.5 text-[var(--pc-accent)]" />
                   </div>
-                  <span className="text-[13px] font-medium text-white">Profile Audit</span>
+                  <span className="text-[13px] font-medium text-[var(--pc-text)]">Profile Audit</span>
                 </div>
                 <ChevronRight className="h-3.5 w-3.5 text-[var(--pc-text-muted)]" />
               </Link>
               <Link
                 to="/devices"
                 search={{ search: undefined, health: undefined, flag: undefined, property: undefined, profile: undefined, page: 1, pageSize: 25 }}
-                className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-white/[0.02]"
+                className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-[var(--pc-tint-subtle)]"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.06]">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--pc-tint-hover)]">
                     <ArrowRight className="h-3.5 w-3.5 text-[var(--pc-text-secondary)]" />
                   </div>
-                  <span className="text-[13px] font-medium text-white">All Devices</span>
+                  <span className="text-[13px] font-medium text-[var(--pc-text)]">All Devices</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[13px] font-semibold tabular-nums text-[var(--pc-text-secondary)]">

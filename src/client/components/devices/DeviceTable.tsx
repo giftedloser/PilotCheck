@@ -110,7 +110,7 @@ export function DeviceTable({
               <button
                 type="button"
                 onClick={onClearFilters}
-                className="mt-4 rounded-md border border-[var(--pc-border)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/50 hover:text-white"
+                className="mt-4 rounded-md border border-[var(--pc-border)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/50 hover:text-[var(--pc-text)]"
               >
                 Clear all filters
               </button>
@@ -176,7 +176,7 @@ export function DeviceTable({
                   data-device-key={device.deviceKey}
                   tabIndex={0}
                   className={cn(
-                    "outline-none transition-colors hover:bg-white/[0.02]",
+                    "outline-none transition-colors hover:bg-[var(--pc-tint-subtle)]",
                     "focus:bg-[var(--pc-accent-muted)]/40 focus:ring-1 focus:ring-inset focus:ring-[var(--pc-accent)]/50",
                     isSelected && "bg-[var(--pc-accent-muted)]/30"
                   )}

@@ -22,13 +22,13 @@ export function SyncIndicator({ lastSync, inProgress, lastError }: SyncIndicator
     <Link
       to="/sync"
       className={cn(
-        "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] transition-colors hover:bg-white/[0.03]",
+        "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] transition-colors hover:bg-[var(--pc-tint-subtle)]",
         lastError
-          ? "border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)] text-red-200"
+          ? "border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
           : inProgress
             ? "border-[var(--pc-accent)]/30 bg-[var(--pc-accent-muted)] text-[var(--pc-accent)]"
             : isStale
-              ? "border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] text-amber-200"
+              ? "border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]"
               : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)]"
       )}
       title={

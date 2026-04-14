@@ -51,7 +51,7 @@ export function HealthTrendChart({ data }: HealthTrendChartProps) {
         <div>
           <div className="flex items-center gap-2">
             <TrendingUp className="h-3.5 w-3.5 text-[var(--pc-accent)]" />
-            <div className="text-[13px] font-semibold text-white">Health Trend</div>
+            <div className="text-[13px] font-semibold text-[var(--pc-text)]">Health Trend</div>
           </div>
           <div className="mt-0.5 text-[12px] text-[var(--pc-text-muted)]">
             Last 14 days · daily snapshot from drift history
@@ -62,7 +62,7 @@ export function HealthTrendChart({ data }: HealthTrendChartProps) {
             <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--pc-text-muted)]">
               {hoverIndex === null ? "Today" : formatDateShort(focused.date)}
             </div>
-            <div className="mt-0.5 text-[18px] font-semibold tabular-nums text-white">
+            <div className="mt-0.5 text-[18px] font-semibold tabular-nums text-[var(--pc-text)]">
               {focusedTotal}
             </div>
           </div>
@@ -132,7 +132,7 @@ export function HealthTrendChart({ data }: HealthTrendChartProps) {
                     aria-hidden
                   />
                   <span className="text-[var(--pc-text-secondary)]">{seg.label}</span>
-                  <span className="font-medium tabular-nums text-white">{value}</span>
+                  <span className="font-medium tabular-nums text-[var(--pc-text)]">{value}</span>
                 </div>
               );
             })}

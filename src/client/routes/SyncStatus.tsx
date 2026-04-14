@@ -112,7 +112,7 @@ export function SyncStatusPage() {
       <Card className="overflow-hidden">
         <div className="flex items-center justify-between border-b border-[var(--pc-border)] px-5 py-4">
           <div>
-            <div className="text-[13px] font-semibold text-white">Sync History</div>
+            <div className="text-[13px] font-semibold text-[var(--pc-text)]">Sync History</div>
             <div className="mt-0.5 text-[11px] text-[var(--pc-text-muted)]">
               Most recent {status.data.logs.length} runs
             </div>
@@ -143,7 +143,7 @@ export function SyncStatusPage() {
                   const durationMs = completed ? completed.getTime() - started.getTime() : null;
                   const hasErrors = entry.errors.length > 0;
                   return (
-                    <tr key={entry.id} className="transition-colors hover:bg-white/[0.02]">
+                    <tr key={entry.id} className="transition-colors hover:bg-[var(--pc-tint-subtle)]">
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-2">
                           {hasErrors ? (
@@ -153,7 +153,7 @@ export function SyncStatusPage() {
                           ) : (
                             <div className="h-2 w-2 animate-pulse rounded-full bg-[var(--pc-accent)]" />
                           )}
-                          <span className="font-mono text-white">{entry.syncType}</span>
+                          <span className="font-mono text-[var(--pc-text)]">{entry.syncType}</span>
                         </div>
                       </td>
                       <td className="px-5 py-3 text-[var(--pc-text-muted)]">
@@ -187,7 +187,7 @@ export function SyncStatusPage() {
                           </details>
                         ) : completed ? (
                           <span>
-                            <span className="font-medium text-white">{entry.devicesSynced}</span>{" "}
+                            <span className="font-medium text-[var(--pc-text)]">{entry.devicesSynced}</span>{" "}
                             device{entry.devicesSynced === 1 ? "" : "s"}
                           </span>
                         ) : (
@@ -229,14 +229,14 @@ function SyncSummary({ logs }: { logs: NonNullable<ReturnType<typeof useSyncStat
     <div className="flex items-center gap-4 text-[11px]">
       <div>
         <div className="text-[var(--pc-text-muted)]">Success rate</div>
-        <div className="font-semibold tabular-nums text-white">
+        <div className="font-semibold tabular-nums text-[var(--pc-text)]">
           {Math.round((successes / completed.length) * 100)}%
         </div>
       </div>
       <div className="h-8 w-px bg-[var(--pc-border)]" />
       <div>
         <div className="text-[var(--pc-text-muted)]">Avg duration</div>
-        <div className="font-mono font-semibold text-white">{formatDuration(avgMs)}</div>
+        <div className="font-mono font-semibold text-[var(--pc-text)]">{formatDuration(avgMs)}</div>
       </div>
     </div>
   );

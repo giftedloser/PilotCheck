@@ -14,7 +14,7 @@ export function MockModeBanner() {
   if (settings.data.graph.configured) return null;
 
   return (
-    <div className="flex items-center justify-center gap-2 border-b border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-4 py-1.5 text-[11.5px] text-amber-100">
+    <div className="flex items-center justify-center gap-2 border-b border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-4 py-1.5 text-[11.5px] text-[var(--pc-warning)]">
       <FlaskConical className="h-3.5 w-3.5" />
       <span>
         <span className="font-semibold">Mock mode</span> — showing seeded sample
@@ -22,7 +22,7 @@ export function MockModeBanner() {
       </span>
       <Link
         to="/settings"
-        className="ml-1 underline decoration-dotted underline-offset-2 hover:text-white"
+        className="ml-1 underline decoration-dotted underline-offset-2 hover:text-[var(--pc-text)]"
       >
         Configure Graph credentials
       </Link>

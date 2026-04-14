@@ -6,15 +6,22 @@ import {
   GitBranch,
   History,
   LayoutDashboard,
+  Monitor,
+  Moon,
   Settings2,
   ShieldCheck,
+  Sun,
   TabletSmartphone,
   UsersRound
 } from "lucide-react";
 
 import { useSettings } from "../../hooks/useSettings.js";
+import { useTheme, type Theme } from "../../hooks/useTheme.js";
 import { cn } from "../../lib/utils.js";
 import { AuthIndicator } from "./AuthIndicator.js";
+
+const themeIcons: Record<Theme, typeof Sun> = { light: Sun, dark: Moon, system: Monitor };
+const themeLabels: Record<Theme, string> = { light: "Light", dark: "Dark", system: "System" };
 
 interface NavItem {
   to: string;
@@ -56,6 +63,7 @@ const navGroups: NavGroup[] = [
 export function Sidebar() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const settings = useSettings();
+  const [theme, cycleTheme] = useTheme();
 
   // Properties pulled from tag_config so each casino's leader can jump
   // straight to "their" devices. Deduped because the same property label
@@ -75,11 +83,11 @@ export function Sidebar() {
     <aside className="sticky top-0 flex h-screen w-[232px] shrink-0 flex-col border-r border-[var(--pc-border)] bg-[var(--pc-surface)]">
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--pc-accent)] text-white">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--pc-accent)] text-[var(--pc-text)]">
           <Activity className="h-4 w-4" />
         </div>
         <div>
-          <div className="text-[15px] font-semibold tracking-tight text-white">PilotCheck</div>
+          <div className="text-[15px] font-semibold tracking-tight text-[var(--pc-text)]">PilotCheck</div>
           <div className="text-[11px] text-[var(--pc-text-muted)]">Windows Autopilot · Intune · Entra</div>
         </div>
       </div>
@@ -100,13 +108,13 @@ export function Sidebar() {
                   key={item.to}
                   to={item.to}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150",
                     active
                       ? "bg-[var(--pc-accent-muted)] text-[var(--pc-accent-hover)]"
-                      : "text-[var(--pc-text-secondary)] hover:bg-white/[0.04] hover:text-[var(--pc-text)]"
+                      : "text-[var(--pc-text-secondary)] hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] hover:translate-x-0.5"
                   )}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110" />
                   {item.label}
                 </Link>
               );
@@ -125,6 +133,23 @@ export function Sidebar() {
         <div className="flex items-center justify-between px-2 text-[10.5px]">
           <span className="text-[var(--pc-text-muted)]">Engine</span>
           <span className="font-mono text-[var(--pc-text-secondary)]">v0.1.0</span>
+        </div>
+        <div className="flex items-center justify-between gap-2 px-2 text-[10.5px] text-[var(--pc-text-muted)]">
+          <span>Theme</span>
+          {(() => {
+            const ThemeIcon = themeIcons[theme];
+            return (
+              <button
+                type="button"
+                onClick={cycleTheme}
+                className="flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[10.5px] text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-[var(--pc-text)]"
+                title={`Current: ${themeLabels[theme]}. Click to cycle.`}
+              >
+                <ThemeIcon className="h-3 w-3" />
+                {themeLabels[theme]}
+              </button>
+            );
+          })()}
         </div>
         <div className="flex items-center justify-between gap-2 px-2 text-[10.5px] text-[var(--pc-text-muted)]">
           <span>Shortcuts</span>
@@ -182,10 +207,10 @@ function PropertiesGroup({
               pageSize: 25
             }}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors",
+              "flex items-center gap-3 rounded-lg px-3 py-1.5 text-[12px] font-medium transition-all duration-150",
               active
                 ? "bg-[var(--pc-accent-muted)] text-[var(--pc-accent-hover)]"
-                : "text-[var(--pc-text-secondary)] hover:bg-white/[0.04] hover:text-[var(--pc-text)]"
+                : "text-[var(--pc-text-secondary)] hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] hover:translate-x-0.5"
             )}
             title={`Filter device queue to ${property}`}
           >

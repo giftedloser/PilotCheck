@@ -7,9 +7,9 @@ import { SourceBadge } from "../shared/SourceBadge.js";
 import { StatusBadge } from "../shared/StatusBadge.js";
 
 const CONFIDENCE_STYLES: Record<MatchConfidence, string> = {
-  high: "bg-[var(--pc-healthy-muted)] text-emerald-200 ring-1 ring-[var(--pc-healthy)]/40",
-  medium: "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/40",
-  low: "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/40"
+  high: "bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)] ring-1 ring-[var(--pc-healthy)]/40",
+  medium: "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)] ring-1 ring-[var(--pc-warning)]/40",
+  low: "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/40"
 };
 
 const MATCHED_ON_LABELS: Record<DeviceDetailResponse["identity"]["matchedOn"], string> = {
@@ -53,7 +53,7 @@ export function IdentityPanel({ device }: { device: DeviceDetailResponse }) {
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Fingerprint className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-white">Identity Correlation</span>
+          <span className="text-[13px] font-semibold text-[var(--pc-text)]">Identity Correlation</span>
           <span
             className="text-[11.5px] text-[var(--pc-text-muted)]"
             title="Linking the same physical device across Autopilot, Intune, and Entra ID"
@@ -129,7 +129,7 @@ export function IdentityPanel({ device }: { device: DeviceDetailResponse }) {
           data-testid="name-only-correlation-warning"
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
-          <div className="text-[12px] leading-relaxed text-amber-100">
+          <div className="text-[12px] leading-relaxed text-[var(--pc-warning)]">
             <span className="font-semibold">Name-only correlation.</span> PilotCheck could only
             link these Autopilot, Intune, and Entra records by display name — no shared serial,
             Entra device ID, or Intune device ID was found. This is the weakest possible

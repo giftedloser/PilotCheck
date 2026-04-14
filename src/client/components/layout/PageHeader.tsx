@@ -17,7 +17,7 @@ export function PageHeader({
         <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--pc-accent)]">
           {eyebrow}
         </div>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white">{title}</h1>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--pc-text)]">{title}</h1>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--pc-text-secondary)]">
           {description}
         </p>

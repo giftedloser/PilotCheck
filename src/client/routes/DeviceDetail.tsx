@@ -131,7 +131,7 @@ function BreakpointChip({
       : severity === "critical"
         ? "border-[var(--pc-critical)]/40 bg-[var(--pc-critical-muted)] text-rose-100"
         : severity === "warning"
-          ? "border-[var(--pc-warning)]/40 bg-[var(--pc-warning-muted)] text-amber-100"
+          ? "border-[var(--pc-warning)]/40 bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]"
           : "border-[var(--pc-info)]/40 bg-[var(--pc-info-muted)] text-sky-100";
   const title =
     count === 0
@@ -291,7 +291,7 @@ export function DeviceDetailPage() {
               Device Diagnostics
             </div>
             <h1
-              className="mt-1 truncate text-2xl font-semibold tracking-tight text-white"
+              className="mt-1 truncate text-2xl font-semibold tracking-tight text-[var(--pc-text)]"
               title={displayName}
             >
               {displayName}
@@ -320,10 +320,10 @@ export function DeviceDetailPage() {
                   className={cn(
                     "rounded px-1.5 py-0.5 text-[10.5px] font-medium capitalize",
                     data.identity.matchConfidence === "high"
-                      ? "bg-[var(--pc-healthy-muted)] text-emerald-200"
+                      ? "bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
                       : data.identity.matchConfidence === "medium"
-                        ? "bg-[var(--pc-warning-muted)] text-amber-200"
-                        : "bg-[var(--pc-critical-muted)] text-red-200"
+                        ? "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]"
+                        : "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
                   )}
                 >
                   {data.identity.matchConfidence}
@@ -346,7 +346,7 @@ export function DeviceDetailPage() {
         {data.identity.nameJoined && (
           <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3.5 py-2.5">
             <Fingerprint className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
-            <div className="text-[12px] leading-relaxed text-amber-100">
+            <div className="text-[12px] leading-relaxed text-[var(--pc-warning)]">
               <span className="font-semibold">Name-only correlation.</span>{" "}
               This device's source records were linked by display name only — the weakest join signal.
               Verify identity before trusting cross-system diagnostics.

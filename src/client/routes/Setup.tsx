@@ -40,13 +40,13 @@ function StepShell({ number, title, description, done, active, children }: StepS
               ? "bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
               : active
                 ? "bg-[var(--pc-accent-muted)] text-[var(--pc-accent-hover)]"
-                : "bg-white/[0.04] text-[var(--pc-text-muted)]"
+                : "bg-[var(--pc-tint-subtle)] text-[var(--pc-text-muted)]"
           }`}
         >
           {done ? <CheckCircle2 className="h-4 w-4" /> : number}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[14px] font-semibold text-white">{title}</div>
+          <div className="text-[14px] font-semibold text-[var(--pc-text)]">{title}</div>
           <div className="mt-0.5 text-[12px] text-[var(--pc-text-muted)]">{description}</div>
           <div className="mt-4">{children}</div>
         </div>
@@ -261,7 +261,7 @@ export function SetupPage() {
               >
                 <Tag className="h-3 w-3 shrink-0 text-[var(--pc-accent)]" />
                 <div className="min-w-0 flex-1 text-[12px]">
-                  <span className="font-mono font-medium text-white">{tc.groupTag}</span>
+                  <span className="font-mono font-medium text-[var(--pc-text)]">{tc.groupTag}</span>
                   <span className="mx-1.5 text-[var(--pc-text-muted)]">→</span>
                   <span className="text-[var(--pc-text-secondary)]">{tc.propertyLabel}</span>
                 </div>
@@ -273,7 +273,7 @@ export function SetupPage() {
                   type="button"
                   onClick={() => mutations.remove.mutate(tc.groupTag)}
                   disabled={mutations.remove.isPending}
-                  className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.06] hover:text-[var(--pc-critical)]"
+                  className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-critical)]"
                   title={`Remove ${tc.groupTag} mapping`}
                 >
                   <Trash2 className="h-3 w-3" />
@@ -328,7 +328,7 @@ function SetupStepper({ activeStep }: { activeStep: number }) {
                     ? "bg-[var(--pc-healthy)]"
                     : current
                       ? "bg-[var(--pc-accent)]"
-                      : "bg-white/[0.06]"
+                      : "bg-[var(--pc-tint-hover)]"
                 }`}
               />
               <span

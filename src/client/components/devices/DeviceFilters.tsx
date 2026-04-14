@@ -14,10 +14,10 @@ const HEALTH_OPTIONS: Array<Exclude<HealthLevel, "unknown">> = [
 ];
 
 const HEALTH_STYLES: Record<Exclude<HealthLevel, "unknown">, string> = {
-  critical: "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/40",
-  warning: "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/40",
-  info: "bg-[var(--pc-info-muted)] text-sky-200 ring-1 ring-[var(--pc-info)]/40",
-  healthy: "bg-[var(--pc-healthy-muted)] text-emerald-200 ring-1 ring-[var(--pc-healthy)]/40"
+  critical: "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/40",
+  warning: "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)] ring-1 ring-[var(--pc-warning)]/40",
+  info: "bg-[var(--pc-info-muted)] text-[var(--pc-info)] ring-1 ring-[var(--pc-info)]/40",
+  healthy: "bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)] ring-1 ring-[var(--pc-healthy)]/40"
 };
 
 const FLAG_OPTIONS = (Object.keys(FLAG_INFO) as FlagCode[]).map((code) => ({
@@ -71,7 +71,7 @@ export function DeviceFilters() {
                   "rounded-md px-3 py-1.5 text-[12px] font-medium capitalize transition-colors",
                   active
                     ? HEALTH_STYLES[health]
-                    : "bg-white/[0.04] text-[var(--pc-text-secondary)] hover:bg-white/[0.07]"
+                    : "bg-[var(--pc-tint-subtle)] text-[var(--pc-text-secondary)] hover:bg-[var(--pc-tint-hover)]"
                 )}
               >
                 {health}
@@ -112,7 +112,7 @@ export function DeviceFilters() {
                 })
               })
             }
-            className="inline-flex items-center gap-1 rounded-md border border-[var(--pc-border)] px-2.5 py-1.5 text-[12px] text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-critical)]/50 hover:text-white"
+            className="inline-flex items-center gap-1 rounded-md border border-[var(--pc-border)] px-2.5 py-1.5 text-[12px] text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-critical)]/50 hover:text-[var(--pc-text)]"
           >
             <X className="h-3 w-3" />
             Clear filters
@@ -163,10 +163,10 @@ export function DeviceFilters() {
 }
 
 const CHIP_VARIANT_STYLES: Record<string, string> = {
-  critical: "border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)] text-red-200",
-  warning: "border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] text-amber-200",
-  info: "border-[var(--pc-info)]/30 bg-[var(--pc-info-muted)] text-sky-200",
-  healthy: "border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy-muted)] text-emerald-200"
+  critical: "border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]",
+  warning: "border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]",
+  info: "border-[var(--pc-info)]/30 bg-[var(--pc-info-muted)] text-[var(--pc-info)]",
+  healthy: "border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
 };
 
 function ActiveTag({
@@ -184,7 +184,7 @@ function ActiveTag({
         "inline-flex items-center gap-1 rounded-full border px-2.5 py-1",
         variant && CHIP_VARIANT_STYLES[variant]
           ? CHIP_VARIANT_STYLES[variant]
-          : "border-[var(--pc-border)] bg-white/[0.04] text-[var(--pc-text-secondary)]"
+          : "border-[var(--pc-border)] bg-[var(--pc-tint-subtle)] text-[var(--pc-text-secondary)]"
       )}
     >
       {label}

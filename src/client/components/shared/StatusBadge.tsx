@@ -6,7 +6,7 @@ const toneMap: Record<HealthLevel, string> = {
   warning: "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]",
   info: "bg-[var(--pc-info-muted)] text-[var(--pc-info)]",
   healthy: "bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]",
-  unknown: "bg-white/[0.06] text-[var(--pc-text-muted)]"
+  unknown: "bg-[var(--pc-tint-hover)] text-[var(--pc-text-muted)]"
 };
 
 const dotMap: Record<HealthLevel, string> = {

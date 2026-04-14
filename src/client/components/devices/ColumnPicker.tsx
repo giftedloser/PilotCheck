@@ -57,7 +57,7 @@ export function ColumnPicker({ value, onChange }: ColumnPickerProps) {
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] text-[var(--pc-text-secondary)] transition-colors hover:bg-white/[0.04] hover:text-white"
+        className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] text-[var(--pc-text-secondary)] transition-colors hover:bg-[var(--pc-tint-subtle)] hover:text-[var(--pc-text)]"
         title="Choose visible columns"
         aria-haspopup="true"
         aria-expanded={open}
@@ -87,7 +87,7 @@ export function ColumnPicker({ value, onChange }: ColumnPickerProps) {
                       "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12px] transition-colors",
                       col.locked
                         ? "cursor-not-allowed text-[var(--pc-text-muted)]"
-                        : "text-[var(--pc-text-secondary)] hover:bg-white/[0.04] hover:text-white"
+                        : "text-[var(--pc-text-secondary)] hover:bg-[var(--pc-tint-subtle)] hover:text-[var(--pc-text)]"
                     )}
                   >
                     <span
@@ -115,7 +115,7 @@ export function ColumnPicker({ value, onChange }: ColumnPickerProps) {
             <button
               type="button"
               onClick={() => onChange(DEFAULT_VISIBLE_COLUMNS)}
-              className="w-full rounded-md px-2 py-1.5 text-left text-[11px] text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.04] hover:text-white"
+              className="w-full rounded-md px-2 py-1.5 text-left text-[11px] text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-subtle)] hover:text-[var(--pc-text)]"
             >
               Reset to defaults
             </button>

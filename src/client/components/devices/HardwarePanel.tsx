@@ -22,7 +22,7 @@ export function HardwarePanel({ device }: { device: DeviceDetailResponse }) {
     <Card className="p-5">
       <div className="mb-4 flex items-center gap-2">
         <Monitor className="h-4 w-4 text-[var(--pc-accent)]" />
-        <span className="text-[13px] font-semibold text-white">Hardware &amp; Enrollment</span>
+        <span className="text-[13px] font-semibold text-[var(--pc-text)]">Hardware &amp; Enrollment</span>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">

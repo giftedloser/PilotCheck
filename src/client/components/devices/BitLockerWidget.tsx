@@ -65,7 +65,7 @@ export function BitLockerWidget({ device }: { device: DeviceDetailResponse }) {
       <Card className="p-5">
         <div className="mb-3 flex items-center gap-2">
           <HardDrive className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-white">BitLocker Recovery Keys</span>
+          <span className="text-[13px] font-semibold text-[var(--pc-text)]">BitLocker Recovery Keys</span>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-3">
           <Lock className="h-4 w-4 text-[var(--pc-text-muted)]" />
@@ -82,7 +82,7 @@ export function BitLockerWidget({ device }: { device: DeviceDetailResponse }) {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <HardDrive className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-white">BitLocker Recovery Keys</span>
+          <span className="text-[13px] font-semibold text-[var(--pc-text)]">BitLocker Recovery Keys</span>
         </div>
         {keys.length > 0 && revealed ? (
           <div className="text-[11px] text-[var(--pc-text-muted)]">
@@ -125,7 +125,7 @@ export function BitLockerWidget({ device }: { device: DeviceDetailResponse }) {
                   <button
                     type="button"
                     onClick={() => setRevealed((v) => !v)}
-                    className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.05] hover:text-[var(--pc-text)]"
+                    className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
                     title={revealed ? "Hide" : "Show"}
                   >
                     {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
@@ -133,7 +133,7 @@ export function BitLockerWidget({ device }: { device: DeviceDetailResponse }) {
                   <button
                     type="button"
                     onClick={() => handleCopy(k.key)}
-                    className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.05] hover:text-[var(--pc-text)]"
+                    className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
                     title="Copy to clipboard"
                   >
                     <Copy className="h-3.5 w-3.5" />

@@ -32,7 +32,7 @@ export function ActionHistory({ device }: { device: DeviceDetailResponse }) {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <History className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-white">Action History</span>
+          <span className="text-[13px] font-semibold text-[var(--pc-text)]">Action History</span>
         </div>
         <span className="text-[11px] text-[var(--pc-text-muted)]">Last 25 entries</span>
       </div>
@@ -62,7 +62,7 @@ export function ActionHistory({ device }: { device: DeviceDetailResponse }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-3">
-                    <div className="text-[13px] font-medium text-white">
+                    <div className="text-[13px] font-medium text-[var(--pc-text)]">
                       {ACTION_LABELS[entry.actionType] ?? entry.actionType}
                     </div>
                     <div className="shrink-0 text-[11px] text-[var(--pc-text-muted)]" title={entry.triggeredAt}>

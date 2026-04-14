@@ -16,7 +16,7 @@ export function AppShell() {
         <div className="flex flex-1">
           <Sidebar />
           <main className="flex-1">
-            <div className="mx-auto w-full max-w-[1440px] px-6 py-6 lg:px-10 lg:py-8">
+            <div className="pc-page-enter mx-auto w-full max-w-[1440px] px-6 py-6 lg:px-10 lg:py-8">
               <Outlet />
             </div>
           </main>

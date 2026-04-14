@@ -33,7 +33,7 @@ const HEALTH_TONE: Record<HealthLevel, string> = {
   warning: "bg-[var(--pc-warning)]",
   info: "bg-[var(--pc-info)]",
   healthy: "bg-[var(--pc-healthy)]",
-  unknown: "bg-white/20"
+  unknown: "bg-[var(--pc-tint-hover)]"
 };
 
 function filterForProfile(profileName: string, health?: HealthLevel) {
@@ -100,7 +100,7 @@ export function ProfileDrawer({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <div
-                  className="truncate text-[15px] font-semibold text-white"
+                  className="truncate text-[15px] font-semibold text-[var(--pc-text)]"
                   title={data?.profileName ?? ""}
                 >
                   {data?.profileName ?? "Loading…"}
@@ -149,7 +149,7 @@ export function ProfileDrawer({
                 </div>
               ) : (
                 <>
-                  <div className="flex h-2 overflow-hidden rounded-full bg-white/[0.04]">
+                  <div className="flex h-2 overflow-hidden rounded-full bg-[var(--pc-tint-subtle)]">
                     {HEALTH_ORDER.map((key) => {
                       const count = data.counts[key] ?? 0;
                       if (count === 0) return null;
@@ -182,7 +182,7 @@ export function ProfileDrawer({
                               {HEALTH_LABEL[key]}
                             </span>
                           </span>
-                          <span className="font-semibold tabular-nums text-white">{count}</span>
+                          <span className="font-semibold tabular-nums text-[var(--pc-text)]">{count}</span>
                         </Link>
                       );
                     })}
@@ -210,7 +210,7 @@ export function ProfileDrawer({
                       className="flex items-start justify-between gap-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2"
                     >
                       <div className="min-w-0">
-                        <div className="truncate text-[12.5px] font-medium text-white">
+                        <div className="truncate text-[12.5px] font-medium text-[var(--pc-text)]">
                           {group.groupName}
                         </div>
                         <div className="mt-0.5 flex items-center gap-1.5 text-[10.5px] text-[var(--pc-text-muted)]">
@@ -259,7 +259,7 @@ export function ProfileDrawer({
                   <span className="text-[11.5px] text-[var(--pc-text-secondary)]">
                     Missing assignment
                   </span>
-                  <span className="font-semibold tabular-nums text-white">
+                  <span className="font-semibold tabular-nums text-[var(--pc-text)]">
                     {data.missingAssignmentCount}
                   </span>
                 </Link>
@@ -275,7 +275,7 @@ export function ProfileDrawer({
                   <span className="text-[11.5px] text-[var(--pc-text-secondary)]">
                     Tag mismatch
                   </span>
-                  <span className="font-semibold tabular-nums text-white">
+                  <span className="font-semibold tabular-nums text-[var(--pc-text)]">
                     {data.tagMismatchCount}
                   </span>
                 </Link>
@@ -308,14 +308,14 @@ export function ProfileDrawer({
                       {data.deviceBreakdown.slice(0, 25).map((device) => (
                         <tr
                           key={device.deviceKey}
-                          className="transition-colors hover:bg-white/[0.02]"
+                          className="transition-colors hover:bg-[var(--pc-tint-subtle)]"
                         >
                           <td className="px-3 py-2 text-[12px]">
                             <Link
                               to="/devices/$deviceKey"
                               params={{ deviceKey: device.deviceKey }}
                               onClick={onClose}
-                              className="font-medium text-white hover:text-[var(--pc-accent-hover)]"
+                              className="font-medium text-[var(--pc-text)] hover:text-[var(--pc-accent-hover)]"
                             >
                               {device.deviceName ?? device.serialNumber ?? "—"}
                             </Link>

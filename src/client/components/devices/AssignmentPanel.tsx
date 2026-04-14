@@ -42,7 +42,7 @@ export function AssignmentPanel({ device }: { device: DeviceDetailResponse }) {
     <Card className="p-5">
       <div className="mb-4 flex items-center gap-2">
         <ClipboardList className="h-4 w-4 text-[var(--pc-accent)]" />
-        <span className="text-[13px] font-semibold text-white">Provisioning Configuration</span>
+        <span className="text-[13px] font-semibold text-[var(--pc-text)]">Provisioning Configuration</span>
         <span className="text-[11.5px] text-[var(--pc-text-muted)]">· What this device is meant to be</span>
       </div>
 
@@ -66,7 +66,7 @@ export function AssignmentPanel({ device }: { device: DeviceDetailResponse }) {
       </div>
 
       {userMismatch ? (
-        <div className="mt-3 rounded-lg border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3.5 py-2 text-[12px] leading-relaxed text-amber-100">
+        <div className="mt-3 rounded-lg border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3.5 py-2 text-[12px] leading-relaxed text-[var(--pc-warning)]">
           <span className="font-semibold">User mismatch:</span> the Autopilot assigned user does not
           match the Intune primary user. Often a sign of a re-used or retired device.
         </div>

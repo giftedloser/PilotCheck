@@ -95,7 +95,7 @@ export function ActionAuditPage() {
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
             <div>
-              <div className="text-[13px] font-medium text-white">Admin sign-in required</div>
+              <div className="text-[13px] font-medium text-[var(--pc-text)]">Admin sign-in required</div>
               <div className="mt-0.5 text-[11.5px] text-[var(--pc-text-muted)]">
                 The audit log includes triggered-by identity, so an authenticated admin
                 session is required to view it.
@@ -106,7 +106,7 @@ export function ActionAuditPage() {
             type="button"
             onClick={() => login.mutate()}
             disabled={login.isPending}
-            className="rounded-md border border-[var(--pc-border)] bg-[var(--pc-accent)] px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-[var(--pc-accent-hover)] disabled:opacity-60"
+            className="rounded-md border border-[var(--pc-border)] bg-[var(--pc-accent)] px-3 py-1.5 text-[12px] font-medium text-[var(--pc-text)] transition-colors hover:bg-[var(--pc-accent-hover)] disabled:opacity-60"
           >
             {login.isPending ? "Opening…" : "Sign in"}
           </button>
@@ -139,7 +139,7 @@ export function ActionAuditPage() {
           <div className="text-[11px] font-medium text-[var(--pc-text-muted)]">
             Recent actions
           </div>
-          <div className="mt-1 text-[24px] font-semibold tabular-nums text-white">
+          <div className="mt-1 text-[24px] font-semibold tabular-nums text-[var(--pc-text)]">
             {stats.total}
           </div>
         </Card>
@@ -206,7 +206,7 @@ export function ActionAuditPage() {
       <Card className="overflow-hidden">
         <div className="flex items-center gap-2 border-b border-[var(--pc-border)] px-5 py-4">
           <History className="h-3.5 w-3.5 text-[var(--pc-accent)]" />
-          <div className="text-[13px] font-semibold text-white">Timeline</div>
+          <div className="text-[13px] font-semibold text-[var(--pc-text)]">Timeline</div>
           <div className="text-[11px] text-[var(--pc-text-muted)]">
             Showing {filtered.length} of {stats.total}
           </div>
@@ -224,7 +224,7 @@ export function ActionAuditPage() {
               return (
                 <li
                   key={entry.id}
-                  className="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-white/[0.02]"
+                  className="flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-[var(--pc-tint-subtle)]"
                 >
                   <div
                     className={cn(
@@ -238,7 +238,7 @@ export function ActionAuditPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                      <span className="text-[13px] font-semibold text-white">
+                      <span className="text-[13px] font-semibold text-[var(--pc-text)]">
                         {ACTION_LABELS[entry.actionType] ?? entry.actionType}
                       </span>
                       {entry.deviceName || entry.deviceSerial ? (
@@ -350,8 +350,8 @@ function FilterChip({
             ? "border-[var(--pc-healthy)]/50 bg-[var(--pc-healthy-muted)] text-emerald-100"
             : tone === "critical"
               ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-rose-100"
-              : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-white"
-          : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] hover:border-[var(--pc-accent)]/40 hover:text-white"
+              : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-[var(--pc-text)]"
+          : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)]"
       )}
     >
       {label}

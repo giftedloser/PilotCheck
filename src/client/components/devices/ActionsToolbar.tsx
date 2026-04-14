@@ -135,13 +135,13 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
       <Card className="p-5">
         <div className="mb-3 flex items-center gap-2">
           <Terminal className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-white">Remote Actions</span>
+          <span className="text-[13px] font-semibold text-[var(--pc-text)]">Remote Actions</span>
         </div>
         <div className="flex items-center justify-between gap-4 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-3">
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
             <div>
-              <div className="text-[12.5px] font-medium text-white">Admin sign-in required</div>
+              <div className="text-[12.5px] font-medium text-[var(--pc-text)]">Admin sign-in required</div>
               <div className="mt-0.5 text-[11.5px] text-[var(--pc-text-muted)]">
                 Remote actions and LAPS retrieval require a delegated Microsoft account with the
                 correct Intune permissions.
@@ -166,7 +166,7 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Terminal className="h-4 w-4 text-[var(--pc-accent)]" />
-            <span className="text-[13px] font-semibold text-white">Remote Actions</span>
+            <span className="text-[13px] font-semibold text-[var(--pc-text)]">Remote Actions</span>
           </div>
           <div className="text-[11px] text-[var(--pc-text-muted)]">
             Signed in as <span className="text-[var(--pc-text-secondary)]">{auth.data?.user}</span>

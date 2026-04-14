@@ -7,31 +7,31 @@ import { cn } from "../../lib/utils.js";
 const STATE_STYLES: Record<string, { label: string; className: string }> = {
   compliant: {
     label: "Compliant",
-    className: "bg-[var(--pc-healthy-muted)] text-emerald-200 ring-1 ring-[var(--pc-healthy)]/40"
+    className: "bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)] ring-1 ring-[var(--pc-healthy)]/40"
   },
   noncompliant: {
     label: "Non-compliant",
-    className: "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/40"
+    className: "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/40"
   },
   error: {
     label: "Error",
-    className: "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/40"
+    className: "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/40"
   },
   conflict: {
     label: "Conflict",
-    className: "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/40"
+    className: "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)] ring-1 ring-[var(--pc-warning)]/40"
   },
   notapplicable: {
     label: "N/A",
-    className: "bg-white/[0.04] text-[var(--pc-text-muted)] ring-1 ring-white/10"
+    className: "bg-[var(--pc-tint-subtle)] text-[var(--pc-text-muted)] ring-1 ring-white/10"
   },
   ingraceperiod: {
     label: "Grace Period",
-    className: "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/40"
+    className: "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)] ring-1 ring-[var(--pc-warning)]/40"
   },
   unknown: {
     label: "Unknown",
-    className: "bg-white/[0.04] text-[var(--pc-text-muted)] ring-1 ring-white/10"
+    className: "bg-[var(--pc-tint-subtle)] text-[var(--pc-text-muted)] ring-1 ring-white/10"
   }
 };
 
@@ -53,12 +53,12 @@ export function CompliancePoliciesPanel({ device }: { device: DeviceDetailRespon
     <Card className="p-5">
       <div className="mb-4 flex items-center gap-2">
         <ShieldCheck className="h-4 w-4 text-[var(--pc-accent)]" />
-        <span className="text-[13px] font-semibold text-white">Compliance Policies</span>
-        <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10.5px] text-[var(--pc-text-muted)]">
+        <span className="text-[13px] font-semibold text-[var(--pc-text)]">Compliance Policies</span>
+        <span className="rounded-full bg-[var(--pc-tint-hover)] px-2 py-0.5 text-[10.5px] text-[var(--pc-text-muted)]">
           {compliancePolicies.length}
         </span>
         {failing.length > 0 && (
-          <span className="rounded-full bg-[var(--pc-critical-muted)] px-2 py-0.5 text-[10.5px] text-red-200">
+          <span className="rounded-full bg-[var(--pc-critical-muted)] px-2 py-0.5 text-[10.5px] text-[var(--pc-critical)]">
             {failing.length} failing
           </span>
         )}

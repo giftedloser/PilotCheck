@@ -16,7 +16,7 @@ export const FLAG_INFO: Record<FlagCode, FlagInfo> = {
     label: "No Autopilot record",
     description:
       "Device has no matching Autopilot registration. It cannot provision via Autopilot until it is hardware-registered.",
-    severity: "critical"
+    severity: "info"
   },
   no_profile_assigned: {
     label: "No profile assigned",
@@ -34,7 +34,7 @@ export const FLAG_INFO: Record<FlagCode, FlagInfo> = {
     label: "Assigned, not enrolled",
     description:
       "A profile has been assigned but the device has not completed Intune enrollment yet. Often a transient state.",
-    severity: "warning"
+    severity: "critical"
   },
   not_in_target_group: {
     label: "Not in target group",

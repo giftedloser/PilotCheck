@@ -5,12 +5,12 @@ import { Badge } from "../ui/badge.js";
 import { Tooltip } from "./Tooltip.js";
 
 const SEVERITY_STYLES: Record<Exclude<HealthLevel, "healthy" | "unknown">, string> = {
-  critical: "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/30",
-  warning: "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/30",
-  info: "bg-[var(--pc-info-muted)] text-sky-200 ring-1 ring-[var(--pc-info)]/30"
+  critical: "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/30",
+  warning: "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)] ring-1 ring-[var(--pc-warning)]/30",
+  info: "bg-[var(--pc-info-muted)] text-[var(--pc-info)] ring-1 ring-[var(--pc-info)]/30"
 };
 
-const NEUTRAL = "bg-white/[0.06] text-[var(--pc-text-secondary)] ring-1 ring-white/10";
+const NEUTRAL = "bg-[var(--pc-tint-hover)] text-[var(--pc-text-secondary)] ring-1 ring-white/10";
 
 export function FlagChip({ flag }: { flag: FlagCode }) {
   const info = FLAG_INFO[flag];
@@ -26,7 +26,7 @@ export function FlagChip({ flag }: { flag: FlagCode }) {
     <Tooltip
       content={
         <div className="space-y-1">
-          <div className="font-semibold text-white">{label}</div>
+          <div className="font-semibold text-[var(--pc-text)]">{label}</div>
           <div>{description}</div>
         </div>
       }

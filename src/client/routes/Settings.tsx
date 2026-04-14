@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { useToast } from "../components/shared/toast.js";
+import { ConfirmDialog } from "../components/shared/ConfirmDialog.js";
 
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { RulesSection } from "../components/settings/RulesSection.js";
@@ -53,6 +54,7 @@ export function SettingsPage() {
     expectedGroupNames: ""
   });
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   if (settings.isLoading) return <LoadingState label="Loading settings…" />;
   if (settings.isError || !settings.data) {
@@ -173,7 +175,7 @@ export function SettingsPage() {
               )}
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="text-[13px] font-semibold text-white">
+                  <div className="text-[13px] font-semibold text-[var(--pc-text)]">
                     Application credentials
                   </div>
                   <SourceBadge source="graph" />
@@ -212,7 +214,7 @@ export function SettingsPage() {
           </div>
 
           {!graphConfigured ? (
-            <div className="mt-4 rounded-lg border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3.5 py-2.5 text-[12px] leading-relaxed text-amber-100">
+            <div className="mt-4 rounded-lg border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[var(--pc-warning)]">
               Set the variables above in the server's environment (or a <code>.env</code> file at
               the repo root), then restart the host process. PilotCheck will pick them up on the next
               start.
@@ -238,7 +240,7 @@ export function SettingsPage() {
                 className={
                   isAuthed
                     ? "flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--pc-healthy-muted)]"
-                    : "flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.04]"
+                    : "flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--pc-tint-subtle)]"
                 }
               >
                 <KeyRound
@@ -250,7 +252,7 @@ export function SettingsPage() {
                 />
               </div>
               <div className="min-w-0">
-                <div className="text-[13px] font-semibold text-white">
+                <div className="text-[13px] font-semibold text-[var(--pc-text)]">
                   {isAuthed ? "Signed in" : "Not signed in"}
                 </div>
                 <div className="mt-0.5 text-[12px] text-[var(--pc-text-muted)]">
@@ -377,7 +379,7 @@ export function SettingsPage() {
         <Card className="p-5">
           <div className="mb-4 flex items-center gap-2">
             <Plus className="h-4 w-4 text-[var(--pc-accent)]" />
-            <div className="text-[13px] font-semibold text-white">Add mapping</div>
+            <div className="text-[13px] font-semibold text-[var(--pc-text)]">Add mapping</div>
           </div>
           <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
             <div className="space-y-1">
@@ -501,7 +503,7 @@ export function SettingsPage() {
                     <div className="flex items-center gap-2">
                       <Tag className="h-3.5 w-3.5 text-[var(--pc-accent)]" />
                       <div
-                        className="truncate text-[14px] font-semibold text-white"
+                        className="truncate text-[14px] font-semibold text-[var(--pc-text)]"
                         title={row.groupTag}
                       >
                         {row.groupTag}
@@ -517,7 +519,7 @@ export function SettingsPage() {
                   <Button
                     variant="destructive"
                     className="h-8 px-2.5"
-                    onClick={() => mutations.remove.mutate(row.groupTag)}
+                    onClick={() => setDeleteTarget(row.groupTag)}
                     aria-label={`Delete ${row.groupTag}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -545,6 +547,19 @@ export function SettingsPage() {
 
       {/* Section 5: Custom rules */}
       <RulesSection />
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete tag mapping"
+        description={`Remove the mapping for group tag "${deleteTarget ?? ""}"? Devices using this tag will lose tag-mismatch and not-in-target-group detection until a new mapping is created.`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (deleteTarget) mutations.remove.mutate(deleteTarget);
+          setDeleteTarget(null);
+        }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

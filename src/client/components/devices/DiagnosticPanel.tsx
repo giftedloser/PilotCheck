@@ -30,7 +30,7 @@ export function DiagnosticPanel({ device }: { device: DeviceDetailResponse }) {
     <Card className="p-5">
       <div className="mb-4 flex items-center gap-2">
         <Stethoscope className="h-4 w-4 text-[var(--pc-accent)]" />
-        <span className="text-[13px] font-semibold text-white">Diagnostics</span>
+        <span className="text-[13px] font-semibold text-[var(--pc-text)]">Diagnostics</span>
       </div>
 
       {/* Primary diagnosis */}
@@ -66,7 +66,7 @@ export function DiagnosticPanel({ device }: { device: DeviceDetailResponse }) {
                 ? "text-emerald-100"
                 : device.summary.health === "info"
                   ? "text-sky-100"
-                  : "text-amber-100"
+                  : "text-[var(--pc-warning)]"
           }`}
         >
           {device.summary.diagnosis}
@@ -79,7 +79,7 @@ export function DiagnosticPanel({ device }: { device: DeviceDetailResponse }) {
           <CheckCircle className="h-4 w-4 text-[var(--pc-healthy)]" />
           <div>
             <div className="text-[13px] font-medium text-emerald-100">No issues detected</div>
-            <div className="text-[11.5px] text-emerald-200/70">
+            <div className="text-[11.5px] text-[var(--pc-healthy)]/70">
               The state engine found no problems with this device's identity, targeting, enrollment, or drift posture.
             </div>
           </div>
@@ -112,15 +112,15 @@ function DiagnosticCard({
         <span
           className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
             diagnostic.severity === "critical"
-              ? "bg-[var(--pc-critical-muted)] text-red-200"
+              ? "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
               : diagnostic.severity === "warning"
-                ? "bg-[var(--pc-warning-muted)] text-amber-200"
-                : "bg-[var(--pc-info-muted)] text-sky-200"
+                ? "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]"
+                : "bg-[var(--pc-info-muted)] text-[var(--pc-info)]"
           }`}
         >
           {diagnostic.severity}
         </span>
-        <span className="text-[13px] font-semibold text-white">{diagnostic.title}</span>
+        <span className="text-[13px] font-semibold text-[var(--pc-text)]">{diagnostic.title}</span>
       </div>
       <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--pc-text-secondary)]">
         {diagnostic.summary}
@@ -132,7 +132,7 @@ function DiagnosticCard({
       {diagnostic.caveat ? (
         <div className="mt-2.5 flex items-start gap-2 rounded-md border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3 py-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--pc-warning)]" />
-          <p className="text-[11.5px] leading-relaxed text-amber-100">
+          <p className="text-[11.5px] leading-relaxed text-[var(--pc-warning)]">
             {diagnostic.caveat}
           </p>
         </div>
@@ -224,7 +224,7 @@ function PlaybookRow({ step }: { step: PlaybookStep }) {
           href={step.payload}
           target="_blank"
           rel="noreferrer noopener"
-          className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--pc-accent-hover)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-white"
+          className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--pc-accent-hover)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)]"
         >
           Open
         </a>
@@ -232,7 +232,7 @@ function PlaybookRow({ step }: { step: PlaybookStep }) {
         <button
           type="button"
           onClick={onCopy}
-          className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-white"
+          className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)]"
           title={step.payload}
         >
           Copy

@@ -67,7 +67,7 @@ export function LapsWidget({ device }: { device: DeviceDetailResponse }) {
       <Card className="p-5">
         <div className="mb-3 flex items-center gap-2">
           <KeyRound className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-white">Local Admin Password</span>
+          <span className="text-[13px] font-semibold text-[var(--pc-text)]">Local Admin Password</span>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-3">
           <Lock className="h-4 w-4 text-[var(--pc-text-muted)]" />
@@ -84,7 +84,7 @@ export function LapsWidget({ device }: { device: DeviceDetailResponse }) {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <KeyRound className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-white">Local Admin Password (LAPS)</span>
+          <span className="text-[13px] font-semibold text-[var(--pc-text)]">Local Admin Password (LAPS)</span>
         </div>
         {credential && revealed ? (
           <div className="text-[11px] text-[var(--pc-text-muted)]">
@@ -110,7 +110,7 @@ export function LapsWidget({ device }: { device: DeviceDetailResponse }) {
               <div className="text-[10px] font-medium uppercase tracking-wide text-[var(--pc-text-muted)]">
                 Account
               </div>
-              <div className="mt-1 font-mono text-[12.5px] text-white">{credential.accountName}</div>
+              <div className="mt-1 font-mono text-[12.5px] text-[var(--pc-text)]">{credential.accountName}</div>
             </div>
             <div>
               <div className="text-[10px] font-medium uppercase tracking-wide text-[var(--pc-text-muted)]">
@@ -133,7 +133,7 @@ export function LapsWidget({ device }: { device: DeviceDetailResponse }) {
                 <button
                   type="button"
                   onClick={() => setRevealed((value) => !value)}
-                  className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.05] hover:text-[var(--pc-text)]"
+                  className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
                   title={revealed ? "Hide" : "Show"}
                 >
                   {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
@@ -141,7 +141,7 @@ export function LapsWidget({ device }: { device: DeviceDetailResponse }) {
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.05] hover:text-[var(--pc-text)]"
+                  className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
                   title="Copy to clipboard"
                 >
                   <Copy className="h-3.5 w-3.5" />

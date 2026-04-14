@@ -51,9 +51,9 @@ export function ProfileHealthBreakdown({ profile }: { profile: ProfileAuditSumma
         {entries.map(([key, value]) => {
           const tile = (
             <div
-              className={`rounded-lg bg-white/[0.03] px-3 py-2.5 transition-colors ${
+              className={`rounded-lg bg-[var(--pc-tint-subtle)] px-3 py-2.5 transition-colors ${
                 ROUTABLE[key] && value > 0
-                  ? "cursor-pointer hover:bg-white/[0.06]"
+                  ? "cursor-pointer hover:bg-[var(--pc-tint-hover)]"
                   : ""
               }`}
             >
@@ -61,7 +61,7 @@ export function ProfileHealthBreakdown({ profile }: { profile: ProfileAuditSumma
                 <span className={`h-1.5 w-1.5 rounded-full ${dotColors[key] ?? "bg-slate-500"}`} />
                 <span className="text-[11px] capitalize text-[var(--pc-text-muted)]">{key}</span>
               </div>
-              <div className="mt-1 text-[20px] font-semibold tabular-nums text-white">{value}</div>
+              <div className="mt-1 text-[20px] font-semibold tabular-nums text-[var(--pc-text)]">{value}</div>
             </div>
           );
 

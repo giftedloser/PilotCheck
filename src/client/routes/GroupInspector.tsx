@@ -87,7 +87,7 @@ export function GroupInspectorPage() {
                       className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors ${
                         active
                           ? "bg-[var(--pc-accent-muted)]"
-                          : "hover:bg-white/[0.03]"
+                          : "hover:bg-[var(--pc-tint-subtle)]"
                       }`}
                     >
                       <div
@@ -106,7 +106,7 @@ export function GroupInspectorPage() {
                       <div className="min-w-0 flex-1">
                         <div
                           className={`truncate text-[12.5px] font-medium ${
-                            active ? "text-white" : "text-[var(--pc-text)]"
+                            active ? "text-[var(--pc-text)]" : "text-[var(--pc-text)]"
                           }`}
                         >
                           {group.groupName}
@@ -151,7 +151,7 @@ export function GroupInspectorPage() {
                         <UsersRound className="h-4 w-4" />
                       </div>
                       <div>
-                        <div className="text-[14px] font-semibold text-white">
+                        <div className="text-[14px] font-semibold text-[var(--pc-text)]">
                           {groupDetail.data.groupName}
                         </div>
                         <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[var(--pc-text-muted)]">
@@ -164,7 +164,7 @@ export function GroupInspectorPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[20px] font-semibold text-white">
+                      <div className="text-[20px] font-semibold text-[var(--pc-text)]">
                         {groupDetail.data.memberCount}
                       </div>
                       <div className="text-[10px] uppercase tracking-wide text-[var(--pc-text-muted)]">
@@ -189,7 +189,7 @@ export function GroupInspectorPage() {
                 <Card className="p-5">
                   <div className="mb-3 flex items-center gap-2">
                     <ShieldCheck className="h-4 w-4 text-[var(--pc-accent)]" />
-                    <span className="text-[13px] font-semibold text-white">Assigned Profiles</span>
+                    <span className="text-[13px] font-semibold text-[var(--pc-text)]">Assigned Profiles</span>
                     <span className="text-[11px] text-[var(--pc-text-muted)]">
                       ({groupDetail.data.assignedProfiles.length})
                     </span>
@@ -207,7 +207,7 @@ export function GroupInspectorPage() {
                         >
                           <div className="flex items-center gap-2">
                             <ArrowRight className="h-3 w-3 text-[var(--pc-accent)]" />
-                            <span className="text-[12.5px] font-medium text-white">
+                            <span className="text-[12.5px] font-medium text-[var(--pc-text)]">
                               {profile.profileName}
                             </span>
                           </div>
@@ -227,7 +227,7 @@ export function GroupInspectorPage() {
                   <div className="flex flex-wrap items-center gap-3 border-b border-[var(--pc-border)] px-5 py-4">
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-[var(--pc-accent)]" />
-                      <span className="text-[13px] font-semibold text-white">Members</span>
+                      <span className="text-[13px] font-semibold text-[var(--pc-text)]">Members</span>
                       <span className="text-[11px] text-[var(--pc-text-muted)]">
                         ({groupDetail.data.members.length})
                       </span>
@@ -309,13 +309,13 @@ export function GroupInspectorPage() {
                             {visible.map((member) => (
                                 <tr
                                 key={member.deviceKey}
-                                className="transition-colors hover:bg-white/[0.02]"
+                                className="transition-colors hover:bg-[var(--pc-tint-subtle)]"
                               >
                                 <td className="px-5 py-2.5 text-[12px]">
                                   <Link
                                     to="/devices/$deviceKey"
                                     params={{ deviceKey: member.deviceKey }}
-                                    className="font-medium text-white transition-colors hover:text-[var(--pc-accent-hover)]"
+                                    className="font-medium text-[var(--pc-text)] transition-colors hover:text-[var(--pc-accent-hover)]"
                                   >
                                     {member.deviceName ?? "—"}
                                   </Link>
@@ -367,8 +367,8 @@ function MemberFilterChip({
     tone === "critical"
       ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-rose-100"
       : tone === "warning"
-        ? "border-[var(--pc-warning)]/50 bg-[var(--pc-warning-muted)] text-amber-100"
-        : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-white";
+        ? "border-[var(--pc-warning)]/50 bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]"
+        : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-[var(--pc-text)]";
   return (
     <button
       type="button"
@@ -376,7 +376,7 @@ function MemberFilterChip({
       className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
         active
           ? activeStyle
-          : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] hover:border-[var(--pc-accent)]/40 hover:text-white"
+          : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)]"
       }`}
     >
       {children}

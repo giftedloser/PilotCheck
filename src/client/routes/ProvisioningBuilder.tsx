@@ -191,7 +191,7 @@ export function ProvisioningBuilderPage() {
             <button
               type="button"
               onClick={() => setCompact((p) => !p)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-[var(--pc-text)]"
               title={compact ? "Switch to comfortable view" : "Switch to compact view"}
             >
               {compact ? <StretchHorizontal className="h-3 w-3" /> : <Rows3 className="h-3 w-3" />}
@@ -201,7 +201,7 @@ export function ProvisioningBuilderPage() {
               <button
                 type="button"
                 onClick={() => void handleExportSummary()}
-                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-[var(--pc-text)]"
                 title="Copy operator summary to clipboard"
               >
                 <ClipboardCopy className="h-3 w-3" />
@@ -222,7 +222,7 @@ export function ProvisioningBuilderPage() {
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Workflow
                   </div>
-                  <div className="text-xl font-semibold tracking-tight text-white">
+                  <div className="text-xl font-semibold tracking-tight text-[var(--pc-text)]">
                     Validate a tag-to-profile provisioning path
                   </div>
                   <div className="mt-1 text-[13px] leading-relaxed text-[var(--pc-text-secondary)]">
@@ -290,7 +290,7 @@ export function ProvisioningBuilderPage() {
                     <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
                       Search Context
                     </div>
-                    <div className="mt-2 text-[20px] font-semibold text-white">
+                    <div className="mt-2 text-[20px] font-semibold text-[var(--pc-text)]">
                       {searchTag || "No tag loaded"}
                     </div>
                   </div>
@@ -366,7 +366,7 @@ export function ProvisioningBuilderPage() {
                   <div className="border-b border-[var(--pc-border)] px-5 py-4">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4 text-[var(--pc-info)]" />
-                      <div className="text-[13px] font-semibold text-white">
+                      <div className="text-[13px] font-semibold text-[var(--pc-text)]">
                         Existing Configuration Reference
                       </div>
                     </div>
@@ -401,7 +401,7 @@ export function ProvisioningBuilderPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-[var(--pc-accent)]" />
-                          <div className="text-[13px] font-semibold text-white">
+                          <div className="text-[13px] font-semibold text-[var(--pc-text)]">
                             Target Groups
                           </div>
                         </div>
@@ -442,7 +442,7 @@ export function ProvisioningBuilderPage() {
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <div className={cn("font-medium text-white", compact ? "text-[12px]" : "text-[13px]")}>
+                              <div className={cn("font-medium text-[var(--pc-text)]", compact ? "text-[12px]" : "text-[13px]")}>
                                 {group.groupName}
                               </div>
                               <div className="mt-1 flex flex-wrap items-center gap-2 text-[10.5px] uppercase tracking-wide text-[var(--pc-text-muted)]">
@@ -481,7 +481,7 @@ export function ProvisioningBuilderPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <GitBranch className="h-4 w-4 text-[var(--pc-accent)]" />
-                          <div className="text-[13px] font-semibold text-white">
+                          <div className="text-[13px] font-semibold text-[var(--pc-text)]">
                             Deployment Profiles
                           </div>
                         </div>
@@ -534,7 +534,7 @@ export function ProvisioningBuilderPage() {
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <div className={cn("font-medium text-white", compact ? "text-[12px]" : "text-[13px]")}>
+                                <div className={cn("font-medium text-[var(--pc-text)]", compact ? "text-[12px]" : "text-[13px]")}>
                                   {profile.profileName}
                                 </div>
                                 <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[var(--pc-text-secondary)]">
@@ -551,7 +551,7 @@ export function ProvisioningBuilderPage() {
                               </div>
                               <div className="flex shrink-0 items-center gap-2">
                                 {profile.deploymentMode ? (
-                                  <span className="rounded-md bg-white/[0.05] px-2 py-1 text-[10.5px] font-medium text-[var(--pc-text-secondary)]">
+                                  <span className="rounded-md bg-[var(--pc-tint-hover)] px-2 py-1 text-[10.5px] font-medium text-[var(--pc-text-secondary)]">
                                     {formatDeploymentMode(profile.deploymentMode)}
                                   </span>
                                 ) : null}
@@ -574,7 +574,7 @@ export function ProvisioningBuilderPage() {
             <div className="border-b border-[var(--pc-border)] px-5 py-4">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-[var(--pc-accent)]" />
-                <div className="text-[13px] font-semibold text-white">
+                <div className="text-[13px] font-semibold text-[var(--pc-text)]">
                   Operational Readiness
                 </div>
               </div>
@@ -648,7 +648,7 @@ export function ProvisioningBuilderPage() {
             <div className="border-b border-[var(--pc-border)] px-5 py-4">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-[var(--pc-accent)]" />
-                <div className="text-[13px] font-semibold text-white">
+                <div className="text-[13px] font-semibold text-[var(--pc-text)]">
                   Current Chain Review
                 </div>
               </div>
@@ -781,7 +781,7 @@ export function ProvisioningBuilderPage() {
 
           <Card className="overflow-hidden">
             <div className="border-b border-[var(--pc-border)] px-5 py-4">
-              <div className="text-[13px] font-semibold text-white">Validation Output</div>
+              <div className="text-[13px] font-semibold text-[var(--pc-text)]">Validation Output</div>
               <div className="mt-1 text-[12px] text-[var(--pc-text-secondary)]">
                 Review errors and warnings before treating the chain as production-ready.
               </div>
@@ -849,7 +849,7 @@ function MetricCard({
       <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
         {label}
       </div>
-      <div className="mt-2 text-[28px] font-semibold tracking-tight text-white">{value}</div>
+      <div className="mt-2 text-[28px] font-semibold tracking-tight text-[var(--pc-text)]">{value}</div>
       <div className="mt-1 text-[11.5px] leading-relaxed text-[var(--pc-text-secondary)]">
         {hint}
       </div>
@@ -871,7 +871,7 @@ function SummaryBlock({
       <div className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
         {label}
       </div>
-      <div className="mt-2 text-[15px] font-semibold text-white">{value}</div>
+      <div className="mt-2 text-[15px] font-semibold text-[var(--pc-text)]">{value}</div>
       <div className="mt-1 text-[11.5px] text-[var(--pc-text-secondary)]">{hint}</div>
     </div>
   );
@@ -930,7 +930,7 @@ function IconButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-white"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-[var(--pc-text)]"
       title={label}
       aria-label={label}
     >
@@ -945,8 +945,8 @@ function SelectionBadge({ active }: { active: boolean }) {
       className={cn(
         "rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide",
         active
-          ? "bg-[var(--pc-accent)] text-white"
-          : "bg-white/[0.06] text-[var(--pc-text-muted)]"
+          ? "bg-[var(--pc-accent)] text-[var(--pc-text)]"
+          : "bg-[var(--pc-tint-hover)] text-[var(--pc-text-muted)]"
       )}
     >
       {active ? "Selected" : "Pick"}
@@ -997,7 +997,7 @@ function SelectionSummary({
           </IconButton>
         ) : null}
       </div>
-      <div className="mt-2 text-[14px] font-semibold text-white">{value}</div>
+      <div className="mt-2 text-[14px] font-semibold text-[var(--pc-text)]">{value}</div>
       <div className="mt-1 text-[11.5px] leading-relaxed text-[var(--pc-text-secondary)]">
         {helper}
       </div>
@@ -1046,7 +1046,7 @@ function StatusRow({
       )}
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="text-[12px] font-semibold text-white">{label}</div>
+        <div className="text-[12px] font-semibold text-[var(--pc-text)]">{label}</div>
         <span
           className={cn(
             "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
@@ -1054,7 +1054,7 @@ function StatusRow({
               ? tone === "info"
                 ? "bg-[var(--pc-info)]/18 text-sky-100"
                 : "bg-[var(--pc-healthy)]/18 text-emerald-100"
-              : "bg-white/[0.06] text-[var(--pc-text-muted)]"
+              : "bg-[var(--pc-tint-hover)] text-[var(--pc-text-muted)]"
           )}
         >
           {status ? "Ready" : "Pending"}
@@ -1079,7 +1079,7 @@ function CompareRow({
   return (
     <div className="flex items-start justify-between gap-3 border-b border-white/6 py-2 last:border-b-0 last:pb-0">
       <div>
-        <div className="text-[11.5px] font-medium text-white">{label}</div>
+        <div className="text-[11.5px] font-medium text-[var(--pc-text)]">{label}</div>
         <div className="mt-0.5 text-[11px] text-[var(--pc-text-secondary)]">
           {state === null
             ? emptyLabel
@@ -1092,10 +1092,10 @@ function CompareRow({
         className={cn(
           "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
           state === null
-            ? "bg-white/[0.06] text-[var(--pc-text-muted)]"
+            ? "bg-[var(--pc-tint-hover)] text-[var(--pc-text-muted)]"
             : state
               ? "bg-[var(--pc-healthy)]/18 text-emerald-100"
-              : "bg-[var(--pc-warning)]/18 text-amber-100"
+              : "bg-[var(--pc-warning)]/18 text-[var(--pc-warning)]"
         )}
       >
         {state === null ? "Open" : state ? "Match" : "Review"}
@@ -1112,7 +1112,7 @@ function ResultBanner({ valid }: { valid: boolean }) {
         <div className="text-[12px] font-semibold text-emerald-100">
           Provisioning chain validated
         </div>
-        <div className="mt-0.5 text-[11.5px] text-emerald-200/85">
+        <div className="mt-0.5 text-[11.5px] text-[var(--pc-healthy)]/85">
           The current response did not return blocking validation errors.
         </div>
       </div>
@@ -1124,7 +1124,7 @@ function ResultBanner({ valid }: { valid: boolean }) {
         <div className="text-[12px] font-semibold text-red-100">
           Provisioning chain requires attention
         </div>
-        <div className="mt-0.5 text-[11.5px] text-red-200/85">
+        <div className="mt-0.5 text-[11.5px] text-[var(--pc-critical)]/85">
           The selected chain returned one or more blocking errors.
         </div>
       </div>

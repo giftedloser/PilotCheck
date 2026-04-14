@@ -20,11 +20,11 @@ export function RelatedDevicesPanel({ device }: { device: DeviceDetailResponse }
     <Card className="p-5">
       <div className="mb-4 flex items-center gap-2">
         <Laptop className="h-4 w-4 text-[var(--pc-accent)]" />
-        <span className="text-[13px] font-semibold text-white">Related Devices</span>
+        <span className="text-[13px] font-semibold text-[var(--pc-text)]">Related Devices</span>
         <span className="text-[11px] text-[var(--pc-text-muted)]">
           · same user: {userUpn}
         </span>
-        <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10.5px] text-[var(--pc-text-muted)]">
+        <span className="rounded-full bg-[var(--pc-tint-hover)] px-2 py-0.5 text-[10.5px] text-[var(--pc-text-muted)]">
           {devices.length}
         </span>
       </div>
@@ -49,7 +49,7 @@ export function RelatedDevicesPanel({ device }: { device: DeviceDetailResponse }
             </div>
             <div className="flex shrink-0 items-center gap-3">
               {d.flagCount > 0 && (
-                <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-[var(--pc-text-muted)]">
+                <span className="rounded-md bg-[var(--pc-tint-subtle)] px-1.5 py-0.5 text-[10px] text-[var(--pc-text-muted)]">
                   {d.flagCount} {d.flagCount === 1 ? "flag" : "flags"}
                 </span>
               )}

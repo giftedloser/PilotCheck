@@ -38,11 +38,11 @@ export function AuthIndicator() {
   return (
     <div className="group relative">
       <div className="flex items-center gap-2 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1.5">
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--pc-accent)] text-[10px] font-semibold text-white">
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--pc-accent)] text-[10px] font-semibold text-[var(--pc-text)]">
           {initial}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[11.5px] font-medium text-white">
+          <div className="truncate text-[11.5px] font-medium text-[var(--pc-text)]">
             {auth.data.name ?? auth.data.user}
           </div>
           <div className="flex items-center gap-1 text-[9.5px] text-[var(--pc-healthy)]">
@@ -54,7 +54,7 @@ export function AuthIndicator() {
           type="button"
           onClick={() => logout.mutate()}
           disabled={logout.isPending}
-          className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.05] hover:text-[var(--pc-text)]"
+          className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
           title="Sign out"
         >
           <LogOut className="h-3 w-3" />

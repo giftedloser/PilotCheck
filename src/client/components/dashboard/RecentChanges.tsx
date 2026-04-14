@@ -26,7 +26,7 @@ const DIRECTION_META: Record<
   },
   lateral: {
     icon: Minus,
-    tone: "text-[var(--pc-text-muted)] bg-white/[0.05]",
+    tone: "text-[var(--pc-text-muted)] bg-[var(--pc-tint-hover)]",
     label: "Changed"
   }
 };
@@ -55,7 +55,7 @@ export function RecentChanges({ transitions }: { transitions: RecentTransition[]
       <div className="flex flex-wrap items-center gap-3 border-b border-[var(--pc-border)] px-5 py-4">
         <div className="flex items-center gap-2">
           <Clock className="h-3.5 w-3.5 text-[var(--pc-accent)]" />
-          <div className="text-[13px] font-semibold text-white">What changed in 24h</div>
+          <div className="text-[13px] font-semibold text-[var(--pc-text)]">What changed in 24h</div>
           <div className="text-[11px] text-[var(--pc-text-muted)]">
             ({counts.total} {counts.total === 1 ? "device" : "devices"})
           </div>
@@ -105,7 +105,7 @@ export function RecentChanges({ transitions }: { transitions: RecentTransition[]
                 <Link
                   to="/devices/$deviceKey"
                   params={{ deviceKey: t.deviceKey }}
-                  className="flex items-start gap-3 px-5 py-3 transition-colors hover:bg-white/[0.02]"
+                  className="flex items-start gap-3 px-5 py-3 transition-colors hover:bg-[var(--pc-tint-subtle)]"
                 >
                   <div
                     className={cn(
@@ -117,7 +117,7 @@ export function RecentChanges({ transitions }: { transitions: RecentTransition[]
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                      <span className="truncate text-[13px] font-semibold text-white">
+                      <span className="truncate text-[13px] font-semibold text-[var(--pc-text)]">
                         {t.deviceName ?? t.serialNumber ?? t.deviceKey}
                       </span>
                       <span className="text-[10.5px] uppercase tracking-wide text-[var(--pc-text-muted)]">
@@ -196,7 +196,7 @@ function FilterChip({
       ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-rose-100"
       : tone === "healthy"
         ? "border-[var(--pc-healthy)]/50 bg-[var(--pc-healthy-muted)] text-emerald-100"
-        : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-white";
+        : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-[var(--pc-text)]";
   return (
     <button
       type="button"
@@ -205,7 +205,7 @@ function FilterChip({
         "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
         active
           ? activeStyle
-          : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] hover:border-[var(--pc-accent)]/40 hover:text-white"
+          : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)]"
       )}
     >
       {children}

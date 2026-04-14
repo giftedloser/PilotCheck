@@ -87,7 +87,7 @@ export function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="w-full max-w-md rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface)] shadow-2xl"
+        className="pc-modal-enter w-full max-w-md rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface)] shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between border-b border-[var(--pc-border)] px-5 py-4">
@@ -98,14 +98,14 @@ export function ConfirmDialog({
               </div>
             ) : null}
             <div>
-              <div className="text-[14px] font-semibold text-white">{title}</div>
+              <div className="text-[14px] font-semibold text-[var(--pc-text)]">{title}</div>
             </div>
           </div>
           <button
             type="button"
             onClick={onCancel}
             aria-label="Close dialog"
-            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.05] hover:text-[var(--pc-text)]"
+            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -123,7 +123,7 @@ export function ConfirmDialog({
                 type="text"
                 value={typedValue}
                 onChange={(event) => onTypedChange?.(event.target.value)}
-                className="w-full rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2 font-mono text-[12.5px] text-white outline-none transition-colors focus:border-[var(--pc-accent)]"
+                className="w-full rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2 font-mono text-[12.5px] text-[var(--pc-text)] outline-none transition-colors focus:border-[var(--pc-accent)]"
                 autoFocus
               />
             </div>

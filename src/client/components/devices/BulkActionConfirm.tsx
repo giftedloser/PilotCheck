@@ -6,7 +6,7 @@ import { cn } from "../../lib/utils.js";
 import { Button } from "../ui/button.js";
 
 const HEALTH_TONE: Record<HealthLevel, string> = {
-  unknown: "text-[var(--pc-text-muted)] bg-white/[0.04]",
+  unknown: "text-[var(--pc-text-muted)] bg-[var(--pc-tint-subtle)]",
   healthy: "text-[var(--pc-success)] bg-[color-mix(in_oklab,var(--pc-success)_18%,transparent)]",
   info: "text-[var(--pc-accent)] bg-[var(--pc-accent-muted)]",
   warning: "text-[var(--pc-warning)] bg-[color-mix(in_oklab,var(--pc-warning)_18%,transparent)]",
@@ -82,7 +82,7 @@ export function BulkActionConfirm({
               <Icon className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-[14px] font-semibold text-white">{title}</h2>
+              <h2 className="text-[14px] font-semibold text-[var(--pc-text)]">{title}</h2>
               <p className="mt-0.5 text-[12px] text-[var(--pc-text-secondary)]">
                 {description}
               </p>
@@ -93,7 +93,7 @@ export function BulkActionConfirm({
             onClick={onCancel}
             disabled={busy}
             aria-label="Cancel"
-            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.06] hover:text-white disabled:opacity-50"
+            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] disabled:opacity-50"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -104,7 +104,7 @@ export function BulkActionConfirm({
             <span className="text-[11px] uppercase tracking-wide text-[var(--pc-text-muted)]">
               Targets
             </span>
-            <span className="text-[20px] font-semibold tabular-nums text-white">
+            <span className="text-[20px] font-semibold tabular-nums text-[var(--pc-text)]">
               {selectedKeys.size}
             </span>
           </div>
@@ -126,7 +126,7 @@ export function BulkActionConfirm({
               );
             })}
             {unknownCount > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] font-medium text-[var(--pc-text-muted)]">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--pc-tint-subtle)] px-2 py-0.5 text-[10px] font-medium text-[var(--pc-text-muted)]">
                 +{unknownCount} off-page
               </span>
             )}
@@ -148,7 +148,7 @@ export function BulkActionConfirm({
                       key={device.deviceKey}
                       className="border-t border-[var(--pc-border)]/60"
                     >
-                      <td className="px-3 py-1.5 font-medium text-white">
+                      <td className="px-3 py-1.5 font-medium text-[var(--pc-text)]">
                         {device.deviceName ?? "—"}
                       </td>
                       <td className="px-3 py-1.5 font-mono text-[10px] text-[var(--pc-text-muted)]">

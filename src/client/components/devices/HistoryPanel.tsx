@@ -12,7 +12,7 @@ const HEALTH_DOT: Record<HealthLevel, string> = {
   warning: "bg-[var(--pc-warning)]",
   info: "bg-[var(--pc-info)]",
   healthy: "bg-[var(--pc-healthy)]",
-  unknown: "bg-white/20"
+  unknown: "bg-[var(--pc-tint-hover)]"
 };
 
 const HEALTH_LABEL: Record<HealthLevel, string> = {
@@ -31,7 +31,7 @@ export function HistoryPanel({ device }: { device: DeviceDetailResponse }) {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-white">State Timeline</span>
+          <span className="text-[13px] font-semibold text-[var(--pc-text)]">State Timeline</span>
         </div>
         <span className="text-[11px] text-[var(--pc-text-muted)]">
           Only state transitions are recorded
@@ -60,7 +60,7 @@ export function HistoryPanel({ device }: { device: DeviceDetailResponse }) {
                   )}
                 />
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <div className="text-[12.5px] font-medium text-white">
+                  <div className="text-[12.5px] font-medium text-[var(--pc-text)]">
                     {isFirst ? "Current state" : "State changed"}
                     {healthChanged ? (
                       <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-normal text-[var(--pc-text-secondary)]">
@@ -87,7 +87,7 @@ export function HistoryPanel({ device }: { device: DeviceDetailResponse }) {
                     {entry.addedFlags.map((flag) => (
                       <span
                         key={`+${flag}`}
-                        className="inline-flex items-center gap-1 rounded-md bg-[var(--pc-critical-muted)] px-1.5 py-0.5 text-[10.5px] text-red-200 ring-1 ring-[var(--pc-critical)]/30"
+                        className="inline-flex items-center gap-1 rounded-md bg-[var(--pc-critical-muted)] px-1.5 py-0.5 text-[10.5px] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/30"
                         title={`Started flagging: ${humanizeFlag(flag)}`}
                       >
                         <Plus className="h-2.5 w-2.5" />
@@ -97,7 +97,7 @@ export function HistoryPanel({ device }: { device: DeviceDetailResponse }) {
                     {entry.removedFlags.map((flag) => (
                       <span
                         key={`-${flag}`}
-                        className="inline-flex items-center gap-1 rounded-md bg-[var(--pc-healthy-muted)] px-1.5 py-0.5 text-[10.5px] text-emerald-200 ring-1 ring-[var(--pc-healthy)]/30"
+                        className="inline-flex items-center gap-1 rounded-md bg-[var(--pc-healthy-muted)] px-1.5 py-0.5 text-[10.5px] text-[var(--pc-healthy)] ring-1 ring-[var(--pc-healthy)]/30"
                         title={`Cleared: ${humanizeFlag(flag)}`}
                       >
                         <Minus className="h-2.5 w-2.5" />

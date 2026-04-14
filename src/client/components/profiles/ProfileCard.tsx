@@ -40,7 +40,7 @@ export function ProfileCard({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <div
-                className="truncate text-[14px] font-semibold text-white transition-colors group-hover:text-[var(--pc-accent-hover)]"
+                className="truncate text-[14px] font-semibold text-[var(--pc-text)] transition-colors group-hover:text-[var(--pc-accent-hover)]"
                 title={profile.profileName}
               >
                 {profile.profileName}
@@ -58,7 +58,7 @@ export function ProfileCard({
             <button
               type="button"
               onClick={onInspect}
-              className="inline-flex items-center gap-1 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-white"
+              className="inline-flex items-center gap-1 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)]"
               title="Open profile inspector drawer"
             >
               <Maximize2 className="h-3 w-3" />
@@ -68,7 +68,7 @@ export function ProfileCard({
           <Link
             to="/devices"
             search={filterForProfile(profile.profileName)}
-            className="inline-flex items-center gap-1 rounded-md bg-white/[0.05] px-2 py-1 text-[11px] font-medium tabular-nums text-[var(--pc-text-secondary)] transition-colors hover:bg-[var(--pc-accent-muted)] hover:text-[var(--pc-accent-hover)]"
+            className="inline-flex items-center gap-1 rounded-md bg-[var(--pc-tint-hover)] px-2 py-1 text-[11px] font-medium tabular-nums text-[var(--pc-text-secondary)] transition-colors hover:bg-[var(--pc-accent-muted)] hover:text-[var(--pc-accent-hover)]"
             title="Show devices assigned to this profile"
           >
             {profile.assignedDevices} devices
@@ -81,32 +81,32 @@ export function ProfileCard({
         <Link
           to="/devices"
           search={filterForProfile(profile.profileName)}
-          className="rounded-lg bg-white/[0.03] px-3 py-2.5 transition-colors hover:bg-white/[0.06]"
+          className="rounded-lg bg-[var(--pc-tint-subtle)] px-3 py-2.5 transition-colors hover:bg-[var(--pc-tint-hover)]"
         >
           <div className="text-[11px] text-[var(--pc-text-muted)]">Target Groups</div>
-          <div className="mt-1 text-[18px] font-semibold tabular-nums text-white">
+          <div className="mt-1 text-[18px] font-semibold tabular-nums text-[var(--pc-text)]">
             {profile.targetingGroups.length}
           </div>
         </Link>
         <Link
           to="/devices"
           search={{ ...filterForProfile(profile.profileName), flag: "no_profile_assigned" }}
-          className="rounded-lg bg-white/[0.03] px-3 py-2.5 transition-colors hover:bg-[var(--pc-warning-muted)]"
+          className="rounded-lg bg-[var(--pc-tint-subtle)] px-3 py-2.5 transition-colors hover:bg-[var(--pc-warning-muted)]"
           title="Show devices missing an assignment for this profile"
         >
           <div className="text-[11px] text-[var(--pc-text-muted)]">Missing Assignment</div>
-          <div className="mt-1 text-[18px] font-semibold tabular-nums text-white">
+          <div className="mt-1 text-[18px] font-semibold tabular-nums text-[var(--pc-text)]">
             {profile.missingAssignmentCount}
           </div>
         </Link>
         <Link
           to="/devices"
           search={{ ...filterForProfile(profile.profileName), flag: "tag_mismatch" }}
-          className="rounded-lg bg-white/[0.03] px-3 py-2.5 transition-colors hover:bg-[var(--pc-warning-muted)]"
+          className="rounded-lg bg-[var(--pc-tint-subtle)] px-3 py-2.5 transition-colors hover:bg-[var(--pc-warning-muted)]"
           title="Show devices with a tag mismatch"
         >
           <div className="text-[11px] text-[var(--pc-text-muted)]">Tag Mismatch</div>
-          <div className="mt-1 text-[18px] font-semibold tabular-nums text-white">
+          <div className="mt-1 text-[18px] font-semibold tabular-nums text-[var(--pc-text)]">
             {profile.tagMismatchCount}
           </div>
         </Link>

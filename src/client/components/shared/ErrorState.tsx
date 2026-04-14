@@ -34,7 +34,7 @@ export function ErrorState({
           <AlertOctagon className="h-4 w-4 text-[var(--pc-critical)]" />
         </div>
         <div>
-          <div className="text-[13px] font-semibold text-white">{title}</div>
+          <div className="text-[13px] font-semibold text-[var(--pc-text)]">{title}</div>
           <div className="mt-0.5 text-[12px] text-[var(--pc-text-muted)]">{detail}</div>
         </div>
       </div>

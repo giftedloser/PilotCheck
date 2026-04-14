@@ -35,7 +35,7 @@ export function ProvisioningTimeline({ device }: { device: DeviceDetailResponse 
     <Card className="p-5">
       <div className="mb-4 flex items-center gap-2">
         <Clock className="h-4 w-4 text-[var(--pc-accent)]" />
-        <span className="text-[13px] font-semibold text-white">Provisioning Timeline</span>
+        <span className="text-[13px] font-semibold text-[var(--pc-text)]">Provisioning Timeline</span>
         <span className="text-[11px] text-[var(--pc-text-muted)]">
           · {reachedCount}/{milestones.length} milestones
         </span>
@@ -59,7 +59,7 @@ export function ProvisioningTimeline({ device }: { device: DeviceDetailResponse 
                 )}
               >
                 {reached && (
-                  <svg className="h-full w-full text-white" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="h-full w-full text-[var(--pc-text)]" viewBox="0 0 20 20" fill="currentColor">
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"

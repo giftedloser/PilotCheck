@@ -64,14 +64,14 @@ export function Pagination({
               "flex h-8 w-8 items-center justify-center rounded-md border border-[var(--pc-border)] text-[var(--pc-text-secondary)] transition-colors",
               safePage <= 1
                 ? "cursor-not-allowed opacity-40"
-                : "hover:border-[var(--pc-accent)] hover:text-white"
+                : "hover:border-[var(--pc-accent)] hover:text-[var(--pc-text)]"
             )}
             aria-label="Previous page"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
           </button>
           <span className="px-2 text-[12px] tabular-nums text-[var(--pc-text-secondary)]">
-            Page <span className="font-medium text-white">{safePage}</span> / {totalPages}
+            Page <span className="font-medium text-[var(--pc-text)]">{safePage}</span> / {totalPages}
           </span>
           <button
             type="button"
@@ -81,7 +81,7 @@ export function Pagination({
               "flex h-8 w-8 items-center justify-center rounded-md border border-[var(--pc-border)] text-[var(--pc-text-secondary)] transition-colors",
               safePage >= totalPages
                 ? "cursor-not-allowed opacity-40"
-                : "hover:border-[var(--pc-accent)] hover:text-white"
+                : "hover:border-[var(--pc-accent)] hover:text-[var(--pc-text)]"
             )}
             aria-label="Next page"
           >

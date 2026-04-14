@@ -16,7 +16,7 @@ export function FailurePatterns({
   return (
     <Card className="overflow-hidden">
       <div className="border-b border-[var(--pc-border)] px-5 py-4">
-        <div className="text-[13px] font-semibold text-white">Failure Patterns</div>
+        <div className="text-[13px] font-semibold text-[var(--pc-text)]">Failure Patterns</div>
         <div className="mt-0.5 text-[12px] text-[var(--pc-text-muted)]">
           Most common broken states &mdash; click to filter the device queue
         </div>
@@ -45,10 +45,10 @@ export function FailurePatterns({
                   }
                 })
               }
-              className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.02]"
+              className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-[var(--pc-tint-subtle)]"
             >
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-medium text-white">
+                <div className="text-[13px] font-medium text-[var(--pc-text)]">
                   {humanizeFlag(pattern.flag)}
                 </div>
                 <div className="mt-0.5 line-clamp-1 text-[11.5px] text-[var(--pc-text-muted)]">
@@ -57,7 +57,7 @@ export function FailurePatterns({
               </div>
               <StatusBadge health={pattern.severity} />
               <div className="text-right">
-                <div className="text-[15px] font-semibold tabular-nums text-white">
+                <div className="text-[15px] font-semibold tabular-nums text-[var(--pc-text)]">
                   {pattern.count}
                 </div>
               </div>

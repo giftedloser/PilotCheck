@@ -66,7 +66,7 @@ function JsonBlock({ label, source, json }: JsonBlockProps) {
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
-        className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left transition-colors hover:bg-white/[0.02]"
+        className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left transition-colors hover:bg-[var(--pc-tint-subtle)]"
       >
         <ChevronDown
           className={cn(
@@ -87,7 +87,7 @@ function JsonBlock({ label, source, json }: JsonBlockProps) {
             e.stopPropagation();
             void onCopy();
           }}
-          className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.06] hover:text-white"
+          className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
           title={`Copy ${label} JSON`}
         >
           <Copy className="h-3 w-3" />
@@ -126,7 +126,7 @@ export function SourceJsonPanel({ device }: SourceJsonPanelProps) {
     <Card className="p-5">
       <div className="mb-4 flex items-center gap-2">
         <Code2 className="h-4 w-4 text-[var(--pc-accent)]" />
-        <span className="text-[13px] font-semibold text-white">Source Data</span>
+        <span className="text-[13px] font-semibold text-[var(--pc-text)]">Source Data</span>
         <span className="text-[11.5px] text-[var(--pc-text-muted)]">
           · Raw JSON from Microsoft Graph
         </span>

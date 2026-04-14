@@ -169,7 +169,7 @@ export function DeviceListPage() {
             type="button"
             onClick={exportCsv}
             disabled={!devices.data || devices.data.items.length === 0}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] text-[var(--pc-text-secondary)] transition-colors hover:bg-white/[0.04] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] text-[var(--pc-text-secondary)] transition-colors hover:bg-[var(--pc-tint-subtle)] hover:text-[var(--pc-text)] disabled:cursor-not-allowed disabled:opacity-50"
             title="Export current page to CSV"
           >
             <Download className="h-3 w-3" />
@@ -261,7 +261,7 @@ export function DeviceListPage() {
       {selectedKeys.size > 0 && (
         <div className="pointer-events-none fixed inset-x-0 bottom-6 z-40 flex justify-center px-4">
           <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-2 shadow-2xl">
-            <span className="text-[12px] font-medium text-white">
+            <span className="text-[12px] font-medium text-[var(--pc-text)]">
               {selectedKeys.size} selected
             </span>
             <span className="h-4 w-px bg-[var(--pc-border)]" />
@@ -294,7 +294,7 @@ export function DeviceListPage() {
             <button
               type="button"
               onClick={clearSelection}
-              className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-white/[0.06] hover:text-white"
+              className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
               aria-label="Clear selection"
               title="Clear selection"
             >
@@ -328,7 +328,7 @@ function DensityButton({
         "inline-flex h-6 w-7 items-center justify-center rounded transition-colors",
         active
           ? "bg-[var(--pc-accent-muted)] text-[var(--pc-accent)]"
-          : "text-[var(--pc-text-muted)] hover:bg-white/[0.04] hover:text-[var(--pc-text)]"
+          : "text-[var(--pc-text-muted)] hover:bg-[var(--pc-tint-subtle)] hover:text-[var(--pc-text)]"
       )}
     >
       {children}

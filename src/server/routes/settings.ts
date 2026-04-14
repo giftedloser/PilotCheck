@@ -27,7 +27,7 @@ export function settingsRouter(db: Database.Database) {
       return;
     }
     upsertTagConfig(db, result.data);
-    computeAllDeviceStates(db);
+    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
     response.status(201).json(getSettings(db).tagConfig);
   });
 
@@ -41,13 +41,13 @@ export function settingsRouter(db: Database.Database) {
       return;
     }
     upsertTagConfig(db, result.data);
-    computeAllDeviceStates(db);
+    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
     response.json(getSettings(db).tagConfig);
   });
 
   router.delete("/tag-config/:groupTag", (request, response) => {
     deleteTagConfig(db, request.params.groupTag);
-    computeAllDeviceStates(db);
+    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
     response.status(204).send();
   });
 

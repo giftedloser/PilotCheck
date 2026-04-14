@@ -53,7 +53,7 @@ export const DEVICE_COLUMNS: DeviceColumnDef[] = [
         <Link
           to="/devices/$deviceKey"
           params={{ deviceKey: device.deviceKey }}
-          className="block truncate font-medium text-white hover:text-[var(--pc-accent-hover)]"
+          className="block truncate font-medium text-[var(--pc-text)] hover:text-[var(--pc-accent-hover)]"
           title={device.deviceName ?? device.serialNumber ?? device.deviceKey}
         >
           {device.deviceName ?? device.serialNumber ?? device.deviceKey}
@@ -90,8 +90,8 @@ export const DEVICE_COLUMNS: DeviceColumnDef[] = [
     defaultVisible: true,
     render: (device, density) => {
       const RULE_SEVERITY_STYLE: Record<string, string> = {
-        critical: "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/40",
-        warning: "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/40",
+        critical: "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/40",
+        warning: "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)] ring-1 ring-[var(--pc-warning)]/40",
         info: "bg-[var(--pc-info-muted)] text-blue-200 ring-1 ring-[var(--pc-info)]/40"
       };
       const maxVisible = density === "compact" ? 1 : 2;
@@ -117,7 +117,7 @@ export const DEVICE_COLUMNS: DeviceColumnDef[] = [
             </span>
           ))}
           {overflow > 0 && (
-            <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-[var(--pc-text-muted)]">
+            <span className="rounded-md bg-[var(--pc-tint-subtle)] px-1.5 py-0.5 text-[10px] text-[var(--pc-text-muted)]">
               +{overflow}
             </span>
           )}
@@ -232,10 +232,10 @@ export const DEVICE_COLUMNS: DeviceColumnDef[] = [
       const conf = device.matchConfidence;
       const style =
         conf === "high"
-          ? "bg-[var(--pc-healthy-muted)] text-emerald-200 ring-1 ring-[var(--pc-healthy)]/40"
+          ? "bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)] ring-1 ring-[var(--pc-healthy)]/40"
           : conf === "medium"
-            ? "bg-[var(--pc-warning-muted)] text-amber-200 ring-1 ring-[var(--pc-warning)]/40"
-            : "bg-[var(--pc-critical-muted)] text-red-200 ring-1 ring-[var(--pc-critical)]/40";
+            ? "bg-[var(--pc-warning-muted)] text-[var(--pc-warning)] ring-1 ring-[var(--pc-warning)]/40"
+            : "bg-[var(--pc-critical-muted)] text-[var(--pc-critical)] ring-1 ring-[var(--pc-critical)]/40";
       return (
         <span
           className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10.5px] font-medium capitalize ${style}`}

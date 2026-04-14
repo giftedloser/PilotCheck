@@ -39,7 +39,7 @@ export function HealthSummary({ counts }: { counts: DashboardResponse["counts"] 
   return (
     <Card className="p-5">
       <div className="mb-1 flex items-baseline justify-between">
-        <div className="text-[13px] font-semibold text-white">Health Distribution</div>
+        <div className="text-[13px] font-semibold text-[var(--pc-text)]">Health Distribution</div>
         <div className="text-[11px] text-[var(--pc-text-muted)]">Click a tile to filter the queue</div>
       </div>
       <div className="mb-4 text-[11.5px] text-[var(--pc-text-muted)]">
@@ -48,7 +48,7 @@ export function HealthSummary({ counts }: { counts: DashboardResponse["counts"] 
 
       {/* Progress bar */}
       {total > 0 && (
-        <div className="mb-5 flex h-2 overflow-hidden rounded-full bg-white/[0.04]">
+        <div className="mb-5 flex h-2 overflow-hidden rounded-full bg-[var(--pc-tint-subtle)]">
           {visibleStates.map((health) => {
             const pct = (counts[health] / total) * 100;
             if (pct === 0) return null;
@@ -73,9 +73,9 @@ export function HealthSummary({ counts }: { counts: DashboardResponse["counts"] 
               onClick={() => handleClick(health)}
               disabled={!clickable}
               className={
-                "rounded-lg bg-white/[0.03] px-4 py-3 text-left transition-colors " +
+                "rounded-lg bg-[var(--pc-tint-subtle)] px-4 py-3 text-left transition-all duration-150 " +
                 (clickable
-                  ? "cursor-pointer ring-1 ring-transparent hover:bg-white/[0.06] hover:ring-[var(--pc-border)]"
+                  ? "cursor-pointer ring-1 ring-transparent hover:bg-[var(--pc-tint-hover)] hover:ring-[var(--pc-border)] hover:-translate-y-0.5 hover:shadow-md"
                   : "cursor-default opacity-80")
               }
             >
@@ -85,7 +85,7 @@ export function HealthSummary({ counts }: { counts: DashboardResponse["counts"] 
                   {health}
                 </span>
               </div>
-              <div className="mt-2 text-2xl font-semibold tabular-nums text-white">
+              <div className="mt-2 text-2xl font-semibold tabular-nums text-[var(--pc-text)]">
                 {counts[health]}
               </div>
               <div className="mt-0.5 text-[11px] text-[var(--pc-text-muted)]">
