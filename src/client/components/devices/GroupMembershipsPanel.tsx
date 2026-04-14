@@ -28,8 +28,8 @@ export function GroupMembershipsPanel({ device }: { device: DeviceDetailResponse
           {groupMemberships.map((g) => (
             <Link
               key={g.groupId}
-              to="/groups/$groupId"
-              params={{ groupId: g.groupId }}
+              to="/groups"
+              search={{ groupId: g.groupId }}
               className="flex items-center justify-between rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3.5 py-2.5 transition-colors hover:border-[var(--pc-accent)]/40 hover:bg-[var(--pc-surface-raised)]/80"
             >
               <span className="truncate text-[12.5px] text-[var(--pc-text)]">{g.groupName}</span>

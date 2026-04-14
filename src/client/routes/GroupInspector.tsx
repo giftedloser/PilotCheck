@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import {
   ArrowRight,
   ChevronRight,
@@ -23,8 +23,9 @@ type MemberHealthFilter = "all" | "unhealthy" | "critical";
 
 export function GroupInspectorPage() {
   const groups = useGroups();
+  const routeSearch = useSearch({ from: "/groups" });
   const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  const [selectedId, setSelectedId] = useState<string | undefined>(routeSearch.groupId);
   const [memberFilter, setMemberFilter] = useState<MemberHealthFilter>("all");
   const [memberSearch, setMemberSearch] = useState("");
 

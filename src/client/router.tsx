@@ -63,6 +63,9 @@ const profilesRoute = createRoute({
 const groupsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/groups",
+  validateSearch: (search: Record<string, unknown>) => ({
+    groupId: typeof search.groupId === "string" ? search.groupId : undefined
+  }),
   component: GroupInspectorPage
 });
 
