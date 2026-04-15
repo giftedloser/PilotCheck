@@ -27,7 +27,7 @@ export function settingsRouter(db: Database.Database) {
       return;
     }
     upsertTagConfig(db, result.data);
-    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
+    try { computeAllDeviceStates(db); } catch (error) { console.error('Failed to recompute device states after tag config creation:', error); }
     response.status(201).json(getSettings(db).tagConfig);
   });
 
@@ -41,13 +41,13 @@ export function settingsRouter(db: Database.Database) {
       return;
     }
     upsertTagConfig(db, result.data);
-    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
+    try { computeAllDeviceStates(db); } catch (error) { console.error('Failed to recompute device states after tag config update:', error); }
     response.json(getSettings(db).tagConfig);
   });
 
   router.delete("/tag-config/:groupTag", (request, response) => {
     deleteTagConfig(db, request.params.groupTag);
-    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
+    try { computeAllDeviceStates(db); } catch (error) { console.error('Failed to recompute device states after tag config deletion:', error); }
     response.status(204).send();
   });
 

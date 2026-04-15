@@ -1,6 +1,21 @@
 import type { ConfigProfileRow, DeviceConfigStateRow } from "../db/types.js";
 import { GraphClient } from "./graph-client.js";
 
+interface GraphConfigProfileResponse {
+  id: string;
+  displayName?: string;
+  description?: string;
+  "@odata.type"?: string;
+}
+
+interface GraphDeviceConfigStateResponse {
+  id?: string;
+  displayName?: string;
+  state?: string;
+  lastReportedDateTime?: string;
+  settingStates?: { instanceDisplayName?: string }[];
+}
+
 export interface ConfigProfileSyncResult {
   profiles: ConfigProfileRow[];
   deviceStates: DeviceConfigStateRow[];
@@ -12,7 +27,7 @@ export async function syncConfigProfiles(
 ): Promise<ConfigProfileSyncResult> {
   const now = new Date().toISOString();
 
-  const rawProfiles = await client.getAllPages<any>(
+  const rawProfiles = await client.getAllPages<GraphConfigProfileResponse>(
     "/deviceManagement/deviceConfigurations?$select=id,displayName,description"
   );
 
@@ -35,10 +50,10 @@ export async function syncConfigProfiles(
     const results = await Promise.all(
       batch.map(async (deviceId) => {
         try {
-          const states = await client.getAllPages<any>(
+          const states = await client.getAllPages<GraphDeviceConfigStateResponse>(
             `/deviceManagement/managedDevices/${deviceId}/deviceConfigurationStates`
           );
-          return states.map((s: any) => ({
+          return states.map((s: GraphDeviceConfigStateResponse) => ({
             id: s.id ?? `${deviceId}-${s.displayName}`,
             device_id: deviceId,
             profile_id: s.settingStates?.[0]?.instanceDisplayName ?? s.id ?? "unknown",

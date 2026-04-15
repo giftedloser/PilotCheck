@@ -18,7 +18,7 @@ function applyTheme(resolved: "dark" | "light") {
   root.style.colorScheme = resolved;
 }
 
-export function useTheme(): [Theme, (next: Theme) => void, "dark" | "light"] {
+export function useTheme(): [Theme, () => void, "dark" | "light"] {
   const [theme, setTheme] = usePreference<Theme>("theme", "dark");
 
   const resolved = resolveTheme(theme);

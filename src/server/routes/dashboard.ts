@@ -8,7 +8,12 @@ export function dashboardRouter(db: Database.Database) {
   const router = Router();
 
   router.get("/", (_request, response) => {
-    response.json(getDashboard(db));
+    try {
+      response.json(getDashboard(db));
+    } catch (error) {
+      console.error('Failed to load dashboard:', error);
+      response.status(500).json({ error: 'Failed to load dashboard.' });
+    }
   });
 
   return router;

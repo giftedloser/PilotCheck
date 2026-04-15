@@ -33,6 +33,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Claude Code
+.claude/
+
 # Editor / OS
 .DS_Store
 desktop.ini
@@ -50,3 +53,8 @@ Thumbs.db
 # Tauri signing keys
 *.key
 *.pem
+
+# Non-Windows icon assets (Windows-only project)
+src-tauri/icons/ios/
+src-tauri/icons/android/
+src-tauri/icons/icon.icns

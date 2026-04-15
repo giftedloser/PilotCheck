@@ -1,5 +1,6 @@
-import { createRootRouteWithContext, createRoute, createRouter } from "@tanstack/react-router";
+import { Link, createRootRouteWithContext, createRoute, createRouter } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
+import { FileQuestion } from "lucide-react";
 
 import { ActionAuditPage } from "./routes/ActionAudit.js";
 import { AppShell } from "./components/layout/AppShell.js";
@@ -10,11 +11,34 @@ import { GroupInspectorPage } from "./routes/GroupInspector.js";
 import { ProfileAuditPage } from "./routes/ProfileAudit.js";
 import { ProvisioningBuilderPage } from "./routes/ProvisioningBuilder.js";
 import { SettingsPage } from "./routes/Settings.js";
-import { SetupPage } from "./routes/Setup.js";
+import { SetupPage } from "./routes/setup.js";
 import { SyncStatusPage } from "./routes/SyncStatus.js";
 
+function NotFoundPage() {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-24 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--pc-accent)]/10">
+        <FileQuestion className="h-8 w-8 text-[var(--pc-accent)]" />
+      </div>
+      <h1 className="text-2xl font-semibold tracking-tight text-[var(--pc-text)]">
+        Page not found
+      </h1>
+      <p className="max-w-md text-sm leading-relaxed text-[var(--pc-text-secondary)]">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <Link
+        to="/"
+        className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[var(--pc-accent)] px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[var(--pc-accent-hover)] hover:shadow-md"
+      >
+        Back to Dashboard
+      </Link>
+    </div>
+  );
+}
+
 const rootRoute = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  component: AppShell
+  component: AppShell,
+  notFoundComponent: NotFoundPage
 });
 
 const indexRoute = createRoute({

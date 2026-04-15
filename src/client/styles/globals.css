@@ -228,17 +228,6 @@ body {
   animation: pc-pulse-glow 2s ease-in-out infinite;
 }
 
-/* Skeleton loading shimmer */
-@keyframes pc-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.pc-shimmer {
-  background: linear-gradient(90deg, var(--pc-surface-raised) 25%, var(--pc-surface-overlay) 50%, var(--pc-surface-raised) 75%);
-  background-size: 200% 100%;
-  animation: pc-shimmer 1.5s ease-in-out infinite;
-}
-
 /* Smooth page transitions */
 @keyframes pc-page-enter {
   from {
@@ -252,15 +241,6 @@ body {
 }
 .pc-page-enter {
   animation: pc-page-enter 300ms ease-out;
-}
-
-/* Subtle hover lift for interactive cards */
-.pc-hover-lift {
-  transition: transform 150ms ease, box-shadow 150ms ease, border-color 200ms ease;
-}
-.pc-hover-lift:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Focus ring utility */

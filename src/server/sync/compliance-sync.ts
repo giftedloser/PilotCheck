@@ -1,6 +1,21 @@
 import type { CompliancePolicyRow, DeviceComplianceStateRow } from "../db/types.js";
 import { GraphClient } from "./graph-client.js";
 
+interface GraphCompliancePolicyResponse {
+  id: string;
+  displayName?: string;
+  description?: string;
+  "@odata.type"?: string;
+}
+
+interface GraphDeviceComplianceStateResponse {
+  id?: string;
+  displayName?: string;
+  state?: string;
+  lastReportedDateTime?: string;
+  settingStates?: { policyId?: string }[];
+}
+
 export interface ComplianceSyncResult {
   policies: CompliancePolicyRow[];
   deviceStates: DeviceComplianceStateRow[];
@@ -13,7 +28,7 @@ export async function syncCompliancePolicies(
   const now = new Date().toISOString();
 
   // Fetch all compliance policies
-  const rawPolicies = await client.getAllPages<any>(
+  const rawPolicies = await client.getAllPages<GraphCompliancePolicyResponse>(
     "/deviceManagement/deviceCompliancePolicies?$select=id,displayName,description"
   );
 
@@ -35,10 +50,10 @@ export async function syncCompliancePolicies(
     const results = await Promise.all(
       batch.map(async (deviceId) => {
         try {
-          const states = await client.getAllPages<any>(
+          const states = await client.getAllPages<GraphDeviceComplianceStateResponse>(
             `/deviceManagement/managedDevices/${deviceId}/deviceCompliancePolicyStates`
           );
-          return states.map((s: any) => ({
+          return states.map((s: GraphDeviceComplianceStateResponse) => ({
             id: s.id ?? `${deviceId}-${s.displayName}`,
             device_id: deviceId,
             policy_id: s.settingStates?.[0]?.policyId ?? s.id ?? "unknown",

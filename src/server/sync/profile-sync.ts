@@ -1,11 +1,24 @@
 import type { ProfileAssignmentRow, ProfileRow } from "../db/types.js";
 import { GraphClient } from "./graph-client.js";
 
+interface GraphProfileAssignment {
+  target?: { groupId?: string };
+}
+
+interface GraphAutopilotProfileResponse {
+  id: string;
+  displayName: string;
+  deploymentMode?: string;
+  outOfBoxExperienceSettings?: Record<string, unknown>;
+  hybridAzureADJoinSkipConnectivityCheck?: Record<string, unknown>;
+  assignments?: GraphProfileAssignment[];
+}
+
 export async function syncProfiles(client: GraphClient): Promise<{
   profiles: ProfileRow[];
   assignments: ProfileAssignmentRow[];
 }> {
-  const rows = await client.getAllPages<any>(
+  const rows = await client.getAllPages<GraphAutopilotProfileResponse>(
     "/deviceManagement/windowsAutopilotDeploymentProfiles?$expand=assignments",
     "beta"
   );
@@ -19,7 +32,7 @@ export async function syncProfiles(client: GraphClient): Promise<{
       out_of_box_experience: JSON.stringify(row.outOfBoxExperienceSettings ?? {}),
       hybrid_join_config: JSON.stringify(row.hybridAzureADJoinSkipConnectivityCheck ?? {}),
       assigned_group_ids: JSON.stringify(
-        (row.assignments ?? []).map((assignment: any) => assignment.target?.groupId).filter(Boolean)
+        (row.assignments ?? []).map((assignment: GraphProfileAssignment) => assignment.target?.groupId).filter(Boolean)
       ),
       last_synced_at: now,
       raw_json: JSON.stringify(row)
@@ -28,10 +41,10 @@ export async function syncProfiles(client: GraphClient): Promise<{
 
   const assignments = rows.flatMap((row) =>
     (row.assignments ?? [])
-      .map((assignment: any) => assignment.target?.groupId)
-      .filter(Boolean)
+      .map((assignment: GraphProfileAssignment) => assignment.target?.groupId)
+      .filter((id): id is string => Boolean(id))
       .map(
-        (groupId: string): ProfileAssignmentRow => ({
+        (groupId): ProfileAssignmentRow => ({
           profile_id: row.id,
           group_id: groupId,
           last_synced_at: now

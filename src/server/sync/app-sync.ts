@@ -1,6 +1,19 @@
 import type { MobileAppRow, DeviceAppInstallStateRow } from "../db/types.js";
 import { GraphClient } from "./graph-client.js";
 
+interface GraphMobileAppResponse {
+  id: string;
+  displayName?: string;
+  description?: string;
+  publisher?: string;
+  "@odata.type"?: string;
+}
+
+interface GraphDetectedAppResponse {
+  id?: string;
+  displayName?: string;
+}
+
 export interface AppSyncResult {
   apps: MobileAppRow[];
   deviceStates: DeviceAppInstallStateRow[];
@@ -13,7 +26,7 @@ export async function syncAppAssignments(
   const now = new Date().toISOString();
 
   // Fetch assigned Windows apps
-  const rawApps = await client.getAllPages<any>(
+  const rawApps = await client.getAllPages<GraphMobileAppResponse>(
     "/deviceAppManagement/mobileApps?$filter=isAssigned eq true&$select=id,displayName,description,publisher"
   );
 
@@ -36,10 +49,10 @@ export async function syncAppAssignments(
     const results = await Promise.all(
       batch.map(async (deviceId) => {
         try {
-          const states = await client.getAllPages<any>(
+          const states = await client.getAllPages<GraphDetectedAppResponse>(
             `/deviceManagement/managedDevices/${deviceId}/detectedApps`
           );
-          return states.map((s: any) => ({
+          return states.map((s: GraphDetectedAppResponse) => ({
             id: s.id ?? `${deviceId}-${s.displayName}`,
             device_id: deviceId,
             app_id: s.id ?? "unknown",

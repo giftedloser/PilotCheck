@@ -77,7 +77,7 @@ export function rulesRouter(db: Database.Database) {
       return;
     }
     const created = createRule(db, result.data as RuleInput);
-    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
+    try { computeAllDeviceStates(db); } catch (error) { console.error('Failed to recompute device states after rule creation:', error); }
     response.status(201).json(created);
   });
 
@@ -92,7 +92,7 @@ export function rulesRouter(db: Database.Database) {
       response.status(404).json({ message: "Rule not found." });
       return;
     }
-    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
+    try { computeAllDeviceStates(db); } catch (error) { console.error('Failed to recompute device states after rule update:', error); }
     response.json(updated);
   });
 
@@ -102,7 +102,7 @@ export function rulesRouter(db: Database.Database) {
       response.status(404).json({ message: "Rule not found." });
       return;
     }
-    try { computeAllDeviceStates(db); } catch { /* state will refresh on next sync */ }
+    try { computeAllDeviceStates(db); } catch (error) { console.error('Failed to recompute device states after rule deletion:', error); }
     response.status(204).send();
   });
 
