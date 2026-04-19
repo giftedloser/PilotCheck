@@ -71,7 +71,7 @@ function targetsWindows(conditions: ConditionalAccessPolicy["conditions"]): bool
   return included.includes("all") || included.includes("windows");
 }
 
-export function ConditionalAccessPanel({ device }: { device: DeviceDetailResponse }) {
+export function ConditionalAccessPanel({ device: _device }: { device: DeviceDetailResponse }) {
   const [policies, setPolicies] = useState<ConditionalAccessPolicy[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -90,7 +90,7 @@ export function ConditionalAccessPanel({ device }: { device: DeviceDetailRespons
     return () => {
       cancelled = true;
     };
-  }, [device.summary.deviceKey]);
+  }, []);
 
   if (loading || policies.length === 0) return null;
 
@@ -99,7 +99,7 @@ export function ConditionalAccessPanel({ device }: { device: DeviceDetailRespons
       <div className="mb-4 flex items-center gap-2">
         <ShieldAlert className="h-4 w-4 text-[var(--pc-accent)]" />
         <span className="text-[13px] font-semibold text-[var(--pc-text)]">
-          Conditional Access Policies
+          Tenant Conditional Access Policies
         </span>
         <span className="rounded-full bg-[var(--pc-tint-hover)] px-2 py-0.5 text-[10.5px] text-[var(--pc-text-muted)]">
           {policies.length}

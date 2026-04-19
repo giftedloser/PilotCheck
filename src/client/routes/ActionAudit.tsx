@@ -12,7 +12,9 @@ import {
   RefreshCw,
   RotateCcw,
   Shield,
+  Trash2,
   Type,
+  Upload,
   XCircle
 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -32,7 +34,11 @@ const ACTION_ICONS: Record<string, typeof RefreshCw> = {
   "rotate-laps": RotateCcw,
   "autopilot-reset": Shield,
   retire: LogOut,
-  wipe: Eraser
+  wipe: Eraser,
+  "delete-intune": Trash2,
+  "delete-entra": Trash2,
+  "delete-autopilot": Trash2,
+  "autopilot-import": Upload
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -42,7 +48,11 @@ const ACTION_LABELS: Record<string, string> = {
   "rotate-laps": "Rotate LAPS",
   "autopilot-reset": "Autopilot Reset",
   retire: "Retire",
-  wipe: "Factory Wipe"
+  wipe: "Factory Wipe",
+  "delete-intune": "Delete from Intune",
+  "delete-entra": "Delete from Entra",
+  "delete-autopilot": "Delete from Autopilot",
+  "autopilot-import": "Autopilot Import"
 };
 
 type StatusFilter = "all" | "success" | "failed";

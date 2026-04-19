@@ -110,6 +110,33 @@ const ACTIONS: ActionSpec[] = [
   }
 ];
 
+const INTUNE_BACKED_ACTIONS = new Set<RemoteActionType>([
+  "sync",
+  "reboot",
+  "rename",
+  "rotate-laps",
+  "autopilot-reset",
+  "retire",
+  "wipe",
+  "delete-intune"
+]);
+
+function actionAvailability(
+  spec: ActionSpec,
+  device: DeviceDetailResponse
+): { disabled: boolean; reason?: string } {
+  if (INTUNE_BACKED_ACTIONS.has(spec.type) && !device.identity.intuneId) {
+    return { disabled: true, reason: "This device has no Intune enrollment." };
+  }
+  if (spec.type === "delete-entra" && !device.identity.entraId) {
+    return { disabled: true, reason: "This device has no Entra device object." };
+  }
+  if (spec.type === "delete-autopilot" && !device.identity.autopilotId) {
+    return { disabled: true, reason: "This device has no Autopilot registration." };
+  }
+  return { disabled: false };
+}
+
 export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
   const auth = useAuthStatus();
   const login = useLogin();
@@ -201,13 +228,18 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {ACTIONS.map((spec) => {
             const Icon = spec.icon;
+            const availability = actionAvailability(spec, device);
             return (
               <button
                 key={spec.type}
                 type="button"
                 onClick={() => handleRequest(spec)}
+                disabled={availability.disabled}
+                title={availability.reason}
                 className={`group flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left text-[12.5px] font-medium transition-colors ${
-                  spec.destructive
+                  availability.disabled
+                    ? "cursor-not-allowed border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-muted)] opacity-60"
+                    : spec.destructive
                     ? "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text)] hover:border-[var(--pc-critical)]/40 hover:bg-[var(--pc-critical-muted)] hover:text-[var(--pc-critical)]"
                     : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text)] hover:border-[var(--pc-accent)]/40 hover:bg-[var(--pc-accent-muted)] hover:text-[var(--pc-accent-hover)]"
                 }`}

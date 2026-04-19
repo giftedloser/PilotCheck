@@ -21,7 +21,10 @@ const remoteActionMocks = {
   autopilotReset: vi.fn().mockResolvedValue({ success: true, status: 204, message: "ok" }),
   retireDevice: vi.fn().mockResolvedValue({ success: true, status: 204, message: "ok" }),
   wipeDevice: vi.fn().mockResolvedValue({ success: true, status: 204, message: "ok" }),
-  rotateLapsPassword: vi.fn().mockResolvedValue({ success: true, status: 204, message: "ok" })
+  rotateLapsPassword: vi.fn().mockResolvedValue({ success: true, status: 204, message: "ok" }),
+  deleteIntuneDevice: vi.fn().mockResolvedValue({ success: true, status: 204, message: "ok" }),
+  deleteEntraDevice: vi.fn().mockResolvedValue({ success: true, status: 204, message: "ok" }),
+  deleteAutopilotDevice: vi.fn().mockResolvedValue({ success: true, status: 204, message: "ok" })
 };
 
 vi.mock("../../src/server/actions/remote-actions.js", () => remoteActionMocks);
@@ -33,7 +36,13 @@ const { runMigrations } = await import("../../src/server/db/migrate.js");
 
 function seedDevice(
   db: Database.Database,
-  overrides: { deviceKey: string; intuneId: string | null; serial?: string }
+  overrides: {
+    deviceKey: string;
+    intuneId: string | null;
+    entraId?: string | null;
+    autopilotId?: string | null;
+    serial?: string;
+  }
 ) {
   db.prepare(
     `INSERT INTO device_state (
@@ -46,7 +55,7 @@ function seedDevice(
        assignment_break_point, active_flags, flag_count, overall_health, diagnosis, match_confidence,
        matched_on, identity_conflict, active_rule_ids, computed_at
      ) VALUES (
-       ?, ?, NULL, ?, NULL, 'POS-01', 'Lodge',
+       ?, ?, ?, ?, ?, 'POS-01', 'Lodge',
        NULL, NULL, NULL, NULL,
        NULL, NULL, 0, 1, 0,
        0, NULL, 1, NULL,
@@ -55,7 +64,13 @@ function seedDevice(
        NULL, '[]', 0, 'healthy', '', 'low',
        'serial', 0, '[]', '2026-04-07T00:00:00.000Z'
      )`
-  ).run(overrides.deviceKey, overrides.serial ?? "AAA111", overrides.intuneId);
+  ).run(
+    overrides.deviceKey,
+    overrides.serial ?? "AAA111",
+    overrides.autopilotId ?? null,
+    overrides.intuneId,
+    overrides.entraId ?? null
+  );
 }
 
 let db: Database.Database;
@@ -202,6 +217,29 @@ describe("POST /api/actions/:deviceKey/:action — guardrails", () => {
     expect(remoteActionMocks.autopilotReset).toHaveBeenCalledTimes(1);
     expect(remoteActionMocks.rotateLapsPassword).toHaveBeenCalledTimes(1);
     expect(remoteActionMocks.rebootDevice).toHaveBeenCalledTimes(1);
+  });
+
+  it("allows orphan cleanup actions that do not require an Intune enrollment", async () => {
+    const app = createApp(db);
+    seedDevice(db, {
+      deviceKey: "dev-orphan",
+      intuneId: null,
+      entraId: "entra-orphan",
+      autopilotId: "autopilot-orphan"
+    });
+
+    const entra = await request(app).post("/api/actions/dev-orphan/delete-entra").send({});
+    const autopilot = await request(app)
+      .post("/api/actions/dev-orphan/delete-autopilot")
+      .send({});
+
+    expect(entra.status).toBe(200);
+    expect(autopilot.status).toBe(200);
+    expect(remoteActionMocks.deleteEntraDevice).toHaveBeenCalledWith("fake-token", "entra-orphan");
+    expect(remoteActionMocks.deleteAutopilotDevice).toHaveBeenCalledWith(
+      "fake-token",
+      "autopilot-orphan"
+    );
   });
 
   it("writes an audit log row for every executed action", async () => {

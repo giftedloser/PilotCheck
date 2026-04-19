@@ -7,7 +7,10 @@ export type RemoteActionType =
   | "autopilot_reset"
   | "retire"
   | "wipe"
-  | "rotate_laps";
+  | "rotate_laps"
+  | "delete_intune"
+  | "delete_entra"
+  | "delete_autopilot";
 
 interface ActionResult {
   success: boolean;
@@ -125,6 +128,54 @@ export async function rotateLapsPassword(
     success: status === 204,
     status,
     message: status === 204 ? "LAPS rotation initiated. New password after next check-in." : `LAPS rotation failed with status ${status}.`
+  };
+}
+
+export async function deleteIntuneDevice(
+  token: string,
+  intuneId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/managedDevices/${intuneId}`,
+    { method: "DELETE" }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? "Intune device record deleted." : `Delete from Intune failed with status ${status}.`
+  };
+}
+
+export async function deleteEntraDevice(
+  token: string,
+  entraId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/devices/${entraId}`,
+    { method: "DELETE" }
+  );
+  return {
+    success: status === 204,
+    status,
+    message: status === 204 ? "Entra device object deleted." : `Delete from Entra failed with status ${status}.`
+  };
+}
+
+export async function deleteAutopilotDevice(
+  token: string,
+  autopilotId: string
+): Promise<ActionResult> {
+  const { status } = await requestWithDelegatedToken(
+    token,
+    `/deviceManagement/windowsAutopilotDeviceIdentities/${autopilotId}`,
+    { method: "DELETE" }
+  );
+  return {
+    success: status === 204 || status === 200,
+    status,
+    message: (status === 204 || status === 200) ? "Autopilot device record deleted." : `Delete from Autopilot failed with status ${status}.`
   };
 }
 

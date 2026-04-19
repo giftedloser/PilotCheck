@@ -138,3 +138,14 @@ export interface DeviceAppInstallStateRow {
   error_code: string | null;
   last_synced_at: string;
 }
+
+export interface ConditionalAccessPolicyRow {
+  id: string;
+  display_name: string;
+  state: string | null;
+  conditions_json: string | null;
+  grant_controls_json: string | null;
+  session_controls_json: string | null;
+  last_synced_at: string;
+  raw_json: string | null;
+}

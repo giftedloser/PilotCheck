@@ -15,6 +15,7 @@ import { syncProfiles } from "./profile-sync.js";
 import { syncCompliancePolicies } from "./compliance-sync.js";
 import { syncConfigProfiles } from "./config-profile-sync.js";
 import { syncAppAssignments } from "./app-sync.js";
+import { syncConditionalAccessPolicies } from "./conditional-access-sync.js";
 
 const state = {
   inProgress: false,
@@ -72,6 +73,14 @@ export async function fullSync(
       syncProfiles(client)
     ]);
 
+    const conditionalAccessSync = await syncConditionalAccessPolicies(client).catch((error) => {
+      logger.warn(
+        { err: error },
+        "Conditional access sync failed; continuing without conditional access data."
+      );
+      return { policies: [] };
+    });
+
     // Compliance + config profile syncs need Intune device IDs, so they run after the initial fetch
     const intuneIds = intuneRows.map((r) => r.id);
     const [complianceSync, configProfileSync, appSync] = await Promise.all([
@@ -90,6 +99,7 @@ export async function fullSync(
       profileAssignmentRows: profileSync.assignments,
       compliancePolicies: complianceSync.policies,
       deviceComplianceStates: complianceSync.deviceStates,
+      conditionalAccessPolicies: conditionalAccessSync.policies,
       configProfiles: configProfileSync.profiles,
       deviceConfigStates: configProfileSync.deviceStates,
       mobileApps: appSync.apps,

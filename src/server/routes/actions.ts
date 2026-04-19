@@ -11,7 +11,10 @@ import {
   retireDevice,
   wipeDevice,
   rotateLapsPassword,
-  changePrimaryUser
+  changePrimaryUser,
+  deleteIntuneDevice,
+  deleteEntraDevice,
+  deleteAutopilotDevice
 } from "../actions/remote-actions.js";
 import { listActionLogs, listDeviceActionLogs, logAction } from "../db/queries/actions.js";
 
@@ -23,7 +26,22 @@ const VALID_ACTIONS: ReadonlySet<RemoteActionType> = new Set([
   "retire",
   "wipe",
   "rotate-laps",
-  "change-primary-user"
+  "change-primary-user",
+  "delete-intune",
+  "delete-entra",
+  "delete-autopilot"
+]);
+
+const INTUNE_REQUIRED_ACTIONS: ReadonlySet<RemoteActionType> = new Set([
+  "sync",
+  "reboot",
+  "rename",
+  "autopilot-reset",
+  "retire",
+  "wipe",
+  "rotate-laps",
+  "change-primary-user",
+  "delete-intune"
 ]);
 
 // Windows NetBIOS device names: 1-15 chars, letters/digits/hyphens only.
@@ -37,9 +55,9 @@ function isValidDeviceName(value: unknown): value is string {
 function getDeviceInfo(db: Database.Database, deviceKey: string) {
   return db
     .prepare(
-      `SELECT serial_number, device_name, intune_id FROM device_state WHERE device_key = ?`
+      `SELECT serial_number, device_name, intune_id, entra_id, autopilot_id FROM device_state WHERE device_key = ?`
     )
-    .get(deviceKey) as { serial_number: string | null; device_name: string | null; intune_id: string | null } | undefined;
+    .get(deviceKey) as { serial_number: string | null; device_name: string | null; intune_id: string | null; entra_id: string | null; autopilot_id: string | null } | undefined;
 }
 
 export function actionsRouter(db: Database.Database) {
@@ -170,7 +188,7 @@ export function actionsRouter(db: Database.Database) {
       response.status(404).json({ message: "Device not found." });
       return;
     }
-    if (!device.intune_id) {
+    if (INTUNE_REQUIRED_ACTIONS.has(action as RemoteActionType) && !device.intune_id) {
       response.status(400).json({ message: "Device has no Intune enrollment. Cannot execute remote actions." });
       return;
     }
@@ -222,6 +240,25 @@ export function actionsRouter(db: Database.Database) {
             return;
           }
           result = await changePrimaryUser(token, device.intune_id, userId.trim());
+          break;
+        }
+        case "delete-intune":
+          result = await deleteIntuneDevice(token, device.intune_id);
+          break;
+        case "delete-entra": {
+          if (!device.entra_id) {
+            response.status(400).json({ message: "Device has no Entra ID object. Cannot delete." });
+            return;
+          }
+          result = await deleteEntraDevice(token, device.entra_id);
+          break;
+        }
+        case "delete-autopilot": {
+          if (!device.autopilot_id) {
+            response.status(400).json({ message: "Device has no Autopilot registration. Cannot delete." });
+            return;
+          }
+          result = await deleteAutopilotDevice(token, device.autopilot_id);
           break;
         }
       }

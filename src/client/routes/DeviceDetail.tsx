@@ -17,6 +17,7 @@ import { BitLockerWidget } from "../components/devices/BitLockerWidget.js";
 import { AssignmentPathPanel } from "../components/devices/AssignmentPathPanel.js";
 import { buildSummaryText, CopySummaryButton } from "../components/devices/CopySummaryButton.js";
 import { CompliancePoliciesPanel } from "../components/devices/CompliancePoliciesPanel.js";
+import { ConditionalAccessPanel } from "../components/devices/ConditionalAccessPanel.js";
 import { ConfigProfilesPanel } from "../components/devices/ConfigProfilesPanel.js";
 import { DeviceShortcuts } from "../components/devices/DeviceShortcuts.js";
 import { DiagnosticPanel } from "../components/devices/DiagnosticPanel.js";
@@ -25,6 +26,7 @@ import { HardwarePanel } from "../components/devices/HardwarePanel.js";
 import { HistoryPanel } from "../components/devices/HistoryPanel.js";
 import { IdentityPanel } from "../components/devices/IdentityPanel.js";
 import { LapsWidget } from "../components/devices/LapsWidget.js";
+import { LicensingWidget } from "../components/devices/LicensingWidget.js";
 import { ProvisioningTimeline } from "../components/devices/ProvisioningTimeline.js";
 import { RelatedDevicesPanel } from "../components/devices/RelatedDevicesPanel.js";
 import { RuleViolationsPanel } from "../components/devices/RuleViolationsPanel.js";
@@ -410,6 +412,7 @@ export function DeviceDetailPage() {
         />
         <DiagnosticPanel device={data} />
         <CompliancePoliciesPanel device={data} />
+        <ConditionalAccessPanel device={data} />
         <ConfigProfilesPanel device={data} />
         <AppStatusPanel device={data} />
         <RuleViolationsPanel device={data} />
@@ -423,6 +426,7 @@ export function DeviceDetailPage() {
           description="Remote actions, secrets, and audit history (delegated sign-in required)"
         />
         <ActionsToolbar device={data} />
+        <LicensingWidget device={data} />
         <LapsWidget device={data} />
         <BitLockerWidget device={data} />
         <RelatedDevicesPanel device={data} />

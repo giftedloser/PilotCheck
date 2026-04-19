@@ -367,7 +367,10 @@ export type RemoteActionType =
   | "retire"
   | "wipe"
   | "rotate-laps"
-  | "change-primary-user";
+  | "change-primary-user"
+  | "delete-intune"
+  | "delete-entra"
+  | "delete-autopilot";
 
 export interface ActionResult {
   success: boolean;

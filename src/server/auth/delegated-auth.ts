@@ -7,7 +7,10 @@ const SCOPES = [
   "DeviceManagementManagedDevices.ReadWrite.All",
   "DeviceManagementManagedDevices.PrivilegedOperations.All",
   "BitLockerKey.Read.All",
-  "Group.ReadWrite.All"
+  "Group.ReadWrite.All",
+  "User.Read.All",
+  "DeviceManagementServiceConfig.ReadWrite.All",
+  "Directory.AccessAsUser.All"
 ];
 
 let msalInstance: ConfidentialClientApplication | null = null;

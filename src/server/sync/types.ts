@@ -1,6 +1,7 @@
 import type {
   AutopilotRow,
   CompliancePolicyRow,
+  ConditionalAccessPolicyRow,
   ConfigProfileRow,
   DeviceAppInstallStateRow,
   DeviceComplianceStateRow,
@@ -26,6 +27,7 @@ export interface SnapshotPayload {
   deviceComplianceStates?: DeviceComplianceStateRow[];
   configProfiles?: ConfigProfileRow[];
   deviceConfigStates?: DeviceConfigStateRow[];
+  conditionalAccessPolicies?: ConditionalAccessPolicyRow[];
   mobileApps?: MobileAppRow[];
   deviceAppInstallStates?: DeviceAppInstallStateRow[];
   tagConfigRows?: Array<{
