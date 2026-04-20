@@ -244,6 +244,7 @@ export function DeviceDetailPage() {
   const search = useSearch({ from: "/devices/$deviceKey" }) as { tab?: TabKey };
   const navigate = useNavigate({ from: "/devices/$deviceKey" });
   const device = useDevice(deviceKey);
+  const toast = useToast();
 
   if (device.isLoading) return <LoadingState label="Loading device…" />;
   if (device.isError || !device.data) {
@@ -259,7 +260,6 @@ export function DeviceDetailPage() {
   const data = device.data;
   const displayName = data.summary.deviceName ?? data.summary.serialNumber ?? deviceKey;
   const breakpoints = bucketDiagnostics(data.diagnostics);
-  const toast = useToast();
 
   // Default tab: the highest-severity breakpoint bucket, or "identity" if clear.
   const defaultTab: TabKey =

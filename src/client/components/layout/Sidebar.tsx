@@ -22,6 +22,14 @@ import { AuthIndicator } from "./AuthIndicator.js";
 
 declare const __APP_VERSION__: string;
 
+// When rendered in a Vitest jsdom env the `define` replacement may not fire
+// (the top-level define doesn't cascade into `projects`), so fall back to a
+// global or a dev placeholder rather than crashing the component tree.
+const appVersion =
+  typeof __APP_VERSION__ !== "undefined"
+    ? __APP_VERSION__
+    : (globalThis as { __APP_VERSION__?: string }).__APP_VERSION__ ?? "dev";
+
 const themeIcons: Record<Theme, typeof Sun> = { light: Sun, dark: Moon, system: Monitor };
 const themeLabels: Record<Theme, string> = { light: "Light", dark: "Dark", system: "System" };
 
@@ -134,7 +142,7 @@ export function Sidebar() {
         <AuthIndicator />
         <div className="flex items-center justify-between px-2 text-[10.5px]">
           <span className="text-[var(--pc-text-muted)]">Engine</span>
-          <span className="font-mono text-[var(--pc-text-secondary)]">v{__APP_VERSION__}</span>
+          <span className="font-mono text-[var(--pc-text-secondary)]">v{appVersion}</span>
         </div>
         <div className="flex items-center justify-between gap-2 px-2 text-[10.5px] text-[var(--pc-text-muted)]">
           <span>Theme</span>

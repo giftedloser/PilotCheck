@@ -49,7 +49,7 @@ function buildCaveat(context: DiagnosticContext, code: FlagCode): string | null 
 
 const flagCopy: Record<
   FlagCode,
-  (context: DiagnosticContext) => Omit<FlagExplanation, "code" | "severity">
+  (context: DiagnosticContext) => Omit<FlagExplanation, "code" | "severity" | "caveat">
 > = {
   no_autopilot_record: (context) => ({
     title: "No Autopilot Record",

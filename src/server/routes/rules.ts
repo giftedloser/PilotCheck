@@ -126,7 +126,7 @@ export function rulesRouter(db: Database.Database) {
       response.status(400).json({ message: "Invalid rule.", errors: result.error.flatten().fieldErrors });
       return;
     }
-    const updated = updateRule(db, request.params.id, result.data as Partial<RuleInput>);
+    const updated = updateRule(db, String(request.params.id), result.data as Partial<RuleInput>);
     if (!updated) {
       response.status(404).json({ message: "Rule not found." });
       return;
@@ -136,7 +136,7 @@ export function rulesRouter(db: Database.Database) {
   });
 
   router.delete("/:id", requireDelegatedAuth, (request, response) => {
-    const removed = deleteRule(db, request.params.id);
+    const removed = deleteRule(db, String(request.params.id));
     if (!removed) {
       response.status(404).json({ message: "Rule not found." });
       return;

@@ -27,8 +27,8 @@ describe("PilotCheck API", () => {
     const app = createApp(db);
     const response = await request(app).get("/api/dashboard").expect(200);
 
-    const total = Object.values(response.body.counts).reduce(
-      (sum: number, value: number) => sum + value,
+    const total = (Object.values(response.body.counts) as number[]).reduce(
+      (sum, value) => sum + value,
       0
     );
     expect(total).toBeGreaterThan(0);

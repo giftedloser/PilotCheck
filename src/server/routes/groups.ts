@@ -217,7 +217,7 @@ export function groupsRouter(db: Database.Database) {
     }
 
     try {
-      const result = await updateMembershipRule(token, groupId, membershipRule);
+      const result = await updateMembershipRule(token, String(groupId), membershipRule);
 
       logAction(db, {
         deviceSerial: null,
@@ -262,7 +262,7 @@ export function groupsRouter(db: Database.Database) {
     }
 
     try {
-      const result = await addDeviceToGroup(token, groupId, device.entra_id);
+      const result = await addDeviceToGroup(token, String(groupId), device.entra_id);
 
       logAction(db, {
         deviceSerial: device.serial_number,
@@ -301,7 +301,7 @@ export function groupsRouter(db: Database.Database) {
     }
 
     try {
-      const result = await removeDeviceFromGroup(token, groupId, device.entra_id);
+      const result = await removeDeviceFromGroup(token, String(groupId), device.entra_id);
 
       logAction(db, {
         deviceSerial: device.serial_number,

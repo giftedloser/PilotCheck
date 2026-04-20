@@ -48,7 +48,7 @@ export function settingsRouter(db: Database.Database) {
   });
 
   router.delete("/tag-config/:groupTag", requireDelegatedAuth, (request, response) => {
-    deleteTagConfig(db, request.params.groupTag);
+    deleteTagConfig(db, String(request.params.groupTag));
     try { computeAllDeviceStates(db); } catch (error) { logger.error({ err: error }, "Failed to recompute device states after tag config deletion"); }
     response.status(204).send();
   });

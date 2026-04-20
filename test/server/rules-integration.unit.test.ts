@@ -35,7 +35,6 @@ beforeEach(() => {
 
 function autopilot(overrides: Partial<AutopilotRow> & { id: string }): AutopilotRow {
   return {
-    id: overrides.id,
     serial_number: "SN-1",
     model: null,
     manufacturer: null,
@@ -56,7 +55,6 @@ function autopilot(overrides: Partial<AutopilotRow> & { id: string }): Autopilot
 
 function intune(overrides: Partial<IntuneRow> & { id: string }): IntuneRow {
   return {
-    id: overrides.id,
     device_name: "DEV",
     serial_number: "SN-1",
     entra_device_id: null,

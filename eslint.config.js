@@ -4,7 +4,14 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["dist/**", "coverage/**", "data/**", "src-tauri/target/**"]
+    ignores: [
+      "dist/**",
+      "coverage/**",
+      "data/**",
+      "src-tauri/target/**",
+      ".tauri-runtime/**",
+      "scripts/**"
+    ]
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

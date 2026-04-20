@@ -1,5 +1,6 @@
 import type {
   RuleDefinition,
+  RuleOp,
   RulePredicate,
   RuleViolation
 } from "../../shared/types.js";
@@ -74,7 +75,7 @@ function evalPredicate(node: RulePredicate, context: RuleContext): boolean {
 
 function evalLeaf(
   field: string,
-  op: RulePredicate extends { type: "leaf"; op: infer O } ? O : never,
+  op: RuleOp,
   value: string | number | boolean | null,
   context: RuleContext
 ): boolean {

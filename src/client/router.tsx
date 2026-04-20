@@ -84,13 +84,16 @@ const DEVICE_DETAIL_TABS = [
 const deviceDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/devices/$deviceKey",
-  validateSearch: (search: Record<string, unknown>) => ({
-    tab:
+  validateSearch: (
+    search: Record<string, unknown>
+  ): { tab?: (typeof DEVICE_DETAIL_TABS)[number] } => {
+    const tab =
       typeof search.tab === "string" &&
       (DEVICE_DETAIL_TABS as readonly string[]).includes(search.tab)
         ? (search.tab as (typeof DEVICE_DETAIL_TABS)[number])
-        : undefined
-  }),
+        : undefined;
+    return tab ? { tab } : {};
+  },
   component: DeviceDetailPage
 });
 

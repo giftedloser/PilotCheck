@@ -41,8 +41,7 @@ beforeEach(() => {
 
 function autopilot(overrides: Partial<AutopilotRow> & { id: string }): AutopilotRow {
   return {
-    id: overrides.id,
-    serial_number: overrides.serial_number ?? "SN-DEFAULT",
+    serial_number: "SN-DEFAULT",
     model: null,
     manufacturer: null,
     group_tag: null,
@@ -62,9 +61,8 @@ function autopilot(overrides: Partial<AutopilotRow> & { id: string }): Autopilot
 
 function intune(overrides: Partial<IntuneRow> & { id: string }): IntuneRow {
   return {
-    id: overrides.id,
-    device_name: overrides.device_name ?? "DEV-01",
-    serial_number: overrides.serial_number ?? "SN-DEFAULT",
+    device_name: "DEV-01",
+    serial_number: "SN-DEFAULT",
     entra_device_id: null,
     os_version: null,
     compliance_state: "compliant",
@@ -82,7 +80,6 @@ function intune(overrides: Partial<IntuneRow> & { id: string }): IntuneRow {
 
 function entra(overrides: Partial<EntraRow> & { id: string }): EntraRow {
   return {
-    id: overrides.id,
     device_id: overrides.device_id ?? overrides.id,
     display_name: "DEV-01",
     serial_number: "SN-DEFAULT",
@@ -99,8 +96,6 @@ function entra(overrides: Partial<EntraRow> & { id: string }): EntraRow {
 
 function group(overrides: Partial<GroupRow> & { id: string; display_name: string }): GroupRow {
   return {
-    id: overrides.id,
-    display_name: overrides.display_name,
     membership_rule: null,
     membership_rule_processing_state: null,
     membership_type: "Assigned",
@@ -116,8 +111,6 @@ function membership(group_id: string, member_device_id: string): GroupMembership
 
 function profile(overrides: Partial<ProfileRow> & { id: string; display_name: string }): ProfileRow {
   return {
-    id: overrides.id,
-    display_name: overrides.display_name,
     deployment_mode: "userDriven",
     out_of_box_experience: null,
     hybrid_join_config: null,

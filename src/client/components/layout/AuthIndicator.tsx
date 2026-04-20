@@ -1,4 +1,4 @@
-import { LogIn, LogOut, UserCircle2 } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 
 import { useAuthStatus, useLogin, useLogout } from "../../hooks/useAuth.js";
 

@@ -141,21 +141,22 @@ export function actionsRouter(db: Database.Database) {
         });
         continue;
       }
+      const bulkIntuneId = device.intune_id;
 
       let result: { success: boolean; status: number; message: string };
       try {
         switch (action) {
           case "sync":
-            result = await syncDevice(token, device.intune_id);
+            result = await syncDevice(token, bulkIntuneId);
             break;
           case "reboot":
-            result = await rebootDevice(token, device.intune_id);
+            result = await rebootDevice(token, bulkIntuneId);
             break;
           case "retire":
-            result = await retireDevice(token, device.intune_id);
+            result = await retireDevice(token, bulkIntuneId);
             break;
           case "rotate-laps":
-            result = await rotateLapsPassword(token, device.intune_id);
+            result = await rotateLapsPassword(token, bulkIntuneId);
             break;
           default:
             result = { success: false, status: 400, message: `Unsupported bulk action: ${action}` };
@@ -171,7 +172,7 @@ export function actionsRouter(db: Database.Database) {
       logAction(db, {
         deviceSerial: device.serial_number,
         deviceName: device.device_name,
-        intuneId: device.intune_id,
+        intuneId: bulkIntuneId,
         actionType: action,
         triggeredBy: user,
         triggeredAt,
@@ -213,6 +214,11 @@ export function actionsRouter(db: Database.Database) {
       return;
     }
 
+    // After the guard above, every INTUNE_REQUIRED_ACTIONS branch below has a
+    // non-null device.intune_id. TS can't narrow through Set.has, so we cast
+    // once here rather than asserting at each callsite.
+    const intuneId = device.intune_id as string;
+
     let result: { success: boolean; status: number; message: string } = {
       success: false,
       status: 500,
@@ -222,10 +228,10 @@ export function actionsRouter(db: Database.Database) {
     try {
       switch (action as RemoteActionType) {
         case "sync":
-          result = await syncDevice(token, device.intune_id);
+          result = await syncDevice(token, intuneId);
           break;
         case "reboot":
-          result = await rebootDevice(token, device.intune_id);
+          result = await rebootDevice(token, intuneId);
           break;
         case "rename": {
           const newName = request.body?.deviceName;
@@ -236,20 +242,20 @@ export function actionsRouter(db: Database.Database) {
             });
             return;
           }
-          result = await renameDevice(token, device.intune_id, newName);
+          result = await renameDevice(token, intuneId, newName);
           break;
         }
         case "autopilot-reset":
-          result = await autopilotReset(token, device.intune_id);
+          result = await autopilotReset(token, intuneId);
           break;
         case "retire":
-          result = await retireDevice(token, device.intune_id);
+          result = await retireDevice(token, intuneId);
           break;
         case "wipe":
-          result = await wipeDevice(token, device.intune_id);
+          result = await wipeDevice(token, intuneId);
           break;
         case "rotate-laps":
-          result = await rotateLapsPassword(token, device.intune_id);
+          result = await rotateLapsPassword(token, intuneId);
           break;
         case "change-primary-user": {
           const userId = request.body?.userId;
@@ -259,11 +265,11 @@ export function actionsRouter(db: Database.Database) {
             });
             return;
           }
-          result = await changePrimaryUser(token, device.intune_id, userId.trim());
+          result = await changePrimaryUser(token, intuneId, userId.trim());
           break;
         }
         case "delete-intune":
-          result = await deleteIntuneDevice(token, device.intune_id);
+          result = await deleteIntuneDevice(token, intuneId);
           break;
         case "delete-entra": {
           if (!device.entra_id) {
@@ -294,7 +300,7 @@ export function actionsRouter(db: Database.Database) {
     logAction(db, {
       deviceSerial: device.serial_number,
       deviceName: device.device_name,
-      intuneId: device.intune_id,
+      intuneId: intuneId,
       actionType: action,
       triggeredBy: user,
       triggeredAt: new Date().toISOString(),

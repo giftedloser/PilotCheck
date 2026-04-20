@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../src/client/App.js";
@@ -128,27 +128,24 @@ const deviceDetailPayload = {
 describe("client drilldown", () => {
   beforeEach(() => {
     window.history.pushState({}, "", "/");
+    const jsonResponse = (body: unknown, status = 200) =>
+      new Response(JSON.stringify(body), {
+        status,
+        headers: { "Content-Type": "application/json" }
+      });
     global.fetch = vi.fn(async (input) => {
       const url = String(input);
-      if (url.includes("/api/dashboard")) {
-        return new Response(JSON.stringify(dashboardPayload), { status: 200 });
-      }
-      if (url.includes("/api/settings")) {
-        return new Response(JSON.stringify(settingsPayload), { status: 200 });
-      }
-      if (url.includes("/api/devices/ap:auto-1/related-devices")) {
-        return new Response(JSON.stringify([]), { status: 200 });
-      }
-      if (url.includes("/api/devices/ap:auto-1/history")) {
-        return new Response(JSON.stringify({ entries: [] }), { status: 200 });
-      }
-      if (url.includes("/api/devices/ap:auto-1")) {
-        return new Response(JSON.stringify(deviceDetailPayload), { status: 200 });
-      }
-      if (url.includes("/api/devices")) {
-        return new Response(JSON.stringify(deviceListPayload), { status: 200 });
-      }
-      return new Response(JSON.stringify({ message: "Not found" }), { status: 404 });
+      if (url.includes("/api/dashboard")) return jsonResponse(dashboardPayload);
+      if (url.includes("/api/settings")) return jsonResponse(settingsPayload);
+      if (url.includes("/api/sync/status"))
+        return jsonResponse({ inProgress: false, lastError: null });
+      if (url.includes("/api/auth/status"))
+        return jsonResponse({ authenticated: true, user: "test@example.com" });
+      if (url.includes("/api/devices/ap:auto-1/related-devices")) return jsonResponse([]);
+      if (url.includes("/api/devices/ap:auto-1/history")) return jsonResponse({ entries: [] });
+      if (url.includes("/api/devices/ap:auto-1")) return jsonResponse(deviceDetailPayload);
+      if (url.includes("/api/devices")) return jsonResponse(deviceListPayload);
+      return jsonResponse({ message: "Not found" }, 404);
     }) as typeof fetch;
   });
 
@@ -173,8 +170,17 @@ describe("client drilldown", () => {
 
     // Click into the seeded device row → device detail
     fireEvent.click(await screen.findByText("DESKTOP-Lodge-001"));
-    await waitFor(() =>
-      expect(screen.getByText("No Profile Assigned")).toBeInTheDocument()
-    );
+
+    // Device detail renders; the default tab is severity-driven (targeting),
+    // so the device name is shown in the hero header. Switch to the enrollment
+    // tab where the diagnostic panel renders each flag title.
+    await screen.findByText("Device Diagnostics", {}, { timeout: 3000 });
+    // Two "Enrollment" buttons exist: the breakpoint chip in the hero and the
+    // tab nav button. Either one activates the enrollment tab; grab the tab.
+    const enrollmentButtons = screen.getAllByRole("button", { name: /enrollment/i });
+    fireEvent.click(enrollmentButtons[enrollmentButtons.length - 1]);
+    expect(
+      await screen.findByText("No Profile Assigned", {}, { timeout: 3000 })
+    ).toBeInTheDocument();
   });
 });

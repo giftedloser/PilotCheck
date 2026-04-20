@@ -68,7 +68,8 @@ export class GraphClient {
     let url: string | null = `${graphBase[version]}${path}`;
 
     while (url) {
-      const payload = await this.requestJson<{ value: T[]; "@odata.nextLink"?: string }>(url, version);
+      const payload: { value: T[]; "@odata.nextLink"?: string } =
+        await this.requestJson<{ value: T[]; "@odata.nextLink"?: string }>(url, version);
       results.push(...(payload.value ?? []));
       url = payload["@odata.nextLink"] ?? null;
     }

@@ -7,6 +7,10 @@ const POLL_INTERVAL_MS = 350;
 
 function isDesktopBootstrapShell() {
   if (import.meta.env.DEV) return false;
+  // Vitest sets MODE to "test"; in that environment we never want the
+  // bootstrap splash to render because the tests mock fetch and expect the
+  // real app tree.
+  if (import.meta.env.MODE === "test") return false;
   return window.location.origin !== DESKTOP_URL;
 }
 

@@ -45,7 +45,7 @@ export function ProvisioningTimeline({ device }: { device: DeviceDetailResponse 
         {/* Connecting line */}
         <div className="absolute left-0 right-0 top-[10px] h-0.5 bg-[var(--pc-border)]" />
 
-        {milestones.map((m, i) => {
+        {milestones.map((m) => {
           const reached = Boolean(m.date);
           const formatted = formatDate(m.date);
           return (

@@ -71,6 +71,7 @@ function targetsWindows(conditions: ConditionalAccessPolicy["conditions"]): bool
   return included.includes("all") || included.includes("windows");
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function ConditionalAccessPanel({ device: _device }: { device: DeviceDetailResponse }) {
   const [policies, setPolicies] = useState<ConditionalAccessPolicy[]>([]);
   const [loading, setLoading] = useState(true);

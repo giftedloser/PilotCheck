@@ -787,7 +787,7 @@ export function getRecentTransitions(
 
 export function getDashboard(db: Database.Database): DashboardResponse {
   const rows = db.prepare("SELECT overall_health, active_flags, match_confidence, matched_on, identity_conflict, autopilot_id, intune_id, entra_id FROM device_state").all() as Array<{
-    overall_health: DashboardResponse["counts"][keyof DashboardResponse["counts"]];
+    overall_health: keyof DashboardResponse["counts"];
     active_flags: string;
     match_confidence: string;
     matched_on: string;

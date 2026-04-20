@@ -4,6 +4,11 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  define: {
+    // Mirror the Vite build-time define so components that reference the
+    // app version (e.g. Sidebar) don't blow up when rendered in jsdom tests.
+    __APP_VERSION__: JSON.stringify("test")
+  },
   test: {
     globals: true,
     reporters: "default",
@@ -25,6 +30,11 @@ export default defineConfig({
         }
       },
       {
+        define: {
+          // Also set here — vitest's top-level `define` does not cascade
+          // into project configs.
+          __APP_VERSION__: JSON.stringify("test")
+        },
         test: {
           name: "e2e",
           environment: "jsdom",

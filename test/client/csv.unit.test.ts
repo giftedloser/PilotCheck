@@ -37,6 +37,8 @@ describe("devicesToCsv", () => {
     serialNumber: "CZC123",
     health: "healthy" as const,
     flags: [],
+    flagCount: 0,
+    diagnosis: "",
     activeRules: [],
     propertyLabel: "Lodge",
     assignedProfileName: "AP-Lodge-UserDriven",

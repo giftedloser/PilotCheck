@@ -43,7 +43,7 @@ function makeDetail(overrides: Partial<DeviceDetailResponse> = {}): DeviceDetail
       entraRawJson: null,
       ...overrides.sourceRefs
     }
-  } as DeviceDetailResponse;
+  } as unknown as DeviceDetailResponse;
 }
 
 describe("buildSummaryText", () => {
@@ -87,6 +87,9 @@ describe("buildSummaryText", () => {
             severity: "critical",
             title: "Identity Conflict",
             summary: "Serials disagree across systems",
+            whyItMatters: "",
+            checks: [],
+            rawData: [],
             caveat: null
           }
         ]
@@ -105,6 +108,9 @@ describe("buildSummaryText", () => {
             severity: "warning",
             title: "Hybrid Join Risk",
             summary: "Device is hybrid joined",
+            whyItMatters: "",
+            checks: [],
+            rawData: [],
             caveat: "Correlation is name-only"
           }
         ]
@@ -118,9 +124,9 @@ describe("buildSummaryText", () => {
       makeDetail({
         assignmentPath: {
           chainComplete: false,
-          breakPoint: "group_membership",
+          breakPoint: "group_membership" as any,
           steps: []
-        }
+        } as any
       })
     );
     expect(text).toContain("Broken at group_membership");
