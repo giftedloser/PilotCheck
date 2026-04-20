@@ -63,36 +63,38 @@ function JsonBlock({ label, source, json }: JsonBlockProps) {
 
   return (
     <div className="rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)]">
-      <button
-        type="button"
-        onClick={() => setExpanded((prev) => !prev)}
-        className="flex w-full items-center gap-2 px-3.5 py-2.5 text-left transition-colors hover:bg-[var(--pc-tint-subtle)]"
-      >
-        <ChevronDown
-          className={cn(
-            "h-3.5 w-3.5 shrink-0 text-[var(--pc-text-muted)] transition-transform",
-            expanded && "rotate-180"
-          )}
-        />
-        <SourceBadge source={source} size="xs" />
-        <span className="flex-1 text-[12px] font-medium text-[var(--pc-text-secondary)]">
-          {label}
-        </span>
-        <span className="text-[10.5px] tabular-nums text-[var(--pc-text-muted)]">
-          {lines} lines
-        </span>
+      {/* Header row: the expand toggle and the copy action are siblings —
+          nesting Copy inside the expand <button> caused a hydration error
+          (button-in-button is invalid HTML). */}
+      <div className="flex items-center gap-2 px-3.5 py-2.5">
         <button
           type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            void onCopy();
-          }}
-          className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
+          onClick={() => setExpanded((prev) => !prev)}
+          className="-mx-3.5 -my-2.5 flex flex-1 items-center gap-2 px-3.5 py-2.5 text-left transition-colors hover:bg-[var(--pc-tint-subtle)] rounded-l-lg"
+        >
+          <ChevronDown
+            className={cn(
+              "h-3.5 w-3.5 shrink-0 text-[var(--pc-text-muted)] transition-transform",
+              expanded && "rotate-180"
+            )}
+          />
+          <SourceBadge source={source} size="xs" />
+          <span className="flex-1 text-[12px] font-medium text-[var(--pc-text-secondary)]">
+            {label}
+          </span>
+          <span className="text-[10.5px] tabular-nums text-[var(--pc-text-muted)]">
+            {lines} lines
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => void onCopy()}
+          className="shrink-0 rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
           title={`Copy ${label} JSON`}
         >
           <Copy className="h-3 w-3" />
         </button>
-      </button>
+      </div>
 
       {expanded ? (
         <div className="border-t border-[var(--pc-border)] p-3.5">
