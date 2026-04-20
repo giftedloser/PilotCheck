@@ -4,6 +4,7 @@ import { getDb } from "./db/database.js";
 import { runMigrations } from "./db/migrate.js";
 import { seedMockData } from "./db/seed.js";
 import { logger } from "./logger.js";
+import { startRetentionScheduler } from "./maintenance/retention.js";
 import { startBackgroundSync, fullSync } from "./sync/sync-service.js";
 
 async function bootstrap() {
@@ -24,6 +25,7 @@ async function bootstrap() {
   }
 
   startBackgroundSync(db);
+  startRetentionScheduler(db);
 
   const app = createApp(db);
   app.listen(config.PORT, config.HOST, () => {

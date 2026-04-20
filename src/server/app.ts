@@ -14,7 +14,7 @@ import { authRouter } from "./routes/auth.js";
 import { dashboardRouter } from "./routes/dashboard.js";
 import { devicesRouter } from "./routes/devices.js";
 import { groupsRouter } from "./routes/groups.js";
-import { healthRouter } from "./routes/health.js";
+import { healthRouter, healthzHandler } from "./routes/health.js";
 import { bitlockerRouter } from "./routes/bitlocker.js";
 import { lapsRouter } from "./routes/laps.js";
 import { licensingRouter } from "./routes/licensing.js";
@@ -59,6 +59,9 @@ export function createApp(db: Database.Database) {
   );
 
   // Routes
+  // /healthz lives at the top level (no /api prefix) so external uptime
+  // monitors and process supervisors can probe it without a rewrite.
+  app.get("/healthz", healthzHandler(db));
   app.use("/api/health", healthRouter(db));
   app.use("/api/auth", authRouter());
   app.use("/api/dashboard", dashboardRouter(db));
