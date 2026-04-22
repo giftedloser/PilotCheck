@@ -100,7 +100,7 @@ export function LapsWidget({ device }: { device: DeviceDetailResponse }) {
             for audit.
           </div>
           <Button onClick={handleRetrieve} disabled={laps.isPending} className="shrink-0">
-            {laps.isPending ? "Retrieving..." : "Reveal Password"}
+            {laps.isPending ? "Retrieving…" : "Reveal Password"}
           </Button>
         </div>
       ) : (

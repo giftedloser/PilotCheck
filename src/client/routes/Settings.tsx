@@ -404,7 +404,7 @@ export function SettingsPage() {
                 <ToggleLeft className="h-3.5 w-3.5" />
               )}
               {featureFlagMutation.isPending
-                ? "Saving..."
+                ? "Saving…"
                 : sccmDetectionEnabled
                   ? "Disable"
                   : "Enable"}

@@ -106,7 +106,7 @@ export function LicensingWidget({ device }: { device: DeviceDetailResponse }) {
             Check whether the assigned user has the required Intune and Entra ID licenses.
           </div>
           <Button onClick={handleCheck} disabled={loading} className="shrink-0">
-            {loading ? "Checking..." : "Check Licenses"}
+            {loading ? "Checking…" : "Check Licenses"}
           </Button>
         </div>
       ) : (
@@ -151,7 +151,7 @@ export function LicensingWidget({ device }: { device: DeviceDetailResponse }) {
 
           <div className="flex justify-end">
             <Button variant="ghost" onClick={handleCheck} disabled={loading}>
-              {loading ? "Checking..." : "Recheck"}
+              {loading ? "Checking…" : "Recheck"}
             </Button>
           </div>
         </div>

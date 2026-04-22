@@ -206,7 +206,7 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
             title={login.blockedReason ?? undefined}
             className="shrink-0"
           >
-            {!login.canStart ? "Unavailable" : login.isPending ? "Opening..." : "Sign in"}
+            {!login.canStart ? "Unavailable" : login.isPending ? "Opening…" : "Sign in"}
           </Button>
         </div>
       </Card>

@@ -11,7 +11,7 @@ export function AuthIndicator() {
     return (
       <div className="flex items-center gap-2 text-[11px] text-[var(--pc-text-muted)]">
         <div className="h-3 w-3 animate-spin rounded-full border border-[var(--pc-accent)] border-t-transparent" />
-        Checking session...
+        Checking session…
       </div>
     );
   }
@@ -29,7 +29,7 @@ export function AuthIndicator() {
           <LogIn className="h-3 w-3" />
           Admin sign-in
         </span>
-        <span className="text-[10px] text-[var(--pc-text-muted)]">MSAL</span>
+        <span className="text-[10px] text-[var(--pc-text-muted)]">Entra</span>
       </button>
     );
   }

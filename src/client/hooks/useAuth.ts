@@ -7,6 +7,8 @@ import { useSettings } from "./useSettings.js";
 
 const AUTH_WINDOW_POLL_INTERVAL_MS = 1_000;
 const AUTH_WINDOW_TIMEOUT_MS = 120_000;
+const AUTH_CALLBACK_GRACE_MS = 5_000;
+const AUTH_COMPLETE_MESSAGE = "pilotcheck-auth-complete";
 
 function delay(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -14,21 +16,38 @@ function delay(ms: number) {
 
 async function waitForDesktopAuth(popup: Window) {
   const deadline = Date.now() + AUTH_WINDOW_TIMEOUT_MS;
+  let completedByCallback = false;
+  let callbackDeadline: number | null = null;
 
-  while (Date.now() < deadline) {
-    const status = await apiRequest<AuthStatus>("/api/auth/status").catch(() => null);
-    if (status?.authenticated) {
-      return status;
+  const onMessage = (event: MessageEvent) => {
+    if (event.source !== popup) return;
+    const payload = event.data as { type?: string } | null;
+    if (payload?.type === AUTH_COMPLETE_MESSAGE) {
+      completedByCallback = true;
+      callbackDeadline = Date.now() + AUTH_CALLBACK_GRACE_MS;
+    }
+  };
+
+  window.addEventListener("message", onMessage);
+
+  try {
+    while (Date.now() < Math.min(deadline, callbackDeadline ?? deadline)) {
+      const status = await apiRequest<AuthStatus>("/api/auth/status").catch(() => null);
+      if (status?.authenticated) {
+        return status;
+      }
+
+      if (popup.closed && !completedByCallback) {
+        break;
+      }
+
+      await delay(completedByCallback ? 150 : AUTH_WINDOW_POLL_INTERVAL_MS);
     }
 
-    if (popup.closed) {
-      break;
-    }
-
-    await delay(AUTH_WINDOW_POLL_INTERVAL_MS);
+    return (await apiRequest<AuthStatus>("/api/auth/status").catch(() => null)) ?? null;
+  } finally {
+    window.removeEventListener("message", onMessage);
   }
-
-  return (await apiRequest<AuthStatus>("/api/auth/status").catch(() => null)) ?? null;
 }
 
 export function useAuthStatus() {

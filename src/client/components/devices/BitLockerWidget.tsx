@@ -97,7 +97,7 @@ export function BitLockerWidget({ device }: { device: DeviceDetailResponse }) {
             Retrieve BitLocker recovery keys for this device. Every retrieval is logged for audit.
           </div>
           <Button onClick={handleRetrieve} disabled={bitlocker.isPending} className="shrink-0">
-            {bitlocker.isPending ? "Retrieving..." : "Reveal Keys"}
+            {bitlocker.isPending ? "Retrieving…" : "Reveal Keys"}
           </Button>
         </div>
       ) : (
