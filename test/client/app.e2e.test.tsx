@@ -175,7 +175,7 @@ describe("client drilldown", () => {
     expect(await screen.findByText("Runway Fleet Health")).toBeInTheDocument();
 
     // Drill into the Critical Devices quick-action link → device queue
-    fireEvent.click(screen.getByText("Critical Devices"));
+    fireEvent.click((await screen.findAllByText("Critical Devices"))[0]);
     expect(await screen.findByText("Device Queue")).toBeInTheDocument();
 
     // Click into the seeded device row → device detail
@@ -184,13 +184,34 @@ describe("client drilldown", () => {
     // Device detail renders; the default tab is severity-driven (targeting),
     // so the device name is shown in the hero header. Switch to the enrollment
     // tab where the diagnostic panel renders each flag title.
-    await screen.findByText("Device Diagnostics", {}, { timeout: 3000 });
+    await screen.findAllByText("Device Diagnostics", {}, { timeout: 3000 });
     // Two "Enrollment" buttons exist: the breakpoint chip in the hero and the
     // tab nav button. Either one activates the enrollment tab; grab the tab.
     const enrollmentButtons = screen.getAllByRole("button", { name: /enrollment/i });
     fireEvent.click(enrollmentButtons[enrollmentButtons.length - 1]);
     expect(
       await screen.findByText("No Profile Assigned", {}, { timeout: 3000 })
+    ).toBeInTheDocument();
+  });
+
+  it("surfaces overview master search results and opens a device", async () => {
+    const queryClient = new QueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <App queryClient={queryClient} />
+      </QueryClientProvider>
+    );
+
+    expect(await screen.findByText("Runway Fleet Health")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByPlaceholderText(/search devices by name/i), {
+      target: { value: "Lodge" }
+    });
+
+    fireEvent.click(await screen.findByRole("button", { name: /DESKTOP-Lodge-001/i }));
+
+    expect(
+      await screen.findByText("Device Diagnostics", {}, { timeout: 3000 })
     ).toBeInTheDocument();
   });
 
@@ -202,9 +223,9 @@ describe("client drilldown", () => {
       </QueryClientProvider>
     );
 
-    fireEvent.click(await screen.findByText("Critical Devices"));
+    fireEvent.click((await screen.findAllByText("Critical Devices"))[0]);
     fireEvent.click(await screen.findByText("DESKTOP-Lodge-001"));
-    await screen.findByText("Device Diagnostics", {}, { timeout: 3000 });
+    await screen.findAllByText("Device Diagnostics", {}, { timeout: 3000 });
     const enrollmentButtons = screen.getAllByRole("button", { name: /enrollment/i });
     fireEvent.click(enrollmentButtons[enrollmentButtons.length - 1]);
 

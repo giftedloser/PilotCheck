@@ -18,13 +18,13 @@ export function AppShell() {
       </a>
       <div className="flex min-h-screen flex-col bg-[var(--pc-bg)]">
         <MockModeBanner />
-        <div className="flex flex-1 flex-col lg:flex-row">
+        <div className="flex flex-1 flex-col lg:flex-row lg:items-start">
           <Sidebar />
           <main
             id="main-content"
             className="min-w-0 flex-1 overflow-x-hidden bg-[radial-gradient(circle_at_top_right,var(--pc-accent-muted),transparent_32rem)]"
           >
-            <div className="pc-page-enter mx-auto w-full max-w-[1520px] px-4 pb-24 pt-5 sm:px-6 lg:px-8 lg:pb-24 lg:pt-8 xl:px-10">
+            <div className="pc-page-enter mx-auto w-full max-w-[1600px] px-4 pb-24 pt-5 sm:px-6 lg:px-8 lg:pb-24 lg:pt-8 xl:px-12">
               <Outlet />
             </div>
           </main>

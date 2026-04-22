@@ -12,6 +12,7 @@ import {
 import { FailurePatterns } from "../components/dashboard/FailurePatterns.js";
 import { HealthSummary } from "../components/dashboard/HealthSummary.js";
 import { HealthTrendChart } from "../components/dashboard/HealthTrendChart.js";
+import { MasterDeviceSearch } from "../components/dashboard/MasterDeviceSearch.js";
 import { RecentChanges } from "../components/dashboard/RecentChanges.js";
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
@@ -135,8 +136,10 @@ export function DashboardPage() {
         }
       />
 
+      <MasterDeviceSearch />
+
       {/* Top KPI row */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 2xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         <Card className="min-h-[132px] px-4 py-4 sm:px-5">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Total Devices</div>
           <div className="mt-1 text-3xl font-semibold tabular-nums text-[var(--pc-text)]">{totalDevices}</div>

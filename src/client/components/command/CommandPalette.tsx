@@ -17,6 +17,7 @@ import {
 import { apiRequest } from "../../lib/api.js";
 import type { DeviceListItem } from "../../lib/types.js";
 import { cn } from "../../lib/utils.js";
+import { COMMAND_PALETTE_OPEN_EVENT } from "./events.js";
 
 interface PageCommand {
   type: "page";
@@ -84,6 +85,12 @@ export function CommandPalette() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(COMMAND_PALETTE_OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(COMMAND_PALETTE_OPEN_EVENT, onOpen);
   }, []);
 
   // Reset state when the palette is closed/opened.

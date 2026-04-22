@@ -1,6 +1,7 @@
 import { Link, useRouterState, useSearch } from "@tanstack/react-router";
 import {
   Building2,
+  Command,
   DatabaseZap,
   GitBranch,
   History,
@@ -8,6 +9,7 @@ import {
   Monitor,
   Moon,
   Palette,
+  Search,
   Flame,
   Settings2,
   ShieldCheck,
@@ -19,6 +21,7 @@ import {
 import { useSettings } from "../../hooks/useSettings.js";
 import { useTheme, type Theme } from "../../hooks/useTheme.js";
 import { cn } from "../../lib/utils.js";
+import { requestCommandPaletteOpen } from "../command/events.js";
 import { AuthIndicator } from "./AuthIndicator.js";
 
 declare const __APP_VERSION__: string;
@@ -103,16 +106,16 @@ export function Sidebar() {
   })();
 
   return (
-    <aside className="flex h-auto w-full shrink-0 flex-col border-b border-[var(--pc-border)] bg-[var(--pc-surface)] lg:sticky lg:top-0 lg:h-screen lg:w-[248px] lg:border-b-0 lg:border-r">
+    <aside className="flex h-auto w-full shrink-0 flex-col border-b border-[var(--pc-border)] bg-[var(--pc-surface)] lg:sticky lg:top-0 lg:h-screen lg:w-[248px] lg:self-start lg:border-b-0 lg:border-r">
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-3.5 lg:px-5 lg:py-5">
-        <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-[var(--pc-accent-muted)] ring-1 ring-[var(--pc-accent)]/30">
+        <div className="flex h-9 w-9 items-center justify-center overflow-hidden">
           <img
             src="/runway.png"
             alt=""
             width={36}
             height={36}
-            className="h-full w-full object-cover"
+            className="h-9 w-9 object-contain"
           />
         </div>
         <div className="min-w-0">
@@ -137,6 +140,24 @@ export function Sidebar() {
             </button>
           );
         })()}
+      </div>
+
+      <div className="hidden px-3.5 pb-2 lg:block">
+        <button
+          type="button"
+          onClick={requestCommandPaletteOpen}
+          className="flex w-full items-center justify-between rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2.5 text-left transition-[border-color,background-color,color] hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-overlay)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+          aria-label="Open command search"
+        >
+          <span className="flex items-center gap-2 text-[12px] text-[var(--pc-text-secondary)]">
+            <Search className="h-3.5 w-3.5" />
+            Search devices
+          </span>
+          <span className="flex items-center gap-1 text-[10px] text-[var(--pc-text-muted)]">
+            <Command className="h-3 w-3" />
+            K
+          </span>
+        </button>
       </div>
 
       {/* Nav */}

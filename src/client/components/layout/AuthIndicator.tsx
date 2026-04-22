@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { LogIn, LogOut } from "lucide-react";
 
 import { useAuthStatus, useLogin, useLogout } from "../../hooks/useAuth.js";
@@ -17,11 +18,26 @@ export function AuthIndicator() {
   }
 
   if (!auth.data?.authenticated) {
+    if (!login.canStart) {
+      return (
+        <Link
+          to="/settings"
+          className="flex w-full items-center justify-between rounded-lg border border-[var(--pc-warning)]/25 bg-[var(--pc-warning-muted)] px-2.5 py-2 text-[11.5px] font-medium text-[var(--pc-warning)] transition-colors hover:border-[var(--pc-warning)]/45 hover:text-[var(--pc-text)]"
+        >
+          <span className="flex items-center gap-2">
+            <LogIn className="h-3 w-3" />
+            Configure admin sign-in
+          </span>
+          <span className="text-[10px] text-[var(--pc-text-muted)]">Settings</span>
+        </Link>
+      );
+    }
+
     return (
       <button
         type="button"
         onClick={() => login.mutate()}
-        disabled={login.isPending || !login.canStart}
+        disabled={login.isPending}
         title={login.blockedReason ?? undefined}
         className="flex w-full items-center justify-between rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-2 text-[11.5px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-accent-hover)] disabled:opacity-50"
       >
