@@ -4,15 +4,19 @@ import { useState } from "react";
 
 import { AppAccessGate } from "./components/auth/AppAccessGate.js";
 import { DesktopBootstrap } from "./components/bootstrap/DesktopBootstrap.js";
+import { DesktopTitleBar } from "./components/layout/DesktopTitleBar.js";
 import { createAppRouter } from "./router.js";
 
 export function App({ queryClient }: { queryClient: QueryClient }) {
   const [router] = useState(() => createAppRouter(queryClient));
   return (
-    <DesktopBootstrap>
-      <AppAccessGate>
-        <RouterProvider router={router} />
-      </AppAccessGate>
-    </DesktopBootstrap>
+    <>
+      <DesktopTitleBar />
+      <DesktopBootstrap>
+        <AppAccessGate>
+          <RouterProvider router={router} />
+        </AppAccessGate>
+      </DesktopBootstrap>
+    </>
   );
 }

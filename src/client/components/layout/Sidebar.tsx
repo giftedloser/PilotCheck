@@ -106,7 +106,7 @@ export function Sidebar() {
   })();
 
   return (
-    <aside className="flex h-auto w-full shrink-0 flex-col border-b border-[var(--pc-border)] bg-[var(--pc-surface)] lg:sticky lg:top-0 lg:h-screen lg:w-[248px] lg:self-start lg:border-b-0 lg:border-r">
+    <aside className="flex h-auto w-full shrink-0 flex-col border-b border-[var(--pc-border)] bg-[var(--pc-surface)] lg:sticky lg:top-0 lg:h-[calc(100vh-var(--pc-titlebar-height,0px))] lg:w-[248px] lg:self-start lg:border-b-0 lg:border-r">
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-3.5 lg:px-5 lg:py-5">
         <img

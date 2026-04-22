@@ -16,7 +16,7 @@ export function AppShell() {
       <a href="#main-content" className="pc-skip-link">
         Skip to Main Content
       </a>
-      <div className="flex min-h-screen flex-col bg-[var(--pc-bg)]">
+      <div className="flex min-h-[calc(100vh-var(--pc-titlebar-height,0px))] flex-col bg-[var(--pc-bg)]">
         <MockModeBanner />
         <div className="flex flex-1 flex-col lg:flex-row lg:items-start">
           <Sidebar />
