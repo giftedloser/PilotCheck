@@ -17,6 +17,7 @@ import { ConfirmDialog } from "../components/shared/ConfirmDialog.js";
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { RulesSection } from "../components/settings/RulesSection.js";
 import { SystemHealthSection } from "../components/settings/SystemHealthSection.js";
+import { GraphCredentialsWizard } from "../components/setup/GraphCredentialsWizard.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { SourceBadge } from "../components/shared/SourceBadge.js";
 import { Button } from "../components/ui/button.js";
@@ -214,14 +215,17 @@ export function SettingsPage() {
             })}
           </div>
 
-          {!graphConfigured ? (
-            <div className="mt-4 rounded-lg border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[var(--pc-warning)]">
-              Set the variables above in the server's environment. For local development, use a{" "}
-              <code>.env</code> file at the repo root. For the installed desktop app, use a{" "}
-              <code>.env</code> file in <code>%LOCALAPPDATA%\com.giftedloser.pilotcheck</code>,
-              then restart PilotCheck.
+          <div className="mt-5 border-t border-[var(--pc-border)] pt-5">
+            <div className="mb-3 flex items-baseline gap-2">
+              <div className="text-[12px] font-semibold uppercase tracking-wide text-[var(--pc-text-secondary)]">
+                {graphConfigured ? "Rotate credentials" : "Configure credentials"}
+              </div>
+              <span className="text-[11px] text-[var(--pc-text-muted)]">
+                Writes to the server's .env — restart required
+              </span>
             </div>
-          ) : null}
+            <GraphCredentialsWizard onDismissRestart={() => settings.refetch()} />
+          </div>
         </Card>
       </section>
 

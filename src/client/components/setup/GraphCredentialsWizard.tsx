@@ -3,6 +3,7 @@ import { CheckCircle2, KeyRound, RefreshCcw, ShieldAlert } from "lucide-react";
 
 import { Button } from "../ui/button.js";
 import { Input } from "../ui/input.js";
+import { useAuthStatus } from "../../hooks/useAuth.js";
 import {
   useGraphEnvInfo,
   useSaveGraphCredentials,
@@ -57,6 +58,7 @@ interface Props {
 
 export function GraphCredentialsWizard({ onDismissRestart }: Props) {
   const envInfo = useGraphEnvInfo();
+  const auth = useAuthStatus();
   const save = useSaveGraphCredentials();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [touched, setTouched] = useState<Record<keyof FormState, boolean>>({
@@ -69,7 +71,12 @@ export function GraphCredentialsWizard({ onDismissRestart }: Props) {
 
   const errors = validate(form);
   const isValid = Object.keys(errors).length === 0;
-  const isLocked = envInfo.data?.configured ?? false;
+  const isConfigured = envInfo.data?.configured ?? false;
+  const isAuthed = auth.data?.authenticated === true;
+  // Rotating existing credentials requires an admin session (the server
+  // enforces this too). First-run setup is open because nobody can have
+  // signed in yet without Graph being wired up.
+  const isLocked = isConfigured && !isAuthed;
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((previous) => ({ ...previous, [key]: value }));
@@ -108,10 +115,12 @@ export function GraphCredentialsWizard({ onDismissRestart }: Props) {
           {envInfo.isLoading
             ? "Loading credential status…"
             : isLocked
-              ? "Server-side credentials are present. To rotate, sign in first; the wizard requires an admin session once configured."
-              : envInfo.data
-                ? `Missing: ${envInfo.data.missing.join(", ") || "—"}. Saving below will write to the server's .env and prompt for a restart.`
-                : "Credential status unavailable."}
+              ? "Server-side credentials are present. Sign in as an admin to rotate them — the wizard requires a delegated session once Graph is configured."
+              : isConfigured
+                ? "Signed in. Paste new values below to rotate the tenant ID, client ID, and/or secret. A restart is required after save."
+                : envInfo.data
+                  ? `Missing: ${envInfo.data.missing.join(", ") || "—"}. Saving below will write to the server's .env and prompt for a restart.`
+                  : "Credential status unavailable."}
           {envInfo.data?.envPath && (
             <div className="mt-1 truncate font-mono text-[11px] text-[var(--pc-text-muted)]">
               .env target: {envInfo.data.envPath}
@@ -241,7 +250,7 @@ export function GraphCredentialsWizard({ onDismissRestart }: Props) {
           ) : (
             <>
               <CheckCircle2 className="h-3.5 w-3.5" />
-              Save credentials
+              {isConfigured ? "Rotate credentials" : "Save credentials"}
             </>
           )}
         </Button>
