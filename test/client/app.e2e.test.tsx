@@ -128,7 +128,6 @@ const deviceDetailPayload = {
 
 describe("client drilldown", () => {
   beforeEach(() => {
-    vi.resetModules();
     window.history.pushState({}, "", "/");
     vi.spyOn(window, "open").mockReturnValue(null);
     Object.defineProperty(navigator, "clipboard", {
@@ -231,6 +230,61 @@ describe("client drilldown", () => {
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
         "https://intune.microsoft.com/#view/Microsoft_Intune_Enrollment/AutopilotProfilesBlade"
       );
+    });
+  });
+
+  it("opens the admin sign-in shell before navigating to Microsoft", async () => {
+    const popup = {
+      closed: false,
+      close: vi.fn(),
+      focus: vi.fn(),
+      location: { href: "" },
+      document: {
+        title: "",
+        body: {
+          innerHTML: "",
+          style: {}
+        }
+      }
+    } as unknown as Window;
+
+    vi.mocked(window.open).mockReturnValue(popup);
+
+    const jsonResponse = (body: unknown, status = 200) =>
+      new Response(JSON.stringify(body), {
+        status,
+        headers: { "Content-Type": "application/json" }
+      });
+    global.fetch = vi.fn(async (input) => {
+      const url = String(input);
+      if (url.includes("/api/settings")) return jsonResponse(settingsPayload);
+      if (url.includes("/api/sync/status"))
+        return jsonResponse({ inProgress: false, lastError: null });
+      if (url.includes("/api/auth/login"))
+        return jsonResponse({ loginUrl: "https://login.example.test/start" });
+      if (url.includes("/api/auth/status"))
+        return jsonResponse({ authenticated: false, user: null });
+      if (url.includes("/api/dashboard")) return jsonResponse(dashboardPayload);
+      if (url.includes("/api/devices")) return jsonResponse(deviceListPayload);
+      return jsonResponse({ message: "Not found" }, 404);
+    }) as typeof fetch;
+
+    await renderApp();
+
+    fireEvent.click(await screen.findByRole("button", { name: /admin sign-in/i }));
+
+    await waitFor(() => {
+      expect(window.open).toHaveBeenCalledWith(
+        "",
+        "runway-admin-signin",
+        "popup=yes,width=640,height=760"
+      );
+    });
+    await waitFor(() => {
+      expect(popup.focus).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(popup.location.href).toBe("https://login.example.test/start");
     });
   });
 });

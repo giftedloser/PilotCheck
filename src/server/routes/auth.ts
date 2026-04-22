@@ -12,6 +12,17 @@ function saveSession(session: Express.Request["session"]) {
   });
 }
 
+function getCallbackMessageOrigins() {
+  const redirectOrigin = new URL(config.AZURE_REDIRECT_URI).origin;
+  const clientOrigins = [
+    redirectOrigin,
+    `http://localhost:${config.CLIENT_PORT}`,
+    `http://127.0.0.1:${config.CLIENT_PORT}`
+  ];
+
+  return [...new Set(clientOrigins)].map((origin) => JSON.stringify(origin)).join(", ");
+}
+
 export function authRouter() {
   const router = Router();
 
@@ -116,8 +127,16 @@ export function authRouter() {
       <p>You can return to Runway now. This window should close automatically.</p>
     </main>
     <script>
-      window.opener?.postMessage({ type: "pilotcheck-auth-complete" }, window.location.origin);
-      window.setTimeout(() => window.close(), 150);
+      const message = { type: "pilotcheck-auth-complete" };
+      const openerOrigins = [${getCallbackMessageOrigins()}];
+      if (window.opener) {
+        for (const origin of openerOrigins) {
+          window.opener.postMessage(message, origin);
+        }
+        window.setTimeout(() => window.close(), 150);
+      } else {
+        window.setTimeout(() => window.location.assign("/"), 900);
+      }
     </script>
   </body>
 </html>`);

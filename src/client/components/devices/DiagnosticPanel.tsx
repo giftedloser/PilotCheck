@@ -8,6 +8,7 @@ import {
   Stethoscope,
   Terminal
 } from "lucide-react";
+import { useState } from "react";
 
 import type { DeviceDetailResponse, FlagExplanation } from "../../lib/types.js";
 import { useToast } from "../shared/toast.js";
@@ -189,6 +190,7 @@ function DiagnosticCard({
 function PlaybookRow({ step }: { step: PlaybookStep }) {
   const toast = useToast();
   const isLink = step.type === "portal" || step.type === "doc";
+  const [lastAction, setLastAction] = useState<"opened" | "copied" | null>(null);
   const Icon =
     step.type === "powershell"
       ? Terminal
@@ -198,9 +200,35 @@ function PlaybookRow({ step }: { step: PlaybookStep }) {
           ? BookOpen
           : ExternalLink;
 
+  const markAction = (action: "opened" | "copied") => {
+    setLastAction(action);
+    window.setTimeout(() => setLastAction(null), 2_400);
+  };
+
+  const writeClipboard = async () => {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(step.payload);
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = step.payload;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) {
+      throw new Error("Fallback clipboard copy failed.");
+    }
+  };
+
   const copyPayload = async (successTitle = "Copied to clipboard") => {
     try {
-      await navigator.clipboard.writeText(step.payload);
+      await writeClipboard();
+      markAction("copied");
       toast.push({
         variant: "success",
         title: successTitle,
@@ -222,6 +250,7 @@ function PlaybookRow({ step }: { step: PlaybookStep }) {
     const opened = window.open(step.payload, "_blank", "noopener,noreferrer");
     if (opened) {
       opened.opener = null;
+      markAction("opened");
       toast.push({
         variant: "info",
         title: "Opened playbook link",
@@ -241,6 +270,11 @@ function PlaybookRow({ step }: { step: PlaybookStep }) {
       </span>
       {isLink ? (
         <div className="flex shrink-0 items-center gap-1">
+          {lastAction ? (
+            <span className="rounded bg-[var(--pc-healthy-muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--pc-healthy)]">
+              {lastAction === "opened" ? "Opened" : "Copied"}
+            </span>
+          ) : null}
           <button
             type="button"
             onClick={onOpen}
@@ -259,14 +293,21 @@ function PlaybookRow({ step }: { step: PlaybookStep }) {
           </button>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => void copyPayload()}
-          className="shrink-0 rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
-          title={step.payload}
-        >
-          Copy Command
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          {lastAction ? (
+            <span className="rounded bg-[var(--pc-healthy-muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--pc-healthy)]">
+              Copied
+            </span>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => void copyPayload()}
+            className="rounded border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-0.5 text-[10.5px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+            title={step.payload}
+          >
+            Copy Command
+          </button>
+        </div>
       )}
     </li>
   );

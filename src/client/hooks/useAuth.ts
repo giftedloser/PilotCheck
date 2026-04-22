@@ -9,9 +9,47 @@ const AUTH_WINDOW_POLL_INTERVAL_MS = 1_000;
 const AUTH_WINDOW_TIMEOUT_MS = 120_000;
 const AUTH_CALLBACK_GRACE_MS = 5_000;
 const AUTH_COMPLETE_MESSAGE = "pilotcheck-auth-complete";
+const AUTH_POPUP_FEATURES = "popup=yes,width=640,height=760";
 
 function delay(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function primeAuthPopup() {
+  const popup = window.open("", "runway-admin-signin", AUTH_POPUP_FEATURES);
+  if (!popup) return null;
+
+  try {
+    popup.document.title = "Runway Microsoft Sign-In";
+    popup.document.body.style.margin = "0";
+    popup.document.body.innerHTML = `
+      <main style="
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #0f1720;
+        color: #e5eef8;
+        font: 14px/1.5 Segoe UI, sans-serif;
+      ">
+        <section style="
+          width: min(420px, calc(100vw - 32px));
+          padding: 24px;
+          border: 1px solid rgba(148, 163, 184, 0.22);
+          border-radius: 16px;
+          background: rgba(15, 23, 32, 0.96);
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        ">
+          <h1 style="margin: 0 0 8px; font-size: 18px;">Preparing Microsoft sign-in</h1>
+          <p style="margin: 0; color: #b6c3d1;">Runway is opening the delegated admin session.</p>
+        </section>
+      </main>
+    `;
+  } catch {
+    // Some shells restrict writing to the popup. The opened window is still usable.
+  }
+
+  popup.focus();
+  return popup;
 }
 
 async function waitForDesktopAuth(popup: Window) {
@@ -76,11 +114,22 @@ export function useLogin() {
         throw new Error(blockedReason);
       }
 
-      const { loginUrl } = await apiRequest<{ loginUrl: string }>("/api/auth/login");
-      const popup = window.open(loginUrl, "_blank", "popup=yes,width=640,height=760");
+      // Open synchronously from the button click before the async API request.
+      // Otherwise browsers can classify the eventual sign-in window as a
+      // non-user-initiated popup and silently block it.
+      const popup = primeAuthPopup();
       if (!popup) {
-        throw new Error("Runway could not open the Microsoft sign-in window.");
+        throw new Error("Runway could not open the Microsoft sign-in window. Allow popups for this app and try again.");
       }
+
+      try {
+        const { loginUrl } = await apiRequest<{ loginUrl: string }>("/api/auth/login");
+        popup.location.href = loginUrl;
+      } catch (error) {
+        popup.close();
+        throw error;
+      }
+
       popup.focus();
       return popup;
     },

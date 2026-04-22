@@ -94,6 +94,24 @@ describe("delegated auth flow", () => {
     expect(delegatedAuthMock.acquireDelegatedToken).toHaveBeenCalledWith("abc123");
   });
 
+  it("notifies both runtime and local client origins after callback", async () => {
+    const { createApp } = await import("../../src/server/app.js");
+    const app = createApp(db);
+    const agent = request.agent(app);
+
+    await agent.get("/api/auth/login").expect(200);
+
+    const response = await agent
+      .get("/api/auth/callback")
+      .query({ code: "abc123", state: "test-state" })
+      .expect(200);
+
+    expect(response.text).toContain('"http://localhost:3001"');
+    expect(response.text).toContain('"http://localhost:5173"');
+    expect(response.text).toContain('"http://127.0.0.1:5173"');
+    expect(response.text).toContain('window.location.assign("/")');
+  });
+
   it("clears the delegated session on logout", async () => {
     const { createApp } = await import("../../src/server/app.js");
     const app = createApp(db);
