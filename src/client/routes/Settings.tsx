@@ -471,8 +471,12 @@ export function SettingsPage() {
               variant="secondary"
               className="h-8 px-2.5 text-[11.5px]"
               onClick={() => fileInputRef.current?.click()}
-              disabled={importing}
-              title="Import tag mappings from JSON (upserts by group tag)"
+              disabled={importing || !isAuthed}
+              title={
+                isAuthed
+                  ? "Import tag mappings from JSON (upserts by group tag)"
+                  : "Admin sign-in required to import tag mappings"
+              }
             >
               <Upload className="h-3.5 w-3.5" />
               {importing ? "Importing…" : "Import JSON"}
@@ -494,6 +498,11 @@ export function SettingsPage() {
           <div className="mb-4 flex items-center gap-2">
             <Plus className="h-4 w-4 text-[var(--pc-accent)]" />
             <div className="text-[13px] font-semibold text-[var(--pc-text)]">Add mapping</div>
+            {!isAuthed ? (
+              <span className="ml-auto text-[11px] text-[var(--pc-warning)]">
+                Admin sign-in required to change mappings.
+              </span>
+            ) : null}
           </div>
           <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="space-y-1">
@@ -567,7 +576,10 @@ export function SettingsPage() {
           </div>
           <div className="mt-4">
             <Button
-              disabled={!form.groupTag || !form.propertyLabel || mutations.create.isPending}
+              disabled={
+                !isAuthed || !form.groupTag || !form.propertyLabel || mutations.create.isPending
+              }
+              title={!isAuthed ? "Sign in as an admin to save mappings" : undefined}
               onClick={() =>
                 mutations.create.mutate(
                   {
@@ -633,6 +645,8 @@ export function SettingsPage() {
                   <Button
                     variant="destructive"
                     className="h-8 px-2.5"
+                    disabled={!isAuthed}
+                    title={!isAuthed ? "Sign in as an admin to delete mappings" : undefined}
                     onClick={() => setDeleteTarget(row.groupTag)}
                     aria-label={`Delete ${row.groupTag}`}
                   >

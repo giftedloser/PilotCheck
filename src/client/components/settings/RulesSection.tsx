@@ -8,6 +8,7 @@ import {
   type RuleInputPayload,
   type RulePreviewResult
 } from "../../hooks/useRules.js";
+import { useAuthStatus } from "../../hooks/useAuth.js";
 import type { RuleDefinition, RuleOp, RuleSeverity } from "../../lib/types.js";
 import { ConfirmDialog } from "../shared/ConfirmDialog.js";
 import { Button } from "../ui/button.js";
@@ -154,6 +155,7 @@ export function RulesSection() {
   const rules = useRules();
   const mutations = useRuleMutations();
   const preview = useRulePreview();
+  const auth = useAuthStatus();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
   const [previewResult, setPreviewResult] = useState<RulePreviewResult | null>(null);
@@ -185,6 +187,7 @@ export function RulesSection() {
   };
 
   const opMeta = OP_OPTIONS.find((o) => o.value === form.op);
+  const isAuthed = auth.data?.authenticated === true;
   const currentFieldType = fieldType(form.field);
   const isHourOp = form.op === "older_than_hours" || form.op === "newer_than_hours";
   const isBooleanValue = currentFieldType === "boolean" && !isHourOp;
@@ -344,7 +347,9 @@ export function RulesSection() {
             ) : null}
             <div className="sm:col-span-2 flex items-center justify-between gap-2">
               <div className="text-[11px] text-[var(--pc-text-muted)]">
-                Admin sign-in required to save rules.
+                {isAuthed
+                  ? "Preview is read-only; saving recomputes device state."
+                  : "Admin sign-in required to save rules."}
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -357,7 +362,8 @@ export function RulesSection() {
                   {preview.isPending ? "Previewing…" : "Preview matches"}
                 </Button>
                 <Button
-                  disabled={!form.name || mutations.create.isPending}
+                  disabled={!isAuthed || !form.name || mutations.create.isPending}
+                  title={!isAuthed ? "Sign in as an admin to save rules" : undefined}
                   onClick={() =>
                     mutations.create.mutate(buildPayload(form), {
                       onSuccess: () => {
@@ -434,7 +440,14 @@ export function RulesSection() {
                 <button
                   type="button"
                   className="mt-0.5 text-[var(--pc-text-muted)] hover:text-[var(--pc-accent)]"
-                  title={rule.enabled ? "Disable rule" : "Enable rule"}
+                  title={
+                    !isAuthed
+                      ? "Sign in as an admin to change rules"
+                      : rule.enabled
+                        ? "Disable rule"
+                        : "Enable rule"
+                  }
+                  disabled={!isAuthed || mutations.update.isPending}
                   onClick={() =>
                     mutations.update.mutate({
                       id: rule.id,
@@ -474,6 +487,8 @@ export function RulesSection() {
                 <Button
                   variant="destructive"
                   className="h-8 px-2.5"
+                  disabled={!isAuthed}
+                  title={!isAuthed ? "Sign in as an admin to delete rules" : undefined}
                   onClick={() => setDeleteTarget(rule)}
                   aria-label={`Delete ${rule.name}`}
                 >
