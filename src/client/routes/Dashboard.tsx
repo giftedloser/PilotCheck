@@ -14,6 +14,7 @@ import { HealthSummary } from "../components/dashboard/HealthSummary.js";
 import { HealthTrendChart } from "../components/dashboard/HealthTrendChart.js";
 import { MasterDeviceSearch } from "../components/dashboard/MasterDeviceSearch.js";
 import { RecentChanges } from "../components/dashboard/RecentChanges.js";
+import { TriageCommandCenter } from "../components/dashboard/TriageCommandCenter.js";
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { SyncIndicator } from "../components/shared/SyncIndicator.js";
@@ -145,6 +146,8 @@ export function DashboardPage() {
       />
 
       <MasterDeviceSearch />
+
+      <TriageCommandCenter dashboard={dashboard.data} />
 
       {/* Top KPI row */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">

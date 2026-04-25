@@ -205,7 +205,7 @@ export function MasterDeviceSearch() {
                 <button
                   key={device.deviceKey}
                   type="button"
-                onClick={() => openDevice(device.deviceKey)}
+                  onClick={() => openDevice(device.deviceKey)}
                   className="flex w-full cursor-pointer items-start gap-3 rounded-2xl border border-[var(--pc-border)] bg-[var(--pc-tint-subtle)] px-3.5 py-3 text-left transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-tint-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
                 >
                   <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--pc-accent-muted)] text-[var(--pc-accent)]">
