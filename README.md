@@ -4,14 +4,16 @@
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078d4.svg)
 
-> A local-first triage console for **Windows** Autopilot, Intune, and Entra ID.
+> A local-first triage console for **Windows** Autopilot, Intune, Entra ID,
+> and Graph-derived ConfigMgr/SCCM visibility.
 > Windows-only by design.
 
 Runway correlates Windows device identities across Microsoft Autopilot,
-Intune, and Entra ID, computes provisioning health with a transparent rule
-engine, and presents **problem-first** diagnostics — so an operator opening
-the app on a Monday morning can tell within seconds which devices are broken,
-_why_, and _what to do about it_.
+Intune, Entra ID, and the ConfigMgr/SCCM signal exposed by Intune, computes
+provisioning health with a transparent rule engine, and presents
+**problem-first** diagnostics — so an operator opening the app on a Monday
+morning can tell within seconds which devices are broken, _why_, and _what to
+do about it_.
 
 It's built for the small-but-real internal IT team running a fleet of a few
 hundred to a few thousand Windows endpoints — the band where SCCM console
@@ -23,6 +25,22 @@ Runway is intentionally **not** a full Intune replacement, **not** a
 multi-tenant tool, and does **not** attempt to manage iOS, Android, or macOS.
 Those are non-goals — the product is laser-focused on the Windows triage loop
 and stays honest about that scope.
+
+## 1.0 Readiness
+
+Runway is ready for controlled live testing when:
+
+- Graph app credentials are configured and `SEED_MODE=none` is used for a
+  clean live-data validation pass.
+- `SESSION_SECRET` has been replaced with a long random value.
+- At least five known devices match expected Autopilot, Intune, Entra, and
+  ConfigMgr/SCCM states.
+- Admin sign-in, sign-out, and one low-risk delegated action such as Intune
+  device sync have been validated.
+- The security review in [`docs/security-report.md`](docs/security-report.md)
+  and the preflight in
+  [`docs/live-testing-checklist.md`](docs/live-testing-checklist.md) have been
+  accepted.
 
 ---
 
@@ -54,7 +72,8 @@ and stays honest about that scope.
 - **Tag mapping dictionary** — maps Autopilot group tags to expected profiles
   and target groups, with JSON import/export for versioning.
 - **SCCM visibility** — optional ConfigMgr/SCCM status appears alongside
-  Graph, Intune, and Entra signals on device detail pages.
+  Graph, Intune, and Entra signals on device detail pages using Intune's
+  `managementAgent` value.
 - **Tenant access gate** — optional Entra sign-in gate locks the app before
   operators can see fleet data; delegated admin consent remains separate.
 - **Desktop polish** — Tauri shell with Runway branding, custom title bar,
@@ -160,6 +179,47 @@ APP_ACCESS_ALLOWED_USERS=
 # credentials or SCCM actions are configured in Runway.
 ```
 
+### Mock mode vs live data
+
+Runway ships with mock mode because it makes local development and demos safe.
+For live tenant validation:
+
+- Use `SEED_MODE=none`.
+- Start with a clean database or a database you know does not contain seeded
+  demo records.
+- Confirm Settings shows Graph configured and the mock banner is gone.
+- Run a sync, then validate a small known device set before trusting fleet-wide
+  counts.
+
+Mock data is realistic, but it is still fake. Do not mix mock and live records
+when producing screenshots or reports for leadership.
+
+### SCCM / ConfigMgr visibility
+
+Runway does **not** connect directly to a Configuration Manager site server,
+does **not** store SCCM credentials, and does **not** run SCCM actions.
+
+For v1.0, the SCCM check answers one specific question:
+
+> Does Microsoft Graph / Intune report this Windows device as having a
+> Configuration Manager client?
+
+Runway reads `managedDevice.managementAgent` from Microsoft Graph. If the value
+contains `configurationManager`, Runway shows `ConfigMgr detected`.
+
+| Runway status             | Meaning                                                                 |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `ConfigMgr detected`      | Intune reports a ConfigMgr/co-managed agent value.                      |
+| `ConfigMgr not detected`  | Intune reports a management agent, but not a ConfigMgr value.           |
+| `Not reported by Intune`  | The Intune record exists, but Graph did not return `managementAgent`.   |
+| `Cannot determine`        | No Intune managed-device record exists for the correlated device.       |
+| `Signal disabled`         | The optional SCCM/ConfigMgr visibility flag is off in Settings.         |
+
+If you need true SCCM client health — site assignment, policy retrieval,
+inventory freshness, MP/DP reachability, or console record status — that should
+be a future direct SCCM connector via AdminService, read-only SQL, or a trusted
+ConfigMgr PowerShell host.
+
 ### Required Graph permissions
 
 **Application (read-only sync)**
@@ -227,7 +287,9 @@ src/
 ## How the engine works
 
 1. **Sync** (`src/server/sync/`) pulls Autopilot, Intune, and Entra resources
-   from Microsoft Graph and writes them into `raw_*` tables verbatim.
+   from Microsoft Graph and writes them into `raw_*` tables verbatim. Intune's
+   `managementAgent` field is retained for the ConfigMgr/SCCM visibility
+   signal.
 2. **Compute** (`src/server/engine/compute-all-device-states.ts`) joins those
    tables into a per-device snapshot, evaluates the built-in rules and any
    user-defined rules, and writes the result to `device_state`.
@@ -268,6 +330,10 @@ LAPS passwords are fetched on-demand via delegated auth, displayed with a
 
 Raw source JSON and conditional-access policy detail are only returned to
 an authenticated admin session.
+
+SCCM/ConfigMgr support is visibility-only and Graph-derived. The app does not
+hold SCCM credentials, open a site-server connection, or dispatch ConfigMgr
+client actions.
 
 If you discover a security issue, please see [SECURITY.md](./SECURITY.md).
 

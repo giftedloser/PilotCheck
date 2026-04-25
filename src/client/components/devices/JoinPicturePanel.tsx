@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import type { DeviceDetailResponse } from "../../lib/types.js";
+import { getConfigMgrSignal } from "../../lib/config-mgr.js";
 import { cn } from "../../lib/utils.js";
 import { SourceBadge, type DataSource } from "../shared/SourceBadge.js";
 import { Card } from "../ui/card.js";
@@ -55,6 +56,7 @@ function buildStages(device: DeviceDetailResponse, showConfigMgrSignal: boolean)
   const missingTargetGroup = path.targetingGroups.find(
     (group) => group.membershipState === "missing"
   );
+  const configMgrSignal = getConfigMgrSignal(device, showConfigMgrSignal);
 
   return [
     {
@@ -120,19 +122,13 @@ function buildStages(device: DeviceDetailResponse, showConfigMgrSignal: boolean)
     {
       label: "SCCM",
       source: "sccm",
-      value: !showConfigMgrSignal
-        ? "Signal off"
-        : device.enrollment.hasConfigMgrClient
-          ? "ConfigMgr detected"
-          : "Not detected",
-      detail: !showConfigMgrSignal
-        ? "Enable in Settings"
-        : device.enrollment.managementAgent ?? "No managementAgent value",
-      tone: !showConfigMgrSignal
+      value: configMgrSignal.label,
+      detail: configMgrSignal.rawValue ?? configMgrSignal.detail,
+      tone: configMgrSignal.status === "disabled"
         ? "off"
-        : !device.identity.intuneId
+        : configMgrSignal.status === "no_intune_record" || configMgrSignal.status === "not_reported"
           ? "missing"
-          : device.enrollment.hasConfigMgrClient
+          : configMgrSignal.status === "detected"
             ? "ok"
             : "warning",
       icon: Cable

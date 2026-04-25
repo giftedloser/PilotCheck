@@ -4,7 +4,7 @@ This document is intended for internal approval before connecting Runway to live
 
 ## Executive Summary
 
-Runway is a local-first Windows endpoint triage app. It reads Autopilot, Intune, Entra ID, and ConfigMgr/SCCM management-agent signals through Microsoft Graph, stores results in a local SQLite database, and presents diagnostics to IT operators.
+Runway is a local-first Windows endpoint triage app. It reads Autopilot, Intune, Entra ID, and ConfigMgr/SCCM visibility signals through Microsoft Graph, stores results in a local SQLite database, and presents diagnostics to IT operators.
 
 There is no Runway cloud service, no telemetry, no analytics, and no third-party data processor introduced by the app. Tenant credentials are supplied by the operator and remain on the local workstation.
 
@@ -13,6 +13,7 @@ There is no Runway cloud service, no telemetry, no analytics, and no third-party
 - Autopilot hardware identity, group tag, assigned profile, and assigned user fields.
 - Intune managed-device identity, compliance, enrollment, owner/user, management agent, and action status fields.
 - Entra device identity and group membership data needed to explain targeting.
+- ConfigMgr/SCCM visibility derived from Intune's `managedDevice.managementAgent` field.
 - Optional BitLocker and Windows LAPS secrets when requested by a delegated admin.
 - Local action audit entries for operations initiated from Runway.
 
@@ -41,7 +42,7 @@ The Tauri desktop shell loads the local app runtime and uses limited window cont
 - Bulk actions are capped and audited.
 - Dangerous operations should be validated only on lab devices before production use.
 - LAPS passwords are fetched on demand, auto-hide in the UI, and are not persisted to disk.
-- SCCM / ConfigMgr support is visibility-only; Runway does not store SCCM credentials and does not execute SCCM actions.
+- SCCM / ConfigMgr support is visibility-only and Graph-derived. Runway does not store SCCM credentials, connect to a Configuration Manager site server, or execute SCCM actions.
 
 ## Local Storage
 
@@ -84,6 +85,7 @@ Only grant delegated permissions if those flows are approved for the pilot.
 - The current confidential-client delegated flow is acceptable for a controlled internal pilot but should migrate to a PKCE public-client model before broader distribution.
 - `npm audit` reports a moderate transitive `uuid` advisory through `@azure/msal-node`; no upstream fix is currently available. Monitor and upgrade MSAL when patched.
 - Live Graph permissions are powerful. Start with read-only validation, then approve privileged delegated flows separately.
+- The SCCM signal proves only what Intune/Graph reports via `managementAgent`; it does not prove SCCM site assignment, policy retrieval, inventory freshness, or client health.
 
 ## Approval Checklist
 

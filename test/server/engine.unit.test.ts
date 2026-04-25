@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { hasConfigMgrClient } from "../../src/server/engine/config-mgr.js";
 import { normalizeSerial, normalizeString, normalizeName, safeJsonParse, extractRawDeviceId } from "../../src/server/engine/normalize.js";
 import { correlateDevices } from "../../src/server/engine/correlate.js";
 
@@ -43,6 +44,21 @@ describe("state engine normalization", () => {
     expect(extractRawDeviceId('{"deviceId":""}')).toBeNull();
     expect(extractRawDeviceId('{"other":"val"}')).toBeNull();
     expect(extractRawDeviceId(null)).toBeNull();
+  });
+});
+
+describe("ConfigMgr management agent detection", () => {
+  it("detects standalone and co-managed Configuration Manager agent values", () => {
+    expect(hasConfigMgrClient("configurationManagerClient")).toBe(true);
+    expect(hasConfigMgrClient("configurationManagerClientMdm")).toBe(true);
+    expect(hasConfigMgrClient("configurationManagerClientMdmEasIntuneClient")).toBe(true);
+  });
+
+  it("does not treat native Intune or missing managementAgent as ConfigMgr", () => {
+    expect(hasConfigMgrClient("mdm")).toBe(false);
+    expect(hasConfigMgrClient("easMdm")).toBe(false);
+    expect(hasConfigMgrClient(null)).toBe(false);
+    expect(hasConfigMgrClient(undefined)).toBe(false);
   });
 });
 

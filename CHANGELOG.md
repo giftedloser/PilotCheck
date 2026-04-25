@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- SCCM / ConfigMgr signal hardening: device detail now distinguishes
+  `ConfigMgr detected`, `ConfigMgr not detected`, `Not reported by Intune`,
+  `Cannot determine`, and `Signal disabled`; docs now spell out the
+  Graph-derived `managementAgent` contract for live testing.
 - GitHub repo polish: stricter CI now runs lint, database migration, unit/API
   tests, e2e tests, and production build; pull request and issue templates were
   refreshed for Runway; live-testing and security review docs were added.

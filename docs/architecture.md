@@ -36,8 +36,9 @@ no external state — everything runs on one machine.
 1. **Sync** runs every `SYNC_INTERVAL_MINUTES` (default 15) and on demand from
    the UI. It pulls Autopilot device identities, Intune managed devices,
    Intune deployment profiles, Entra devices, Entra groups, and group
-   membership, and writes them verbatim into `raw_*` tables. Failures are
-   recorded in `sync_log`.
+   membership, and writes them verbatim into `raw_*` tables. Intune's
+   `managedDevice.managementAgent` value is preserved as the v1 ConfigMgr/SCCM
+   visibility signal. Failures are recorded in `sync_log`.
 2. **Compute** runs immediately after every successful sync. It joins the raw
    tables into a per-device snapshot, evaluates the built-in flag rules and
    any user-defined rules, and writes one row per device into `device_state`.
@@ -73,6 +74,18 @@ no external state — everything runs on one machine.
 | `rules`                | User-defined rule definitions (predicate DSL)           |
 | `sync_log`             | One row per sync attempt                                |
 | `action_log`           | One row per remote action dispatched                    |
+
+## SCCM / ConfigMgr boundary
+
+Runway v1 does not have a direct Configuration Manager connector. It does not
+open AdminService, SQL, WMI, or PowerShell sessions to an SCCM site.
+
+Instead, the sync layer reads Intune's `managedDevice.managementAgent` field
+through Microsoft Graph. The engine treats values containing
+`configurationManager` as a positive ConfigMgr/co-management signal. This is
+enough to answer "does Intune see this device as ConfigMgr/co-managed?", but it
+does not replace a site-server health check for policy, inventory, or client
+assignment.
 
 ## State transitions
 

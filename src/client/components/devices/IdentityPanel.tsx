@@ -1,6 +1,7 @@
 import { AlertTriangle, Fingerprint } from "lucide-react";
 
 import type { DeviceDetailResponse, MatchConfidence } from "../../lib/types.js";
+import { getConfigMgrSignal } from "../../lib/config-mgr.js";
 import { cn } from "../../lib/utils.js";
 import { Card } from "../ui/card.js";
 import { SourceBadge, type DataSource } from "../shared/SourceBadge.js";
@@ -53,24 +54,11 @@ function ConfigMgrJoinField({
   device: DeviceDetailResponse;
   enabled: boolean;
 }) {
-  const hasIntuneRecord = Boolean(device.identity.intuneId);
-  const status = !enabled
-    ? "Detection disabled"
-    : !hasIntuneRecord
-      ? "Unknown"
-      : device.enrollment.hasConfigMgrClient
-        ? "Connected"
-        : "Not detected";
-  const detail = !enabled
-    ? "Enable in Settings"
-    : !hasIntuneRecord
-      ? "No Intune record"
-      : device.enrollment.managementAgent
-        ? device.enrollment.managementAgent
-        : "managementAgent not reported";
-  const tone = !enabled || !hasIntuneRecord
+  const signal = getConfigMgrSignal(device, enabled);
+  const detail = signal.rawValue ?? signal.detail;
+  const tone = signal.status === "disabled" || signal.status === "no_intune_record"
     ? "text-[var(--pc-text-muted)]"
-    : device.enrollment.hasConfigMgrClient
+    : signal.status === "detected"
       ? "text-[var(--pc-healthy)]"
       : "text-[var(--pc-warning)]";
 
@@ -82,7 +70,7 @@ function ConfigMgrJoinField({
         </span>
         <SourceBadge source="sccm" size="xs" />
       </div>
-      <div className={cn("text-[12.5px] font-semibold", tone)}>{status}</div>
+      <div className={cn("text-[12.5px] font-semibold", tone)}>{signal.label}</div>
       <div className="mt-1 truncate font-mono text-[11px] text-[var(--pc-text-muted)]" title={detail}>
         {detail}
       </div>
@@ -106,9 +94,9 @@ export function IdentityPanel({
           <span className="text-[13px] font-semibold text-[var(--pc-text)]">Identity Correlation</span>
           <span
             className="text-[11.5px] text-[var(--pc-text-muted)]"
-            title="Linking the same physical device across Autopilot, Intune, Entra ID, and SCCM/ConfigMgr"
+            title="Linking the same physical device across Autopilot, Intune, Entra ID, plus the SCCM/ConfigMgr signal when Intune reports it"
           >
-            · Autopilot ↔ Intune ↔ Entra ID ↔ SCCM
+            · Autopilot ↔ Intune ↔ Entra ID + SCCM signal
           </span>
         </div>
         <StatusBadge health={device.summary.health} />

@@ -489,7 +489,7 @@ export function DeviceDetailPage() {
             description="Whether the intended device actually made it through OOBE and into Intune"
           />
           <ProvisioningTimeline device={data} />
-          {showConfigMgrConnection ? <ConfigMgrConnectionPanel device={data} /> : null}
+          <ConfigMgrConnectionPanel device={data} enabled={showConfigMgrConnection} />
           <DiagnosticPanel device={data} />
           <AppStatusPanel device={data} />
         </section>

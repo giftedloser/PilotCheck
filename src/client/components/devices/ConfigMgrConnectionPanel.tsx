@@ -1,35 +1,31 @@
 import { Cable, CheckCircle2, HelpCircle, XCircle } from "lucide-react";
 
 import type { DeviceDetailResponse } from "../../lib/types.js";
+import { formatManagementAgent, getConfigMgrSignal } from "../../lib/config-mgr.js";
 import { cn } from "../../lib/utils.js";
 import { SourceBadge } from "../shared/SourceBadge.js";
 import { Card } from "../ui/card.js";
 
-function normalizeAgentLabel(value: string | null) {
-  if (!value) return "No management agent reported";
-  return value.replace(/([a-z])([A-Z])/g, "$1 $2");
-}
-
-export function ConfigMgrConnectionPanel({ device }: { device: DeviceDetailResponse }) {
-  const hasIntuneRecord = Boolean(device.identity.intuneId);
-  const isConnected = device.enrollment.hasConfigMgrClient;
-  const managementAgent = device.enrollment.managementAgent;
-  const tone = !hasIntuneRecord
-    ? "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-muted)]"
-    : isConnected
+export function ConfigMgrConnectionPanel({
+  device,
+  enabled = true
+}: {
+  device: DeviceDetailResponse;
+  enabled?: boolean;
+}) {
+  const signal = getConfigMgrSignal(device, enabled);
+  const managementAgent = signal.rawValue;
+  const tone = signal.status === "detected"
       ? "border-[var(--pc-healthy)]/35 bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
-      : "border-[var(--pc-warning)]/35 bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]";
-  const Icon = !hasIntuneRecord ? HelpCircle : isConnected ? CheckCircle2 : XCircle;
-  const title = !hasIntuneRecord
-    ? "No Intune device record"
-    : isConnected
-      ? "ConfigMgr client detected"
-      : "ConfigMgr client not detected";
-  const description = !hasIntuneRecord
-    ? "Runway needs the Intune managed-device record before it can read the managementAgent signal."
-    : isConnected
-      ? "Intune reports a Configuration Manager management agent for this device."
-      : "Intune does not report a Configuration Manager management agent. If this machine should be attached to SCCM, verify the local ConfigMgr client and co-management/tenant-attach state.";
+    : signal.status === "not_detected"
+      ? "border-[var(--pc-warning)]/35 bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]"
+      : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-muted)]";
+  const Icon =
+    signal.status === "detected"
+      ? CheckCircle2
+      : signal.status === "not_detected"
+        ? XCircle
+        : HelpCircle;
 
   return (
     <Card className="p-5">
@@ -45,8 +41,8 @@ export function ConfigMgrConnectionPanel({ device }: { device: DeviceDetailRespo
         <div className="flex items-start gap-3">
           <Icon className="mt-0.5 h-4 w-4 shrink-0" />
           <div className="min-w-0">
-            <div className="text-[13px] font-semibold">{title}</div>
-            <p className="mt-1 text-[12px] leading-relaxed">{description}</p>
+            <div className="text-[13px] font-semibold">{signal.label}</div>
+            <p className="mt-1 text-[12px] leading-relaxed">{signal.detail}</p>
           </div>
         </div>
       </div>
@@ -57,7 +53,7 @@ export function ConfigMgrConnectionPanel({ device }: { device: DeviceDetailRespo
             Intune managementAgent
           </div>
           <div className="font-mono text-[12px] text-[var(--pc-text)]">
-            {managementAgent ?? "not reported"}
+            {managementAgent ?? "not available"}
           </div>
         </div>
         <div className="rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-3">
@@ -65,9 +61,13 @@ export function ConfigMgrConnectionPanel({ device }: { device: DeviceDetailRespo
             Interpretation
           </div>
           <div className="text-[12.5px] text-[var(--pc-text)]">
-            {normalizeAgentLabel(managementAgent)}
+            {formatManagementAgent(managementAgent)}
           </div>
         </div>
+      </div>
+      <div className="mt-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-tint-subtle)] px-3 py-2 text-[11.5px] leading-5 text-[var(--pc-text-muted)]">
+        This is a read-only SCCM/ConfigMgr visibility check derived from Microsoft Graph / Intune.
+        Runway is not connecting to a Configuration Manager site server or running SCCM actions.
       </div>
     </Card>
   );
