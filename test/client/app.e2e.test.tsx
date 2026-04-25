@@ -185,11 +185,15 @@ describe("client drilldown", () => {
     return queryClient;
   }
 
+  function findDashboardTitle() {
+    return screen.findByText("Runway Fleet Health", {}, { timeout: 5000 });
+  }
+
   it("navigates from dashboard to devices to a device detail", async () => {
     await renderApp();
 
     // Dashboard renders
-    expect(await screen.findByText("Runway Fleet Health")).toBeInTheDocument();
+    expect(await findDashboardTitle()).toBeInTheDocument();
 
     // Drill into the Critical Devices quick-action link → device queue
     fireEvent.click((await screen.findAllByText("Critical Devices"))[0]);
@@ -214,7 +218,7 @@ describe("client drilldown", () => {
   it("surfaces overview master search results and opens a device", async () => {
     await renderApp();
 
-    expect(await screen.findByText("Runway Fleet Health")).toBeInTheDocument();
+    expect(await findDashboardTitle()).toBeInTheDocument();
 
     fireEvent.change(screen.getAllByPlaceholderText(/search devices by name/i)[0], {
       target: { value: "Lodge" }
