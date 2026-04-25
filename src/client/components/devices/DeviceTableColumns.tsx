@@ -53,7 +53,7 @@ export const DEVICE_COLUMNS: DeviceColumnDef[] = [
         <Link
           to="/devices/$deviceKey"
           params={{ deviceKey: device.deviceKey }}
-          className="block truncate font-medium text-[var(--pc-text)] hover:text-[var(--pc-accent-hover)]"
+          className="block cursor-pointer truncate font-medium text-[var(--pc-text)] hover:text-[var(--pc-accent-hover)]"
           title={device.deviceName ?? device.serialNumber ?? device.deviceKey}
         >
           {device.deviceName ?? device.serialNumber ?? device.deviceKey}

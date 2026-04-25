@@ -182,9 +182,9 @@ export function DeviceListPage() {
             <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">j</kbd>{" "}
             <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">k</kbd>{" "}
             move,{" "}
-            <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">↵</kbd>{" "}
+            <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">Enter</kbd>{" "}
             open,{" "}
-            <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">␣</kbd>{" "}
+            <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono text-[10px]">Space</kbd>{" "}
             select
           </span>
         </div>

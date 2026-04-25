@@ -169,14 +169,29 @@ export function DeviceTable({
           <tbody className="divide-y divide-[var(--pc-border)]">
             {devices.map((device, index) => {
               const isSelected = selectionEnabled && selectedKeys!.has(device.deviceKey);
+              const openDevice = () => {
+                void navigate({
+                  to: "/devices/$deviceKey",
+                  params: { deviceKey: device.deviceKey }
+                });
+              };
               return (
                 <tr
                   key={device.deviceKey}
                   data-row-index={index}
                   data-device-key={device.deviceKey}
                   tabIndex={0}
+                  onClick={(event) => {
+                    const target = event.target as HTMLElement | null;
+                    if (
+                      target?.closest("a,button,input,label,select,textarea,[data-row-action]")
+                    ) {
+                      return;
+                    }
+                    openDevice();
+                  }}
                   className={cn(
-                    "pc-content-visibility outline-none transition-colors hover:bg-[var(--pc-tint-subtle)]",
+                    "pc-content-visibility cursor-pointer outline-none transition-colors hover:bg-[var(--pc-tint-subtle)]",
                     "focus-visible:bg-[var(--pc-accent-muted)]/40 focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--pc-accent)]/50",
                     isSelected && "bg-[var(--pc-accent-muted)]/30"
                   )}
@@ -204,6 +219,7 @@ export function DeviceTable({
                       params={{ deviceKey: device.deviceKey }}
                       className="inline-flex rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
                       aria-label={`Open ${device.deviceName ?? device.deviceKey}`}
+                      data-row-action
                     >
                       <ChevronRight className="h-3.5 w-3.5" />
                     </Link>

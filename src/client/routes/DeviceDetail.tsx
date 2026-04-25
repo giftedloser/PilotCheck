@@ -28,7 +28,9 @@ import { GroupMembershipsPanel } from "../components/devices/GroupMembershipsPan
 import { HardwarePanel } from "../components/devices/HardwarePanel.js";
 import { HistoryPanel } from "../components/devices/HistoryPanel.js";
 import { IdentityPanel } from "../components/devices/IdentityPanel.js";
+import { JoinPicturePanel } from "../components/devices/JoinPicturePanel.js";
 import { LapsWidget } from "../components/devices/LapsWidget.js";
+import { NextBestActionPanel } from "../components/devices/NextBestActionPanel.js";
 import { ProvisioningTimeline } from "../components/devices/ProvisioningTimeline.js";
 import { RelatedDevicesPanel } from "../components/devices/RelatedDevicesPanel.js";
 import { RuleViolationsPanel } from "../components/devices/RuleViolationsPanel.js";
@@ -55,9 +57,9 @@ const TAB_LABELS: Record<TabKey, { label: string; icon: typeof Fingerprint }> = 
   identity: { label: "Identity", icon: Fingerprint },
   targeting: { label: "Targeting", icon: Target },
   enrollment: { label: "Enrollment", icon: Radio },
-  drift: { label: "Drift", icon: GitBranch },
-  operate: { label: "Operate", icon: Wrench },
-  history: { label: "History", icon: Clock }
+  drift: { label: "Compliance & Drift", icon: GitBranch },
+  operate: { label: "Actions", icon: Wrench },
+  history: { label: "History & Raw Data", icon: Clock }
 };
 
 const BREAKPOINT_BUCKETS: Record<BreakpointKey, FlagCode[]> = {
@@ -434,6 +436,9 @@ export function DeviceDetailPage() {
         </div>
       </header>
 
+      <NextBestActionPanel device={data} />
+      <JoinPicturePanel device={data} showConfigMgrSignal={showConfigMgrConnection} />
+
       {/* Tab navigation */}
       <div className="sticky top-0 z-20 -mx-4 flex items-center gap-1 overflow-x-auto border-b border-[var(--pc-border)] bg-[var(--pc-bg)]/95 px-4 pt-1 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 xl:-mx-10 xl:px-10">
         {TAB_ORDER.map((tab) => {
@@ -457,7 +462,7 @@ export function DeviceDetailPage() {
         <section className="space-y-3">
           <TabHeading
             title="Identity"
-            description="Who this device is across Autopilot, Intune, Entra ID, and SCCM/ConfigMgr"
+            description="Which source records belong to this physical device, and whether the join is trustworthy"
           />
           <IdentityPanel device={data} showConfigMgrSignal={showConfigMgrConnection} />
           <HardwarePanel device={data} />
@@ -468,7 +473,7 @@ export function DeviceDetailPage() {
         <section className="space-y-3">
           <TabHeading
             title="Targeting"
-            description="Group membership, profile assignment, and the intended configuration chain"
+            description="The group membership and deployment profile that should drive Autopilot intent"
           />
           <AssignmentPathPanel path={data.assignmentPath} />
           <AssignmentPanel device={data} />
@@ -481,7 +486,7 @@ export function DeviceDetailPage() {
         <section className="space-y-3">
           <TabHeading
             title="Enrollment"
-            description="Autopilot record, Intune check-in, and provisioning progress"
+            description="Whether the intended device actually made it through OOBE and into Intune"
           />
           <ProvisioningTimeline device={data} />
           {showConfigMgrConnection ? <ConfigMgrConnectionPanel device={data} /> : null}
@@ -493,8 +498,8 @@ export function DeviceDetailPage() {
       {activeTab === "drift" ? (
         <section className="space-y-3">
           <TabHeading
-            title="Drift"
-            description="Compliance, hybrid-join, user mismatches, and custom rule violations"
+            title="Compliance & Drift"
+            description="Policy drift, hybrid-join risk, user ownership mismatch, and custom rule violations"
           />
           <CompliancePoliciesPanel device={data} />
           <ConditionalAccessPanel device={data} />
@@ -505,7 +510,7 @@ export function DeviceDetailPage() {
       {activeTab === "operate" ? (
         <section className="space-y-3">
           <TabHeading
-            title="Operate"
+            title="Actions"
             description="Remote actions, secrets, and related devices (delegated sign-in required)"
           />
           <ActionsToolbar device={data} />
@@ -519,8 +524,8 @@ export function DeviceDetailPage() {
       {activeTab === "history" ? (
         <section className="space-y-3">
           <TabHeading
-            title="History"
-            description="State transitions over time, plus the raw Graph source data"
+            title="History & Raw Data"
+            description="State transitions over time, plus raw Graph source data for deeper validation"
           />
           <HistoryPanel device={data} />
           <SourceJsonPanel device={data} />

@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
 import {
+  AlertTriangle,
   Boxes,
   Cable,
   CheckCircle2,
+  DatabaseZap,
   Download,
   KeyRound,
   LockKeyhole,
@@ -160,7 +162,15 @@ export function SettingsPage() {
       <PageHeader
         eyebrow="System"
         title="Settings"
-        description="Configure how Runway connects to Microsoft Graph for your Windows Autopilot, Intune, Entra ID, and SCCM/ConfigMgr join signals, and how it interprets your group tag conventions. Changes take effect on the next sync."
+        description="Confirm live-data readiness, operator access, SCCM visibility, and the tag mappings Runway uses to explain join problems."
+      />
+
+      <SettingsReadinessBanner
+        graphConfigured={graphConfigured}
+        appAccessRequired={appAccess.required}
+        adminSignedIn={isAuthed}
+        sccmDetectionEnabled={sccmDetectionEnabled}
+        hasTagMappings={settings.data.tagConfig.length > 0}
       />
 
       {/* Section 1: Graph integration */}
@@ -170,7 +180,7 @@ export function SettingsPage() {
             1. Microsoft Graph Integration
           </h2>
           <span className="text-[11px] text-[var(--pc-text-muted)]">
-            Read-only ingestion · powers all dashboards
+            Read-only ingestion - powers dashboards and device joins
           </span>
         </div>
 
@@ -322,7 +332,7 @@ export function SettingsPage() {
             3. Admin Sign-In
           </h2>
           <span className="text-[11px] text-[var(--pc-text-muted)]">
-            Required for remote actions and LAPS
+            Required for remote actions, LAPS, BitLocker, and settings changes
           </span>
         </div>
         <Card className="p-5">
@@ -353,7 +363,7 @@ export function SettingsPage() {
                       <span className="text-[var(--pc-text-secondary)]">{auth.data.user}</span>
                       {auth.data.expiresAt ? (
                         <>
-                          {" · token expires "}
+                          {" - token expires "}
                           {new Date(auth.data.expiresAt).toLocaleString()}
                         </>
                       ) : null}
@@ -540,7 +550,7 @@ export function SettingsPage() {
       <section className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--pc-text-secondary)]">
-            6. Group Tag → Profile Mapping
+            6. Group Tag {"->"} Profile Mapping
           </h2>
           <span className="text-[11px] text-[var(--pc-text-muted)]">
             Tells the engine what each Autopilot group tag should resolve to
@@ -781,6 +791,112 @@ export function SettingsPage() {
         onCancel={() => setDeleteTarget(null)}
       />
     </div>
+  );
+}
+
+function SettingsReadinessBanner({
+  graphConfigured,
+  appAccessRequired,
+  adminSignedIn,
+  sccmDetectionEnabled,
+  hasTagMappings
+}: {
+  graphConfigured: boolean;
+  appAccessRequired: boolean;
+  adminSignedIn: boolean;
+  sccmDetectionEnabled: boolean;
+  hasTagMappings: boolean;
+}) {
+  const blockers = [
+    !graphConfigured ? "Graph credentials missing" : null,
+    !hasTagMappings ? "No tag mappings" : null,
+    !adminSignedIn ? "Admin sign-in needed for changes/actions" : null
+  ].filter(Boolean);
+  const ready = graphConfigured && hasTagMappings;
+
+  const items = [
+    {
+      label: "Live data",
+      value: graphConfigured ? "Ready" : "Mock mode",
+      good: graphConfigured,
+      detail: graphConfigured ? "Graph credentials detected" : "Add Graph credentials before tenant testing"
+    },
+    {
+      label: "Technician access",
+      value: appAccessRequired ? "Entra gate on" : "Gate off",
+      good: appAccessRequired,
+      detail: appAccessRequired ? "Users sign in before fleet data loads" : "Enable after setup if techs will use it"
+    },
+    {
+      label: "Admin session",
+      value: adminSignedIn ? "Signed in" : "Not signed in",
+      good: adminSignedIn,
+      detail: adminSignedIn ? "Privileged settings/actions available" : "Required for mappings, feature flags, and actions"
+    },
+    {
+      label: "SCCM signal",
+      value: sccmDetectionEnabled ? "On" : "Off",
+      good: sccmDetectionEnabled,
+      detail: sccmDetectionEnabled ? "Device pages show ConfigMgr signal" : "Optional visibility check is disabled"
+    },
+    {
+      label: "Tag mappings",
+      value: hasTagMappings ? "Configured" : "Missing",
+      good: hasTagMappings,
+      detail: hasTagMappings ? "Runway can detect tag/profile drift" : "Needed for target-group and tag mismatch flags"
+    }
+  ];
+
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="flex flex-col gap-3 border-b border-[var(--pc-border)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div
+            className={
+              ready
+                ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--pc-healthy-muted)]"
+                : "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--pc-warning-muted)]"
+            }
+          >
+            {ready ? (
+              <DatabaseZap className="h-4 w-4 text-[var(--pc-healthy)]" />
+            ) : (
+              <AlertTriangle className="h-4 w-4 text-[var(--pc-warning)]" />
+            )}
+          </div>
+          <div>
+            <div className="text-[13px] font-semibold text-[var(--pc-text)]">
+              {ready ? "Live testing readiness looks good" : "Setup still has readiness gaps"}
+            </div>
+            <div className="mt-0.5 text-[12px] leading-5 text-[var(--pc-text-muted)]">
+              {ready
+                ? "Graph ingestion and tag interpretation are configured. Review access and optional signals before pilot use."
+                : blockers.join(", ")}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="grid gap-px bg-[var(--pc-border)] md:grid-cols-5">
+        {items.map((item) => (
+          <div key={item.label} className="bg-[var(--pc-surface)] px-4 py-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
+                {item.label}
+              </div>
+              {item.good ? (
+                <CheckCircle2 className="h-3.5 w-3.5 text-[var(--pc-healthy)]" />
+              ) : (
+                <AlertTriangle className="h-3.5 w-3.5 text-[var(--pc-warning)]" />
+              )}
+            </div>
+            <div className="mt-1 text-[13px] font-semibold text-[var(--pc-text)]">{item.value}</div>
+            <div className="mt-0.5 text-[11px] leading-4 text-[var(--pc-text-muted)]">
+              {item.detail}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 }
 

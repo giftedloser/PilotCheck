@@ -104,14 +104,14 @@ export function MasterDeviceSearch() {
         <div className="border-b border-[var(--pc-border)] px-5 py-5 sm:px-6 xl:border-b-0 xl:border-r xl:py-6">
           <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--pc-accent)]">
             <Search className="h-3.5 w-3.5" />
-            Master Search
+            Find a Device
           </div>
           <h2 className="mt-3 max-w-2xl font-display text-[2rem] uppercase leading-none tracking-[0.04em] text-[var(--pc-text)] sm:text-[2.3rem]">
-            Jump From Overview To Any Device Fast
+            Open the exact machine without digging
           </h2>
           <p className="mt-3 max-w-2xl text-[13.5px] leading-6 text-[var(--pc-text-secondary)]">
             Search by device name, serial number, primary user, or property label.
-            Press enter to open the filtered queue, or click a result to jump straight into that device.
+            Press Enter to open the filtered queue, or click a result to jump straight into the device.
           </p>
 
           <form className="mt-5 space-y-3" onSubmit={handleSubmit}>
@@ -205,8 +205,8 @@ export function MasterDeviceSearch() {
                 <button
                   key={device.deviceKey}
                   type="button"
-                  onClick={() => openDevice(device.deviceKey)}
-                  className="flex w-full items-start gap-3 rounded-2xl border border-[var(--pc-border)] bg-[var(--pc-tint-subtle)] px-3.5 py-3 text-left transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-tint-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+                onClick={() => openDevice(device.deviceKey)}
+                  className="flex w-full cursor-pointer items-start gap-3 rounded-2xl border border-[var(--pc-border)] bg-[var(--pc-tint-subtle)] px-3.5 py-3 text-left transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-tint-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
                 >
                   <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--pc-accent-muted)] text-[var(--pc-accent)]">
                     <TabletSmartphone className="h-4 w-4" />
@@ -264,7 +264,7 @@ function QuickLink({
     <Link
       to={to}
       search={search}
-      className="flex items-start gap-3 rounded-2xl border border-[var(--pc-border)] bg-[var(--pc-tint-subtle)] px-3.5 py-3 transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-tint-hover)]"
+      className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[var(--pc-border)] bg-[var(--pc-tint-subtle)] px-3.5 py-3 transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-tint-hover)]"
     >
       <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--pc-surface-overlay)] text-[var(--pc-text-secondary)]">
         <ArrowRight className="h-4 w-4" />

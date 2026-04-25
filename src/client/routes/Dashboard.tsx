@@ -57,14 +57,18 @@ export function DashboardPage() {
 
   const breakpointBuckets = [
     {
-      label: "Identity & Records",
+      label: "Identity records",
+      description: "Duplicate, missing, or weakly joined records",
+      search: { flag: "identity_conflict" },
       count: countForFlags(["identity_conflict", "no_autopilot_record", "missing_ztdid"]),
       icon: ShieldCheck,
       color: "text-[var(--pc-info)]",
       bgColor: "bg-[var(--pc-info-muted)]"
     },
     {
-      label: "Targeting & Profile",
+      label: "Targeting and profile",
+      description: "Group tag, group membership, or profile assignment failures",
+      search: { flag: "not_in_target_group" },
       count: countForFlags([
         "no_profile_assigned",
         "profile_assignment_failed",
@@ -76,7 +80,9 @@ export function DashboardPage() {
       bgColor: "bg-[var(--pc-warning-muted)]"
     },
     {
-      label: "Enrollment & Join",
+      label: "Enrollment and join",
+      description: "OOBE, Intune enrollment, hybrid join, or stale check-in",
+      search: { flag: "provisioning_stalled" },
       count: countForFlags([
         "hybrid_join_risk",
         "profile_assigned_not_enrolled",
@@ -88,7 +94,9 @@ export function DashboardPage() {
       bgColor: "bg-[var(--pc-critical-muted)]"
     },
     {
-      label: "Ownership & Drift",
+      label: "Ownership and drift",
+      description: "Primary user mismatch or compliance changed",
+      search: { flag: "user_mismatch" },
       count: countForFlags(["user_mismatch", "compliance_drift", "orphaned_autopilot"]),
       icon: TrendingDown,
       color: "text-[var(--pc-warning)]",
@@ -120,7 +128,7 @@ export function DashboardPage() {
       <PageHeader
         eyebrow="Overview"
         title="Runway Fleet Health"
-        description="Triage Windows devices across Autopilot, Intune, Entra ID, and SCCM/ConfigMgr signals — surfacing devices whose join, enrollment, configuration, or compliance state is drifting from intent. Windows-only by design."
+        description="Find Windows devices whose Autopilot, Entra, Intune, or ConfigMgr state no longer matches the intended provisioning path."
         actions={
           <>
             <SyncIndicator
@@ -146,7 +154,9 @@ export function DashboardPage() {
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">In current cache</div>
         </Card>
         <Card className="min-h-[132px] px-4 py-4 sm:px-5">
-          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">New Today</div>
+          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">
+            Newly Unhealthy
+          </div>
           <div className="mt-1 text-3xl font-semibold tabular-nums text-[var(--pc-text)]">
             {dashboard.data.newlyUnhealthy24h}
           </div>
@@ -155,12 +165,16 @@ export function DashboardPage() {
           </div>
         </Card>
         <Card className="min-h-[132px] px-4 py-4 sm:px-5">
-          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Impacted</div>
+          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">
+            Needs Attention
+          </div>
           <div className="mt-1 text-3xl font-semibold tabular-nums text-[var(--pc-text)]">{impactedDevices}</div>
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">Outside expected state</div>
         </Card>
         <Card className="min-h-[132px] px-4 py-4 sm:px-5">
-          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Stability</div>
+          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">
+            Healthy Rate
+          </div>
           <div className="mt-1 flex items-end gap-1.5">
             <span className="text-3xl font-semibold tabular-nums text-[var(--pc-text)]">{stabilityRate}</span>
             <span className="mb-1 text-[15px] font-medium text-[var(--pc-text-muted)]">%</span>
@@ -173,7 +187,9 @@ export function DashboardPage() {
           </div>
         </Card>
         <Card className="min-h-[132px] px-4 py-4 sm:px-5">
-          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">Top Signal</div>
+          <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">
+            Most Common Failure
+          </div>
           <div className="mt-1 truncate text-[15px] font-semibold text-[var(--pc-text)]">
             {topPattern ? humanizeFlag(topPattern.flag) : "No Issues"}
           </div>
@@ -236,24 +252,44 @@ export function DashboardPage() {
           {/* Breakpoint buckets */}
           <Card className="overflow-hidden">
             <div className="border-b border-[var(--pc-border)] px-5 py-4">
-              <div className="text-[13px] font-semibold text-[var(--pc-text)]">Breakpoint Areas</div>
+              <div className="text-[13px] font-semibold text-[var(--pc-text)]">
+                Where Devices Are Breaking
+              </div>
               <div className="mt-0.5 text-[12px] text-[var(--pc-text-muted)]">
-                Where provisioning chains are failing
+                Click an area to open the matching device queue.
               </div>
             </div>
             <div className="divide-y divide-[var(--pc-border)]">
               {breakpointBuckets.map((bucket) => (
-                <div key={bucket.label} className="flex items-center gap-3 px-5 py-3.5">
+                <Link
+                  key={bucket.label}
+                  to="/devices"
+                  search={{
+                    search: undefined,
+                    health: undefined,
+                    flag: bucket.search.flag,
+                    property: undefined,
+                    profile: undefined,
+                    page: 1,
+                    pageSize: 25
+                  }}
+                  className="flex cursor-pointer items-center gap-3 px-5 py-3.5 transition-colors hover:bg-[var(--pc-tint-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--pc-accent)]"
+                  title={`Open devices with ${bucket.label.toLowerCase()} issues`}
+                >
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${bucket.bgColor}`}>
                     <bucket.icon className={`h-4 w-4 ${bucket.color}`} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[13px] font-medium text-[var(--pc-text)]">{bucket.label}</div>
+                    <div className="mt-0.5 text-[11px] text-[var(--pc-text-muted)]">
+                      {bucket.description}
+                    </div>
                   </div>
                   <div className="text-[17px] font-semibold tabular-nums text-[var(--pc-text)]">
                     {bucket.count}
                   </div>
-                </div>
+                  <ChevronRight className="h-3.5 w-3.5 text-[var(--pc-text-muted)]" />
+                </Link>
               ))}
             </div>
           </Card>
