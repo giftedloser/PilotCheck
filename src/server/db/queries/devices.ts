@@ -23,15 +23,7 @@ import type {
   ProfileRow
 } from "../types.js";
 import { hasConfigMgrClient } from "../../engine/config-mgr.js";
-
-function safeJsonParse<T>(raw: string | null | undefined, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
+import { safeJsonParse } from "../../engine/normalize.js";
 
 interface DeviceStateRow {
   device_key: string;
@@ -59,6 +51,26 @@ interface DeviceStateRow {
   assignment_path: string;
   profile_assignment_status: string | null;
   active_rule_ids: string | null;
+}
+
+export interface DeviceIdentity {
+  serial_number: string | null;
+  device_name: string | null;
+  intune_id: string | null;
+  entra_id: string | null;
+  autopilot_id: string | null;
+}
+
+export function getDeviceIdentity(
+  db: Database.Database,
+  deviceKey: string
+): DeviceIdentity | undefined {
+  return db
+    .prepare(
+      `SELECT serial_number, device_name, intune_id, entra_id, autopilot_id
+       FROM device_state WHERE device_key = ?`
+    )
+    .get(deviceKey) as DeviceIdentity | undefined;
 }
 
 export function loadStateEngineInput(db: Database.Database) {

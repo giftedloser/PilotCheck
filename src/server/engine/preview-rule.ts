@@ -3,6 +3,7 @@ import type Database from "better-sqlite3";
 import type { DeviceListItem, FlagCode, RulePredicate, RuleSeverity } from "../../shared/types.js";
 import { hasConfigMgrClient } from "./config-mgr.js";
 import { evaluateRules, type RuleContext } from "./evaluate-rules.js";
+import { safeJsonParse } from "./normalize.js";
 
 /**
  * Preview a single predicate against the currently-computed device_state
@@ -46,15 +47,6 @@ interface PreviewRow {
   active_flags: string | null;
   os_version: string | null;
   management_agent: string | null;
-}
-
-function safeJsonParse<T>(raw: string | null | undefined, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
 }
 
 function rowToContext(row: PreviewRow): RuleContext {

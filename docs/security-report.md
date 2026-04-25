@@ -23,7 +23,8 @@ There is no Runway cloud service, no telemetry, no analytics, and no third-party
 - Operators configure their own Entra app registration.
 - App-only client credentials are stored in `.env` on the operator workstation.
 - Delegated admin sign-in uses Microsoft identity endpoints and a signed local session cookie.
-- `SESSION_SECRET` must be replaced before live testing; the server refuses to start in non-dev mode with the built-in default.
+- `SESSION_SECRET` is auto-generated as a 256-bit random value and persisted to `.env` (mode 0600) on first run if not already present. The server refuses to start in non-dev mode with the built-in default.
+- The first-run Graph wizard rejects client secrets shorter than 32 characters or matching common placeholder strings.
 - The app access gate requires Entra sign-in before fleet data is visible once Graph is configured, unless explicitly disabled for local/dev use.
 
 ## Network Model
@@ -33,13 +34,15 @@ Runway is designed to bind its local API to loopback. Expected external calls ar
 - `login.microsoftonline.com` for Microsoft authentication.
 - `graph.microsoft.com` for Microsoft Graph reads and delegated actions.
 
+Every `/api/*` route is gated by a local-access middleware that admits a request only when one of the following is true: the request carries the per-install desktop token issued by the Tauri shell, a valid delegated admin session, or a valid Entra app-access session. Mutating methods (POST/PUT/PATCH/DELETE) additionally require an allowed `Origin` (loopback or `tauri://`) so a stray browser tab on the same workstation cannot pivot off the operator's cookies. The `/api/actions/*` subtree is further protected by a per-user token-bucket rate limit (burst 30, sustained 1/s) so a runaway client cannot burn Graph quota.
+
 The Tauri desktop shell loads the local app runtime and uses limited window controls for the custom title bar.
 
 ## Write / Action Safety
 
 - Read-only sync is app-only and separate from delegated admin actions.
 - Remote actions require delegated sign-in.
-- Bulk actions are capped and audited.
+- Bulk actions are capped at 200 devices per request and limited to non-destructive or fully reversible operations (`sync`, `reboot`, `rotate-laps`). Retire, wipe, Autopilot reset, rename, and the `delete-*` cleanups remain single-device clicks. All actions are audited.
 - Dangerous operations should be validated only on lab devices before production use.
 - LAPS passwords are fetched on demand, auto-hide in the UI, and are not persisted to disk.
 - SCCM / ConfigMgr support is visibility-only and Graph-derived. Runway does not store SCCM credentials, connect to a Configuration Manager site server, or execute SCCM actions.
@@ -92,7 +95,7 @@ Only grant delegated permissions if those flows are approved for the pilot.
 - Security owner reviewed app-only and delegated permission lists.
 - Entra app registration ownership and secret rotation owner assigned.
 - Pilot operator workstation has disk encryption enabled.
-- `SESSION_SECRET` changed from default.
+- `SESSION_SECRET` confirmed present in the runtime `.env` (auto-generated on first run, but verify it has not been deleted).
 - `APP_ACCESS_MODE=entra` plan approved for technician access.
 - Live testing checklist completed on a small known device set.
 - Destructive actions are restricted until lab-device validation passes.

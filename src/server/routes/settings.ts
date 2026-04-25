@@ -14,7 +14,7 @@ import {
   setFeatureFlag,
   upsertTagConfig
 } from "../db/queries/settings.js";
-import { computeAllDeviceStates } from "../engine/compute-all-device-states.js";
+import { scheduleRecompute } from "../engine/recompute-scheduler.js";
 import { logger } from "../logger.js";
 
 const tagConfigSchema = z.object({
@@ -30,7 +30,16 @@ const GUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0
 const graphConfigSchema = z.object({
   tenantId: z.string().regex(GUID_RE, "Tenant ID must be a GUID."),
   clientId: z.string().regex(GUID_RE, "Client ID must be a GUID."),
-  clientSecret: z.string().min(8, "Client secret looks too short."),
+  // Real Entra app secrets are ~40 chars. We reject obvious placeholders
+  // and short typos before they hit disk and silently fail at the OAuth
+  // callback hours later.
+  clientSecret: z
+    .string()
+    .min(32, "Client secret looks too short to be a real Entra value (expect ~40 chars).")
+    .refine(
+      (value) => !/^(your[-_]?secret|placeholder|secret|changeme|todo)/i.test(value),
+      "Client secret looks like a placeholder."
+    ),
   // Optional override; defaults match the server's loopback callback.
   redirectUri: z.string().url().optional()
 });
@@ -61,7 +70,7 @@ export function settingsRouter(db: Database.Database) {
       return;
     }
     upsertTagConfig(db, result.data);
-    try { computeAllDeviceStates(db); } catch (error) { logger.error({ err: error }, "Failed to recompute device states after tag config creation"); }
+    scheduleRecompute(db);
     response.status(201).json(getSettings(db).tagConfig);
   });
 
@@ -75,13 +84,13 @@ export function settingsRouter(db: Database.Database) {
       return;
     }
     upsertTagConfig(db, result.data);
-    try { computeAllDeviceStates(db); } catch (error) { logger.error({ err: error }, "Failed to recompute device states after tag config update"); }
+    scheduleRecompute(db);
     response.json(getSettings(db).tagConfig);
   });
 
   router.delete("/tag-config/:groupTag", requireDelegatedAuth, (request, response) => {
     deleteTagConfig(db, String(request.params.groupTag));
-    try { computeAllDeviceStates(db); } catch (error) { logger.error({ err: error }, "Failed to recompute device states after tag config deletion"); }
+    scheduleRecompute(db);
     response.status(204).send();
   });
 

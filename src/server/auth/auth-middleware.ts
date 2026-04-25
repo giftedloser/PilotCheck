@@ -64,7 +64,18 @@ export function requireAppAccess(request: Request, response: Response, next: Nex
 }
 
 export function getDelegatedToken(request: Request): string {
-  return request.session.delegatedToken!;
+  // requireDelegatedAuth must run before any handler that calls this.
+  // Throwing here is safer than `!` — if a future refactor reorders
+  // middleware, we surface the bug at request time instead of leaking
+  // an `undefined` Authorization header to Microsoft Graph.
+  const token = request.session.delegatedToken;
+  if (!token) {
+    throw new Error(
+      "getDelegatedToken called without a valid delegated session. " +
+        "Ensure requireDelegatedAuth runs upstream of this handler."
+    );
+  }
+  return token;
 }
 
 export function getDelegatedUser(request: Request): string {

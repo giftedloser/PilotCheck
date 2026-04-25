@@ -32,9 +32,12 @@ Runway is ready for controlled live testing when:
 
 - Graph app credentials are configured and `SEED_MODE=none` is used for a
   clean live-data validation pass.
-- `SESSION_SECRET` has been replaced with a long random value.
+- `SESSION_SECRET` is present in `.env` (Runway auto-generates one on first
+  boot if missing; verify it has not been wiped).
 - The Entra app access gate is enabled, or an explicit local/dev exception is
-  documented.
+  documented. Note: every `/api/*` route now requires the desktop token,
+  a delegated session, or an app-access session even when the gate is
+  disabled — there is no anonymous access path on the loopback API.
 - At least five known devices match expected Autopilot, Intune, Entra, and
   ConfigMgr/SCCM states.
 - Admin sign-in, sign-out, and one low-risk delegated action such as Intune

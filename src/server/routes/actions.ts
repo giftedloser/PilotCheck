@@ -16,6 +16,8 @@ import {
   deleteAutopilotDevice
 } from "../actions/remote-actions.js";
 import { listActionLogs, listDeviceActionLogs, logAction } from "../db/queries/actions.js";
+import { getDeviceIdentity } from "../db/queries/devices.js";
+import { actionRateLimit } from "../auth/rate-limit.js";
 
 const VALID_ACTIONS: ReadonlySet<RemoteActionType> = new Set([
   "sync",
@@ -50,14 +52,6 @@ function isValidDeviceName(value: unknown): value is string {
   return typeof value === "string" && DEVICE_NAME_RE.test(value);
 }
 
-function getDeviceInfo(db: Database.Database, deviceKey: string) {
-  return db
-    .prepare(
-      `SELECT serial_number, device_name, intune_id, entra_id, autopilot_id FROM device_state WHERE device_key = ?`
-    )
-    .get(deviceKey) as { serial_number: string | null; device_name: string | null; intune_id: string | null; entra_id: string | null; autopilot_id: string | null } | undefined;
-}
-
 export function actionsRouter(db: Database.Database) {
   const router = Router();
 
@@ -71,7 +65,7 @@ export function actionsRouter(db: Database.Database) {
   // GET /api/actions/logs/:deviceKey — action history for a device
   router.get("/logs/:deviceKey", requireDelegatedAuth, (request, response) => {
     const deviceKey = String(request.params.deviceKey ?? "");
-    const device = getDeviceInfo(db, deviceKey);
+    const device = getDeviceIdentity(db, deviceKey);
     if (!device) {
       response.status(404).json({ message: "Device not found." });
       return;
@@ -81,20 +75,18 @@ export function actionsRouter(db: Database.Database) {
     response.json(listDeviceActionLogs(db, device.serial_number ?? "", limit));
   });
 
-  // All action execution routes require delegated auth
-  router.use(requireDelegatedAuth);
+  // All action execution routes require delegated auth and a per-user
+  // token-bucket limiter so a runaway client loop cannot burn Graph quota.
+  router.use(requireDelegatedAuth, actionRateLimit);
 
   // POST /api/actions/bulk — fan out an action across many devices.
-  // `retire` and `rotate-laps` are allowed here because they have meaningful
-  // fleet-wide use cases (end-of-life cohorts, compliance-driven LAPS
-  // rotation) — but `wipe`, `autopilot-reset`, `rename`, and the three
-  // `delete-*` cleanups are deliberately excluded. Those remain
-  // single-device clicks so an operator cannot fat-finger a destructive
-  // multi-device run.
+  // Only non-destructive or fully reversible actions are allowed in bulk.
+  // `retire`, `wipe`, `autopilot-reset`, `rename`, and the `delete-*`
+  // cleanups all remain single-device clicks so an operator cannot
+  // fat-finger an irreversible multi-device run.
   const BULK_ALLOWED: ReadonlySet<RemoteActionType> = new Set([
     "sync",
     "reboot",
-    "retire",
     "rotate-laps"
   ]);
   router.post("/bulk", async (request, response) => {
@@ -129,7 +121,7 @@ export function actionsRouter(db: Database.Database) {
 
     for (const rawKey of deviceKeys) {
       const deviceKey = String(rawKey ?? "");
-      const device = getDeviceInfo(db, deviceKey);
+      const device = getDeviceIdentity(db, deviceKey);
       if (!device || !device.intune_id) {
         results.push({
           deviceKey,
@@ -149,9 +141,6 @@ export function actionsRouter(db: Database.Database) {
             break;
           case "reboot":
             result = await rebootDevice(token, bulkIntuneId);
-            break;
-          case "retire":
-            result = await retireDevice(token, bulkIntuneId);
             break;
           case "rotate-laps":
             result = await rotateLapsPassword(token, bulkIntuneId);
@@ -202,7 +191,7 @@ export function actionsRouter(db: Database.Database) {
       return;
     }
 
-    const device = getDeviceInfo(db, deviceKey);
+    const device = getDeviceIdentity(db, deviceKey);
     if (!device) {
       response.status(404).json({ message: "Device not found." });
       return;

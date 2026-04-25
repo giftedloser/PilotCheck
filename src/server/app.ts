@@ -9,6 +9,7 @@ import type Database from "better-sqlite3";
 import { config } from "./config.js";
 import { logger } from "./logger.js";
 import { requireAppAccess } from "./auth/auth-middleware.js";
+import { requireLocalAccess } from "./auth/local-access.js";
 import { actionsRouter } from "./routes/actions.js";
 import { autopilotImportRouter } from "./routes/autopilot-import.js";
 import { authRouter } from "./routes/auth.js";
@@ -66,6 +67,12 @@ export function createApp(db: Database.Database) {
   app.get("/healthz", healthzHandler(db));
   app.use("/api/health", healthRouter(db));
   app.use("/api/auth", authRouter());
+  // Every /api/* route below this line requires a local Runway client:
+  // the desktop sidecar's token, a delegated admin session, or the
+  // Entra-backed app-access session. Mutating methods additionally must
+  // come from an allowed Origin so a stray browser tab on the same box
+  // cannot pivot off the user's cookies.
+  app.use("/api", requireLocalAccess);
   if (config.isAppAccessRequired) {
     app.use("/api", requireAppAccess);
   }

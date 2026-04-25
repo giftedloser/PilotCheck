@@ -5,7 +5,6 @@ import {
   Loader2,
   RefreshCw,
   RotateCcw,
-  Trash2,
   X
 } from "lucide-react";
 import { useEffect } from "react";
@@ -14,7 +13,7 @@ import type { DeviceListItem, HealthLevel } from "../../lib/types.js";
 import { cn } from "../../lib/utils.js";
 import { Button } from "../ui/button.js";
 
-export type BulkActionType = "sync" | "reboot" | "retire" | "rotate-laps";
+export type BulkActionType = "sync" | "reboot" | "rotate-laps";
 
 export interface BulkDeviceResult {
   deviceKey: string;
@@ -59,16 +58,6 @@ const ACTION_META: Record<
     verb: "Reboot",
     warning:
       "Reboots are disruptive. Confirm the device list above matches your intended scope before continuing."
-  },
-  retire: {
-    title: "Retire selected devices?",
-    description:
-      "Each device will be retired from Intune — company data is removed, personal data is preserved. The device unenrolls.",
-    destructive: true,
-    icon: Trash2,
-    verb: "Retire",
-    warning:
-      "Retire is a one-way trip. These devices will unenroll from Intune and stop receiving policies."
   },
   "rotate-laps": {
     title: "Rotate LAPS passwords?",

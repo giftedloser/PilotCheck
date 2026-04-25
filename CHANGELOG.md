@@ -10,6 +10,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **`/api/*` is now gated end-to-end.** New `requireLocalAccess`
+  middleware admits a request only when it carries the per-install
+  desktop token, a delegated admin session, or an Entra app-access
+  session. Mutating methods additionally enforce an Origin allowlist
+  (loopback / `tauri://`) so a stray browser tab on the same workstation
+  cannot pivot off the user's cookies. Closes the gap where read routes
+  were reachable from any local process when `APP_ACCESS_MODE=disabled`.
+- **`SESSION_SECRET` is auto-generated on first run** and persisted to
+  `.env` (mode 0600). Packaged desktop builds previously failed to start
+  with `NODE_ENV=production` and no pre-existing secret.
+- **First-run Graph wizard** now requires a real Entra-shaped client
+  secret (≥32 chars, placeholder-rejecting) before writing it to disk.
+- **Per-user rate limit** on `/api/actions/*` (token bucket: burst 30,
+  sustained 1/s) so a runaway client loop cannot burn Graph quota.
+- **Bulk `retire` removed.** Bulk actions are now `sync`, `reboot`,
+  `rotate-laps` only — destructive multi-device actions stay one-click-
+  per-device.
+- `getDelegatedToken` throws when called without a session instead of
+  returning a `!`-narrowed `undefined`, so a future middleware reorder
+  cannot leak an unauthenticated request to Microsoft Graph.
+- Desktop token header is no longer attached to absolute external URLs.
+
+### Performance
+
+- Rule and tag-config CRUD no longer block the event loop on a
+  multi-thousand-device fleet. A debounced `scheduleRecompute` coalesces
+  bursts and runs `computeAllDeviceStates` on `setImmediate`.
+- Graph `Retry-After` is clamped to 1–60s so a misbehaving response can
+  no longer hang an entire sync.
+
+### Changed
+
+- Rule predicate evaluation errors are logged once per rule instead of
+  silently no-op'ing across the fleet.
+- First-run mock seeding flows through `fullSync` (single trigger in
+  `index.ts`) and respects `SEED_MODE=none`.
+- Centralized `getDeviceIdentity` shared by actions, LAPS, and BitLocker
+  routes; `safeJsonParse` consolidated to one definition.
+- Dead `RemoteActionType` (snake-case) removed from the actions module
+  in favor of the shared kebab-case type.
+
 ### Added
 
 - SCCM / ConfigMgr signal hardening: device detail now distinguishes

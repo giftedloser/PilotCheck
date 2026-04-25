@@ -1,5 +1,5 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Download, Filter, KeyRound, Loader2, RefreshCw, RotateCcw, Rows2, Rows3, Trash2, X } from "lucide-react";
+import { Download, Filter, KeyRound, Loader2, RefreshCw, RotateCcw, Rows2, Rows3, X } from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -70,7 +70,6 @@ export function DeviceListPage() {
   const ACTION_LABELS: Record<BulkActionType, string> = {
     sync: "Sync",
     reboot: "Reboot",
-    retire: "Retire",
     "rotate-laps": "Rotate LAPS"
   };
 
@@ -329,19 +328,6 @@ export function DeviceListPage() {
                 <KeyRound className="h-3 w-3" />
               )}
               Rotate LAPS
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => requestBulk("retire")}
-              disabled={bulkBusy !== null}
-              className="h-7 px-2.5 text-[11px]"
-            >
-              {bulkBusy === "retire" ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <Trash2 className="h-3 w-3" />
-              )}
-              Bulk retire
             </Button>
             <button
               type="button"

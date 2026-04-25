@@ -66,9 +66,11 @@ function emitUnauthenticated(path: string, message: string) {
 
 export async function apiRequest<T>(path: string, init?: RequestInit) {
   const requestUrl = resolveRequestUrl(path);
-  const desktopToken = await getDesktopApiToken();
+  const isAbsoluteExternal = /^https?:\/\//.test(path);
+  const desktopToken = isAbsoluteExternal ? null : await getDesktopApiToken();
   const headers = new Headers(init?.headers);
-  if (!headers.has("Content-Type")) {
+  // Only declare a Content-Type when there is actually a body to describe.
+  if (init?.body != null && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
   if (desktopToken) {

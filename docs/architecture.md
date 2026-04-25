@@ -75,6 +75,32 @@ no external state — everything runs on one machine.
 | `sync_log`             | One row per sync attempt                                |
 | `action_log`           | One row per remote action dispatched                    |
 
+## API access model
+
+Every request to `/api/*` passes through `requireLocalAccess`
+([src/server/auth/local-access.ts](../src/server/auth/local-access.ts))
+before hitting any route. A request is admitted when one of:
+
+1. The `X-Runway-Desktop-Token` header matches the per-install token
+   the Tauri shell generates and exposes via the `get_desktop_api_token`
+   command.
+2. The session has a valid delegated admin token (set after Microsoft
+   sign-in).
+3. The session has a valid Entra app-access user (set after the gate
+   sign-in).
+
+Mutating methods (POST/PUT/PATCH/DELETE) additionally require an `Origin`
+that is loopback or `tauri://` so a stray browser tab on the same
+workstation cannot pivot off the user's cookies. Within the actions
+subtree, a per-user token-bucket limiter (burst 30, sustained 1/s)
+prevents a runaway client from burning Graph quota.
+
+The recompute scheduler
+([src/server/engine/recompute-scheduler.ts](../src/server/engine/recompute-scheduler.ts))
+debounces engine reruns triggered by rule and tag-config CRUD so route
+handlers return immediately and the event loop stays responsive on
+multi-thousand-device fleets.
+
 ## SCCM / ConfigMgr boundary
 
 Runway v1 does not have a direct Configuration Manager connector. It does not

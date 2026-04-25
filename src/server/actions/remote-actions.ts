@@ -1,17 +1,6 @@
 import { requestWithDelegatedToken } from "../auth/delegated-auth.js";
 import { graphPathSegment, graphUserRef } from "./graph-url.js";
 
-export type RemoteActionType =
-  | "sync_device"
-  | "reboot"
-  | "rename"
-  | "autopilot_reset"
-  | "retire"
-  | "wipe"
-  | "rotate_laps"
-  | "delete_intune"
-  | "delete_autopilot";
-
 interface ActionResult {
   success: boolean;
   status: number;

@@ -4,6 +4,13 @@ import type {
   RulePredicate,
   RuleViolation
 } from "../../shared/types.js";
+import { logger } from "../logger.js";
+
+// Track which rules have already logged a predicate error during this
+// process lifetime so we don't spam the log every recompute. The set is
+// keyed by ruleId so a fix that flips the predicate back to valid will
+// silently start matching again on next eval.
+const loggedPredicateErrors = new Set<string>();
 
 /**
  * Flat record of fields the rule DSL can evaluate against. Keep this in
@@ -31,11 +38,18 @@ export function evaluateRules(
     let matched = false;
     try {
       matched = evalPredicate(rule.predicate, context);
-    } catch {
-      // A malformed predicate must never crash the sync — silently
-      // treat it as "did not match" and let the UI surface the error
-      // separately if needed.
+    } catch (error) {
+      // A malformed predicate must never crash the sync. Treat as
+      // "did not match", but log once per rule so a broken rule is
+      // discoverable instead of silently no-op'ing across the fleet.
       matched = false;
+      if (!loggedPredicateErrors.has(rule.id)) {
+        loggedPredicateErrors.add(rule.id);
+        logger.warn(
+          { err: error, ruleId: rule.id, ruleName: rule.name },
+          "Rule predicate threw during evaluation; rule will not match until fixed."
+        );
+      }
     }
     if (matched) {
       violations.push({

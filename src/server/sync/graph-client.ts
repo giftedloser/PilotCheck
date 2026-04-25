@@ -48,7 +48,12 @@ export class GraphClient {
       );
 
       if ((response.status === 429 || response.status >= 500) && attempt < 3) {
-        const retryAfter = Number(response.headers.get("Retry-After") ?? "2");
+        const raw = Number(response.headers.get("Retry-After") ?? "2");
+        // Cap at 60s so a misbehaving Graph response cannot hang the
+        // whole sync. Floor at 1s to avoid hot-loops.
+        const retryAfter = Number.isFinite(raw)
+          ? Math.min(Math.max(raw, 1), 60)
+          : 2;
         await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
         return this.requestJson<T>(path, version, attempt + 1);
       }

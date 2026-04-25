@@ -2,10 +2,9 @@ import { createApp } from "./app.js";
 import { config } from "./config.js";
 import { getDb } from "./db/database.js";
 import { runMigrations } from "./db/migrate.js";
-import { seedMockData } from "./db/seed.js";
 import { logger } from "./logger.js";
 import { startRetentionScheduler } from "./maintenance/retention.js";
-import { startBackgroundSync, fullSync } from "./sync/sync-service.js";
+import { fullSync, startBackgroundSync } from "./sync/sync-service.js";
 
 async function bootstrap() {
   const db = getDb();
@@ -14,13 +13,11 @@ async function bootstrap() {
   const stateCount = (db.prepare("SELECT COUNT(*) as count FROM device_state").get() as { count: number })
     .count;
 
-  if (stateCount === 0 && config.SEED_MODE === "mock" && !config.isGraphConfigured) {
-    await seedMockData(db);
-  }
-
-  if (stateCount === 0 && config.isGraphConfigured) {
+  // First-run seed/sync. fullSync owns the mock-vs-real branching now —
+  // we just trigger it once here when device_state is empty.
+  if (stateCount === 0) {
     fullSync(db, "full").catch((error) => {
-      logger.error({ err: error }, "Initial sync failed.");
+      logger.error({ err: error }, "Initial sync/seed failed.");
     });
   }
 

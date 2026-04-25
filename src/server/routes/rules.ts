@@ -12,8 +12,8 @@ import {
   updateRule,
   type RuleInput
 } from "../db/queries/rules.js";
-import { computeAllDeviceStates } from "../engine/compute-all-device-states.js";
 import { previewRule } from "../engine/preview-rule.js";
+import { scheduleRecompute } from "../engine/recompute-scheduler.js";
 import { logger } from "../logger.js";
 
 const opSchema = z.enum([
@@ -116,7 +116,7 @@ export function rulesRouter(db: Database.Database) {
       return;
     }
     const created = createRule(db, result.data as RuleInput);
-    try { computeAllDeviceStates(db); } catch (error) { logger.error({ err: error }, "Failed to recompute device states after rule creation"); }
+    scheduleRecompute(db);
     response.status(201).json(created);
   });
 
@@ -131,7 +131,7 @@ export function rulesRouter(db: Database.Database) {
       response.status(404).json({ message: "Rule not found." });
       return;
     }
-    try { computeAllDeviceStates(db); } catch (error) { logger.error({ err: error }, "Failed to recompute device states after rule update"); }
+    scheduleRecompute(db);
     response.json(updated);
   });
 
@@ -141,7 +141,7 @@ export function rulesRouter(db: Database.Database) {
       response.status(404).json({ message: "Rule not found." });
       return;
     }
-    try { computeAllDeviceStates(db); } catch (error) { logger.error({ err: error }, "Failed to recompute device states after rule deletion"); }
+    scheduleRecompute(db);
     response.status(204).send();
   });
 
