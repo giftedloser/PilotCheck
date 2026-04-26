@@ -1,6 +1,5 @@
 ﻿import { useRef, useState } from "react";
 import {
-  AlertTriangle,
   Cable,
   CheckCircle2,
   Download,
@@ -998,4 +997,3 @@ export function SettingsPage() {
     </div>
   );
 }
-

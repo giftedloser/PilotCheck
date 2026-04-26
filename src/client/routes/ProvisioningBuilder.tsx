@@ -11,9 +11,7 @@ import {
   ShieldCheck,
   StretchHorizontal,
   Tag,
-  Upload,
   Users,
-  XCircle,
 } from "lucide-react";
 
 import { PageHeader } from "../components/layout/PageHeader.js";
