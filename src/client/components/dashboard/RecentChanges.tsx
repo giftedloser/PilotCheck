@@ -176,7 +176,7 @@ export function RecentChanges({ transitions }: { transitions: RecentTransition[]
 
 function Pill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded bg-black/30 px-1.5 py-0.5 text-[10px] tabular-nums">{children}</span>
+    <span className="rounded bg-[var(--pc-tint-hover)] px-1.5 py-0.5 text-[10px] tabular-nums">{children}</span>
   );
 }
 
@@ -193,9 +193,9 @@ function FilterChip({
 }) {
   const activeStyle =
     tone === "critical"
-      ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-rose-100"
+      ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
       : tone === "healthy"
-        ? "border-[var(--pc-healthy)]/50 bg-[var(--pc-healthy-muted)] text-emerald-100"
+        ? "border-[var(--pc-healthy)]/50 bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
         : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-[var(--pc-text)]";
   return (
     <button

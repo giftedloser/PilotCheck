@@ -58,7 +58,7 @@ export function ProfileHealthBreakdown({ profile }: { profile: ProfileAuditSumma
               }`}
             >
               <div className="flex items-center gap-1.5">
-                <span className={`h-1.5 w-1.5 rounded-full ${dotColors[key] ?? "bg-slate-500"}`} />
+                <span className={`h-1.5 w-1.5 rounded-full ${dotColors[key] ?? "bg-[var(--pc-text-muted)]"}`} />
                 <span className="text-[11px] capitalize text-[var(--pc-text-muted)]">{key}</span>
               </div>
               <div className="mt-1 text-[20px] font-semibold tabular-nums text-[var(--pc-text)]">{value}</div>

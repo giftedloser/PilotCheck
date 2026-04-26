@@ -24,7 +24,7 @@ function NotFoundPage() {
       </p>
       <Link
         to="/"
-        className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[var(--pc-accent)] px-4 py-2 text-sm font-medium text-white shadow-sm transition-[background-color,box-shadow] hover:bg-[var(--pc-accent-hover)] hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+        className="mt-2 inline-flex items-center gap-2 rounded-lg bg-[var(--pc-accent)] px-4 py-2 text-sm font-medium text-[var(--pc-accent-contrast)] shadow-sm transition-[background-color,box-shadow] hover:bg-[var(--pc-accent-hover)] hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
       >
         Back to Dashboard
       </Link>

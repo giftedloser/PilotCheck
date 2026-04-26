@@ -105,7 +105,7 @@ export function Sidebar() {
   })();
 
   return (
-    <aside className="flex h-auto w-full shrink-0 flex-col border-b border-[var(--pc-sidebar-border)] bg-[var(--pc-sidebar-bg)] text-[var(--pc-sidebar-text)] lg:sticky lg:top-0 lg:h-[calc(100vh-var(--pc-titlebar-height,0px))] lg:w-[218px] lg:self-start lg:border-b-0 lg:border-r">
+    <aside className="flex h-auto w-full shrink-0 flex-col border-b border-[var(--pc-sidebar-border)] bg-[var(--pc-sidebar-bg)] text-[var(--pc-sidebar-text)] lg:sticky lg:top-0 lg:h-[calc(100vh-var(--pc-titlebar-height,0px))] lg:w-[218px] lg:self-start lg:overflow-hidden lg:border-b-0 lg:border-r">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-3 py-2.5 lg:px-4 lg:py-3">
         <img
@@ -154,7 +154,7 @@ export function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex flex-1 gap-1.5 overflow-x-auto overscroll-x-contain px-3 pb-3 lg:mt-1 lg:flex-col lg:gap-2.5 lg:overflow-y-auto lg:px-3">
+      <nav className="flex flex-1 gap-1.5 overflow-x-auto overscroll-x-contain px-3 pb-3 lg:mt-1 lg:min-h-0 lg:flex-col lg:gap-2.5 lg:overflow-y-hidden lg:px-3">
         {navGroups.map((group) => (
           <div
             key={group.label}

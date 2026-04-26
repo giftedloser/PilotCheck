@@ -122,10 +122,10 @@ export function SyncStatusPage() {
           <div className="flex items-start gap-2">
             <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-critical)]" />
             <div>
-              <div className="text-[13px] font-medium text-rose-200">
+              <div className="text-[13px] font-medium text-[var(--pc-critical)]">
                 Last Error
               </div>
-              <div className="mt-0.5 font-mono text-[12px] text-rose-300">
+              <div className="mt-0.5 font-mono text-[12px] text-[var(--pc-critical)]">
                 {status.data.lastError}
               </div>
             </div>
@@ -212,11 +212,11 @@ export function SyncStatusPage() {
                       <td className="px-5 py-3 text-[var(--pc-text-secondary)]">
                         {hasErrors ? (
                           <details className="group">
-                            <summary className="cursor-pointer text-[var(--pc-critical)] hover:text-rose-300">
+                            <summary className="cursor-pointer text-[var(--pc-critical)] hover:text-[var(--pc-critical)]/80">
                               {entry.errors.length} error
                               {entry.errors.length === 1 ? "" : "s"}
                             </summary>
-                            <ul className="mt-2 space-y-1 pl-3 text-[11.5px] text-rose-300/90">
+                            <ul className="mt-2 space-y-1 pl-3 text-[11.5px] text-[var(--pc-critical)]">
                               {entry.errors.map((err, idx) => (
                                 <li key={idx} className="font-mono">
                                   • {err}

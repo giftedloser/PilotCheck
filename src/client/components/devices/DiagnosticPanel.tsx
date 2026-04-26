@@ -63,11 +63,11 @@ export function DiagnosticPanel({ device }: { device: DeviceDetailResponse }) {
         <div
           className={`text-[13px] leading-relaxed ${
             device.summary.health === "critical"
-              ? "text-red-100"
+              ? "text-[var(--pc-critical)]"
               : device.summary.health === "healthy"
-                ? "text-emerald-100"
+                ? "text-[var(--pc-healthy)]"
                 : device.summary.health === "info"
-                  ? "text-sky-100"
+                  ? "text-[var(--pc-info)]"
                   : "text-[var(--pc-warning)]"
           }`}
         >
@@ -80,7 +80,7 @@ export function DiagnosticPanel({ device }: { device: DeviceDetailResponse }) {
         <div className="flex items-center gap-3 rounded-lg border border-dashed border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy-muted)] px-4 py-3">
           <CheckCircle className="h-4 w-4 text-[var(--pc-healthy)]" />
           <div>
-            <div className="text-[13px] font-medium text-emerald-100">No issues detected</div>
+            <div className="text-[13px] font-medium text-[var(--pc-healthy)]">No issues detected</div>
             <div className="text-[11.5px] text-[var(--pc-healthy)]/70">
               The state engine found no problems with this device's identity, targeting, enrollment, or drift posture.
             </div>

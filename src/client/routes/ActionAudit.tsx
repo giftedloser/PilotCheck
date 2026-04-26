@@ -22,6 +22,7 @@ import { useMemo, useState } from "react";
 
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
+import { Button } from "../components/ui/button.js";
 import { Card } from "../components/ui/card.js";
 import { useActionLogs } from "../hooks/useActions.js";
 import { useAuthStatus, useLogin } from "../hooks/useAuth.js";
@@ -114,19 +115,17 @@ export function ActionAuditPage() {
               </div>
             </div>
           </div>
-          <button
-            type="button"
+          <Button
             onClick={() => login.mutate()}
             disabled={login.isPending || !login.canStart}
             title={login.blockedReason ?? undefined}
-            className="rounded-md border border-[var(--pc-border)] bg-[var(--pc-accent)] px-3 py-1.5 text-[12px] font-medium text-[var(--pc-text)] transition-colors hover:bg-[var(--pc-accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)] disabled:opacity-60"
           >
             {!login.canStart
               ? "Unavailable"
               : login.isPending
                 ? "Opening…"
                 : "Sign in"}
-          </button>
+          </Button>
         </Card>
       </div>
     );
@@ -325,7 +324,7 @@ export function ActionAuditPage() {
                           "mt-1.5 line-clamp-2 text-[11.5px]",
                           ok
                             ? "text-[var(--pc-text-secondary)]"
-                            : "text-rose-300/90",
+                            : "text-[var(--pc-critical)]",
                         )}
                       >
                         {entry.notes}
@@ -394,15 +393,15 @@ function FilterChip({
         "inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]",
         active
           ? tone === "healthy"
-            ? "border-[var(--pc-healthy)]/50 bg-[var(--pc-healthy-muted)] text-emerald-100"
+            ? "border-[var(--pc-healthy)]/50 bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
             : tone === "critical"
-              ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-rose-100"
+              ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
               : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-[var(--pc-text)]"
           : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-secondary)] hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)]",
       )}
     >
       {label}
-      <span className="rounded bg-black/30 px-1.5 py-0.5 text-[10px] tabular-nums">
+      <span className="rounded bg-[var(--pc-tint-hover)] px-1.5 py-0.5 text-[10px] tabular-nums">
         {count}
       </span>
     </button>

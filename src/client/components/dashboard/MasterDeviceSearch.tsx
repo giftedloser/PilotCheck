@@ -138,7 +138,7 @@ export function MasterDeviceSearch() {
               </div>
               <button
                 type="submit"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--pc-accent)] px-4 text-[13px] font-semibold text-white transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[var(--pc-accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--pc-accent)] px-4 text-[13px] font-semibold text-[var(--pc-accent-contrast)] transition-[background-color,transform] hover:-translate-y-0.5 hover:bg-[var(--pc-accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
               >
                 <TabletSmartphone className="h-4 w-4" />
                 Search devices

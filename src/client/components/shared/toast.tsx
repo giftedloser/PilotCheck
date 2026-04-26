@@ -111,13 +111,13 @@ const ICONS: Record<ToastVariant, typeof CheckCircle2> = {
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
   success:
-    "border-[var(--pc-healthy)]/40 bg-[var(--pc-healthy-muted)]/95 text-emerald-50",
+    "border-[var(--pc-healthy)]/40 bg-[var(--pc-healthy-muted)]/95 text-[var(--pc-healthy)]",
   error:
-    "border-[var(--pc-critical)]/40 bg-[var(--pc-critical-muted)]/95 text-red-50",
+    "border-[var(--pc-critical)]/40 bg-[var(--pc-critical-muted)]/95 text-[var(--pc-critical)]",
   warning:
-    "border-[var(--pc-warning)]/40 bg-[var(--pc-warning-muted)]/95 text-amber-50",
+    "border-[var(--pc-warning)]/40 bg-[var(--pc-warning-muted)]/95 text-[var(--pc-warning)]",
   info:
-    "border-[var(--pc-info)]/40 bg-[var(--pc-info-muted)]/95 text-sky-50"
+    "border-[var(--pc-info)]/40 bg-[var(--pc-info-muted)]/95 text-[var(--pc-info)]"
 };
 
 const ICON_STYLES: Record<ToastVariant, string> = {

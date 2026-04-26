@@ -65,7 +65,7 @@ export function ColumnPicker({ value, onChange }: ColumnPickerProps) {
       >
         <Columns3 className="h-3 w-3" />
         Columns
-        <span className="rounded bg-black/30 px-1 py-px text-[9.5px] tabular-nums text-[var(--pc-text-muted)]">
+        <span className="rounded bg-[var(--pc-tint-hover)] px-1 py-px text-[9.5px] tabular-nums text-[var(--pc-text-muted)]">
           {enabledCount}
         </span>
       </button>
@@ -99,7 +99,7 @@ export function ColumnPicker({ value, onChange }: ColumnPickerProps) {
                       className={cn(
                         "flex h-3.5 w-3.5 items-center justify-center rounded border",
                         isEnabled
-                          ? "border-[var(--pc-accent)] bg-[var(--pc-accent)] text-black"
+                          ? "border-[var(--pc-accent)] bg-[var(--pc-accent)] text-[var(--pc-accent-contrast)]"
                           : "border-[var(--pc-border)]"
                       )}
                     >

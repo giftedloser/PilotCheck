@@ -154,7 +154,7 @@ export function IdentityPanel({
       {identity.identityConflict ? (
         <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)] px-3.5 py-2.5">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-critical)]" />
-          <div className="text-[12px] leading-relaxed text-red-100">
+          <div className="text-[12px] leading-relaxed text-[var(--pc-critical)]">
             <span className="font-semibold">Identity conflict detected.</span> Two or more services
             reference this device with different identifiers. Treat the correlation below with caution
             until the duplicate has been retired or the records re-keyed.

@@ -414,7 +414,7 @@ function MemberFilterChip({
 }) {
   const activeStyle =
     tone === "critical"
-      ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-rose-100"
+      ? "border-[var(--pc-critical)]/50 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
       : tone === "warning"
         ? "border-[var(--pc-warning)]/50 bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]"
         : "border-[var(--pc-accent)]/60 bg-[var(--pc-accent-muted)] text-[var(--pc-text)]";

@@ -81,7 +81,7 @@ export function DesktopBootstrap({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-lg bg-[var(--pc-accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--pc-accent-hover)]"
+            className="rounded-lg bg-[var(--pc-accent)] px-4 py-2 text-sm font-medium text-[var(--pc-accent-contrast)] transition-colors hover:bg-[var(--pc-accent-hover)]"
           >
             {timedOut ? "Retry startup" : "Refresh"}
           </button>

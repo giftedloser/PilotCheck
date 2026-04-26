@@ -317,6 +317,7 @@ export function DeviceListPage() {
               variant="secondary"
               onClick={() => requestBulk("sync")}
               disabled={bulkBusy !== null}
+              title={bulkBusy !== null ? "Another bulk action is running" : "Sync selected devices"}
               className="h-7 px-2.5 text-[11px]"
             >
               {bulkBusy === "sync" ? (
@@ -330,6 +331,7 @@ export function DeviceListPage() {
               variant="secondary"
               onClick={() => requestBulk("reboot")}
               disabled={bulkBusy !== null}
+              title={bulkBusy !== null ? "Another bulk action is running" : "Reboot selected devices"}
               className="h-7 px-2.5 text-[11px]"
             >
               {bulkBusy === "reboot" ? (
@@ -343,6 +345,7 @@ export function DeviceListPage() {
               variant="secondary"
               onClick={() => requestBulk("rotate-laps")}
               disabled={bulkBusy !== null}
+              title={bulkBusy !== null ? "Another bulk action is running" : "Rotate LAPS passwords"}
               className="h-7 px-2.5 text-[11px]"
             >
               {bulkBusy === "rotate-laps" ? (

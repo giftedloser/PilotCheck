@@ -176,10 +176,10 @@ function BreakpointChip({
     count === 0
       ? "border-[var(--pc-healthy)]/30 bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
       : severity === "critical"
-        ? "border-[var(--pc-critical)]/40 bg-[var(--pc-critical-muted)] text-rose-100"
+        ? "border-[var(--pc-critical)]/40 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
         : severity === "warning"
           ? "border-[var(--pc-warning)]/40 bg-[var(--pc-warning-muted)] text-[var(--pc-warning)]"
-          : "border-[var(--pc-info)]/40 bg-[var(--pc-info-muted)] text-sky-100";
+          : "border-[var(--pc-info)]/40 bg-[var(--pc-info-muted)] text-[var(--pc-info)]";
   const title =
     count === 0
       ? `${meta.label}: clear — ${meta.description}`
