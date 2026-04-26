@@ -107,7 +107,7 @@ export function ConfirmDialog({
             type="button"
             onClick={onCancel}
             aria-label="Close dialog"
-            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
+            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
           >
             <X className="h-4 w-4" />
           </button>

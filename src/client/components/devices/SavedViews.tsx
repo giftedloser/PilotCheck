@@ -279,7 +279,7 @@ export function SavedViews() {
             <button
               type="submit"
               disabled={!newName.trim() || create.isPending}
-              className="rounded-full bg-[var(--pc-accent)] px-2 py-0.5 text-[10px] font-semibold text-[var(--pc-accent-contrast)] transition-opacity disabled:opacity-50"
+              className="rounded-full bg-[var(--pc-accent)] px-2 py-0.5 text-[10px] font-semibold text-[var(--pc-accent-contrast)] transition-opacity disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
             >
               Save
             </button>

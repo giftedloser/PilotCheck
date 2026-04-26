@@ -133,7 +133,7 @@ export function LapsWidget({ device }: { device: DeviceDetailResponse }) {
                 <button
                   type="button"
                   onClick={() => setRevealed((value) => !value)}
-                  className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
+                  className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
                   title={revealed ? "Hide" : "Show"}
                 >
                   {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
@@ -141,7 +141,7 @@ export function LapsWidget({ device }: { device: DeviceDetailResponse }) {
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
+                  className="rounded p-1.5 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
                   title="Copy to clipboard"
                 >
                   <Copy className="h-3.5 w-3.5" />

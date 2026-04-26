@@ -110,7 +110,7 @@ export function DeviceTable({
               <button
                 type="button"
                 onClick={onClearFilters}
-                className="mt-4 rounded-md border border-[var(--pc-border)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/50 hover:text-[var(--pc-text)]"
+                className="mt-4 rounded-md border border-[var(--pc-border)] px-3.5 py-1.5 text-[12px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/50 hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
               >
                 Clear all filters
               </button>

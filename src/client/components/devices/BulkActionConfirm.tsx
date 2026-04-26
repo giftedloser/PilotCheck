@@ -166,7 +166,7 @@ export function BulkActionConfirm({
             onClick={onCancel}
             disabled={busy}
             aria-label={phase === "completed" ? "Close" : "Cancel"}
-            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] disabled:opacity-50"
+            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
           >
             <X className="h-3.5 w-3.5" />
           </button>

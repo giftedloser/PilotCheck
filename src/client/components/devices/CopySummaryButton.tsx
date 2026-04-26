@@ -84,7 +84,7 @@ export function CopySummaryButton({ device }: CopySummaryButtonProps) {
     <button
       type="button"
       onClick={onCopy}
-      className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] text-[var(--pc-text-secondary)] transition-colors hover:bg-[var(--pc-tint-subtle)] hover:text-[var(--pc-text)]"
+      className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] text-[var(--pc-text-secondary)] transition-colors hover:bg-[var(--pc-tint-subtle)] hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
       title="Copy a text summary of this device to the clipboard"
     >
       <ClipboardCopy className="h-3 w-3" />

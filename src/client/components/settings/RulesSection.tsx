@@ -442,7 +442,7 @@ export function RulesSection() {
               >
                 <button
                   type="button"
-                  className="mt-0.5 text-[var(--pc-text-muted)] hover:text-[var(--pc-accent)]"
+                  className="mt-0.5 text-[var(--pc-text-muted)] hover:text-[var(--pc-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
                   title={
                     !isAuthed
                       ? "Sign in as an admin to change rules"

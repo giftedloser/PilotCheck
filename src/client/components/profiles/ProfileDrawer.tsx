@@ -116,7 +116,7 @@ export function ProfileDrawer({
           <button
             type="button"
             onClick={onClose}
-            className="text-[var(--pc-text-muted)] transition-colors hover:text-[var(--pc-text)]"
+            className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
             aria-label="Close drawer"
           >
             <X className="h-4 w-4" />

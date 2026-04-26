@@ -31,7 +31,7 @@ export function ProfileCard({
           type="button"
           onClick={onInspect}
           disabled={!onInspect}
-          className="flex min-w-0 flex-1 items-start gap-3 text-left disabled:cursor-default"
+          className="flex min-w-0 flex-1 items-start gap-3 text-left disabled:cursor-default focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
           title={onInspect ? "Open profile inspector" : undefined}
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--pc-accent-muted)]">
@@ -58,7 +58,7 @@ export function ProfileCard({
             <button
               type="button"
               onClick={onInspect}
-              className="inline-flex items-center gap-1 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)]"
+              className="inline-flex items-center gap-1 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
               title="Open profile inspector drawer"
             >
               <Maximize2 className="h-3 w-3" />
