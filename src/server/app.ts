@@ -31,13 +31,22 @@ function isLoopbackHost(host: string) {
   return host === "127.0.0.1" || host === "::1" || host === "localhost";
 }
 
-const JSON_BODY_LIMIT = "1mb";
+// Default body limit is tight so a malformed or hostile POST cannot
+// fill memory before validation. The autopilot-import route is the
+// only routinely fat payload (hardware hashes); it gets its own
+// generous limit mounted directly on its prefix below.
+const DEFAULT_JSON_BODY_LIMIT = "32kb";
+const AUTOPILOT_IMPORT_JSON_BODY_LIMIT = "1mb";
 
 export function createApp(db: Database.Database) {
   const app = express();
 
-  app.use(express.json({ limit: JSON_BODY_LIMIT }));
   app.use(pinoHttp({ logger }));
+  app.use(
+    "/api/autopilot-import",
+    express.json({ limit: AUTOPILOT_IMPORT_JSON_BODY_LIMIT })
+  );
+  app.use(express.json({ limit: DEFAULT_JSON_BODY_LIMIT }));
 
   // Session middleware for delegated auth.
   // This server is intended to run on the admin workstation (Tauri sidecar)

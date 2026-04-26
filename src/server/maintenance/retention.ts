@@ -1,6 +1,7 @@
 import type Database from "better-sqlite3";
 
 import { config } from "../config.js";
+import { snapshotDatabase } from "../db/snapshot.js";
 import { logger } from "../logger.js";
 
 /**
@@ -36,6 +37,11 @@ function pruneOlderThan(
 }
 
 export function runRetention(db: Database.Database): RetentionResult {
+  // Snapshot before any DELETEs so a buggy retention window cannot
+  // silently shred history. Failure to snapshot does not block the
+  // sweep — the snapshot helper logs and continues.
+  snapshotDatabase(db, "pre-retention");
+
   const ranAt = new Date().toISOString();
   const deletedHistoryRows = pruneOlderThan(
     db,

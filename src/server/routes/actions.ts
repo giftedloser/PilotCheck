@@ -71,6 +71,50 @@ export function actionsRouter(db: Database.Database) {
     response.json(listActionLogs(db, limit));
   });
 
+  // GET /api/actions/logs/export — full audit trail as CSV or NDJSON
+  // for compliance review. No date range filter today — fleets that
+  // outgrow this can hit the SQLite directly.
+  router.get("/logs/export", requireDelegatedAuth, (request, response) => {
+    const format = request.query.format === "ndjson" ? "ndjson" : "csv";
+    const rows = listActionLogs(db, 100_000);
+    const stamp = new Date().toISOString().slice(0, 10);
+
+    if (format === "ndjson") {
+      response
+        .status(200)
+        .set("Content-Type", "application/x-ndjson; charset=utf-8")
+        .set("Content-Disposition", `attachment; filename="runway-action-log-${stamp}.ndjson"`);
+      for (const row of rows) response.write(JSON.stringify(row) + "\n");
+      response.end();
+      return;
+    }
+
+    const headers = [
+      "id",
+      "triggeredAt",
+      "actionType",
+      "deviceName",
+      "deviceSerial",
+      "intuneId",
+      "triggeredBy",
+      "graphResponseStatus",
+      "notes"
+    ] as const;
+    const escape = (value: unknown) => {
+      const text = value == null ? "" : String(value);
+      return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+    response
+      .status(200)
+      .set("Content-Type", "text/csv; charset=utf-8")
+      .set("Content-Disposition", `attachment; filename="runway-action-log-${stamp}.csv"`);
+    response.write(headers.join(",") + "\n");
+    for (const row of rows) {
+      response.write(headers.map((h) => escape(row[h])).join(",") + "\n");
+    }
+    response.end();
+  });
+
   // GET /api/actions/logs/:deviceKey — action history for a device
   router.get("/logs/:deviceKey", requireDelegatedAuth, (request, response) => {
     const deviceKey = String(request.params.deviceKey ?? "");

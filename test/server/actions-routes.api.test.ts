@@ -103,16 +103,17 @@ describe("POST /api/actions/bulk — guardrails", () => {
     expect(remoteActionMocks.autopilotReset).not.toHaveBeenCalled();
   });
 
-  it("allows retire and rotate-laps in bulk mode (high-value fleet ops)", async () => {
+  it("allows rotate-laps in bulk mode and rejects retire", async () => {
     const app = createApp(db);
     seedDevice(db, { deviceKey: "dev-1", intuneId: "intune-1" });
 
+    // Retire was removed from the bulk surface — irreversible actions
+    // stay one-click-per-device.
     const retire = await request(app)
       .post("/api/actions/bulk")
       .send({ action: "retire", deviceKeys: ["dev-1"] });
-    expect(retire.status).toBe(200);
-    expect(retire.body.successCount).toBe(1);
-    expect(remoteActionMocks.retireDevice).toHaveBeenCalledTimes(1);
+    expect(retire.status).toBe(400);
+    expect(remoteActionMocks.retireDevice).not.toHaveBeenCalled();
 
     const laps = await request(app)
       .post("/api/actions/bulk")

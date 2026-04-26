@@ -1,0 +1,70 @@
+import Database from "better-sqlite3";
+import request from "supertest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+describe("requireLocalAccess gate", () => {
+  let db: Database.Database;
+  let envBackup: NodeJS.ProcessEnv;
+
+  beforeEach(async () => {
+    envBackup = { ...process.env };
+    vi.resetModules();
+    // Force production-mode middleware (isDevOrTest=false) so the gate
+    // is the active guard, not the dev passthrough.
+    process.env.NODE_ENV = "production";
+    process.env.SESSION_SECRET = "long-test-session-secret-1234567890abcdef";
+    process.env.RUNWAY_DESKTOP_TOKEN = "x".repeat(40);
+    delete process.env.AZURE_TENANT_ID;
+    delete process.env.AZURE_CLIENT_ID;
+    delete process.env.AZURE_CLIENT_SECRET;
+    delete process.env.APP_ACCESS_MODE;
+
+    db = new Database(":memory:");
+    const { runMigrations } = await import("../../src/server/db/migrate.js");
+    runMigrations(db);
+  });
+
+  afterEach(() => {
+    db.close();
+    vi.resetModules();
+    process.env = envBackup;
+  });
+
+  it("rejects /api requests with no token, no session, no allowed origin", async () => {
+    const { createApp } = await import("../../src/server/app.js");
+    const app = createApp(db);
+    const res = await request(app).get("/api/devices");
+    expect(res.status).toBe(401);
+  });
+
+  it("admits /api requests carrying the desktop token", async () => {
+    const { createApp } = await import("../../src/server/app.js");
+    const app = createApp(db);
+    const res = await request(app)
+      .get("/api/devices")
+      .set("X-Runway-Desktop-Token", process.env.RUNWAY_DESKTOP_TOKEN!);
+    expect(res.status).toBe(200);
+  });
+
+  it("blocks mutating methods from a non-allowed origin", async () => {
+    const { createApp } = await import("../../src/server/app.js");
+    const app = createApp(db);
+    const res = await request(app)
+      .post("/api/sync/full")
+      .set("X-Runway-Desktop-Token", process.env.RUNWAY_DESKTOP_TOKEN!)
+      .set("Origin", "https://evil.example.com");
+    expect(res.status).toBe(403);
+  });
+
+  it("admits mutating requests from a tauri:// origin", async () => {
+    const { createApp } = await import("../../src/server/app.js");
+    const app = createApp(db);
+    const res = await request(app)
+      .post("/api/sync/full")
+      .set("X-Runway-Desktop-Token", process.env.RUNWAY_DESKTOP_TOKEN!)
+      .set("Origin", "tauri://localhost");
+    // Either succeeds or fails for a downstream reason — the only
+    // assertion that matters is that the origin guard didn't 403 it.
+    expect(res.status).not.toBe(403);
+  });
+});

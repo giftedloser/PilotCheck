@@ -10,6 +10,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Tier 2 hardening (post-audit)
+
+- **DB snapshot before destructive maintenance.** Every schema migration
+  (when applying any pending `*.sql`) and every retention sweep now
+  takes a checkpoint-then-copy snapshot into `<db-dir>/snapshots/`.
+  Last 3 per reason are retained; older ones are pruned.
+- **Per-route body limits.** Default JSON body limit dropped from 1MB
+  to 32KB. The autopilot-import endpoint keeps the 1MB ceiling for its
+  hardware-hash payloads. Stops a malformed POST from filling memory
+  before validation runs.
+- **In-app log viewer.** Pino now multistreams into a 500-entry ring
+  buffer; `GET /api/health/logs?level=warn&limit=200` exposes the
+  buffer to a future Settings panel and to ops investigating "why
+  didn't sync run". `dev:server` script pipes through `pino-pretty` to
+  preserve colored output locally.
+- **Audit log export.** `GET /api/actions/logs/export?format=csv|ndjson`
+  streams the full action audit trail with sensible Content-Disposition
+  headers. The Action Audit page has a new "Export CSV" button.
+- **Tests** for the new security gates and idempotency: 4 new
+  `requireLocalAccess` cases (no-creds reject, desktop-token admit,
+  cross-origin POST block, tauri-origin POST admit) and 3 new
+  Idempotency-Key replay cases (replay, conflict, malformed).
+
 ### Tier 1 hardening (post-audit)
 
 - **Certificate-based Graph auth** as an alternative to client secret.

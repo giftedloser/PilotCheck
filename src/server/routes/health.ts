@@ -4,6 +4,7 @@ import type Database from "better-sqlite3";
 
 import { requireDelegatedAuth } from "../auth/auth-middleware.js";
 import { config } from "../config.js";
+import { readRecentLogs } from "../logger.js";
 import {
   getLastRetentionResult,
   runRetention,
@@ -80,6 +81,21 @@ export function healthRouter(db: Database.Database) {
   router.post("/retention/run", requireDelegatedAuth, (_request, response) => {
     const result = runRetention(db);
     response.json(result);
+  });
+
+  // GET /api/health/logs — recent in-memory log buffer. Useful for the
+  // in-app diagnostics panel and for ops investigating "why didn't sync
+  // run". Capped at 500 entries; older lines are still in the
+  // process's stdout / Tauri sidecar log on disk.
+  router.get("/logs", requireDelegatedAuth, (request, response) => {
+    const level = typeof request.query.level === "string" ? request.query.level : undefined;
+    const limit = Number(request.query.limit);
+    response.json(
+      readRecentLogs({
+        level,
+        limit: Number.isFinite(limit) ? limit : 200
+      })
+    );
   });
 
   return router;

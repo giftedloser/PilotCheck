@@ -4,6 +4,7 @@ import {
   AlertCircle,
   CheckCircle,
   ChevronRight,
+  Download,
   Eraser,
   History,
   Loader2,
@@ -141,6 +142,15 @@ export function ActionAuditPage() {
         eyebrow="System"
         title="Action Audit"
         description="Cross-device timeline of every remote action dispatched from Runway. Use this when an operator needs to confirm a fix landed, or when investigating a fleet-wide incident."
+        actions={
+          <a
+            href="/api/actions/logs/export?format=csv"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface)] px-2.5 py-1 text-[11px] text-[var(--pc-text)] transition-colors hover:bg-[var(--pc-tint-hover)]"
+          >
+            <Download className="h-3 w-3" />
+            Export CSV
+          </a>
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">

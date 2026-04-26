@@ -241,7 +241,7 @@ describe("delegated auth flow", () => {
     const payload = {
       tenantId: "11111111-1111-1111-1111-111111111111",
       clientId: "22222222-2222-2222-2222-222222222222",
-      clientSecret: "new-client-secret-value"
+      clientSecret: "new-client-secret-value-with-enough-chars-to-pass-validation"
     };
 
     await request(app).post("/api/settings/graph").send(payload).expect(403);
