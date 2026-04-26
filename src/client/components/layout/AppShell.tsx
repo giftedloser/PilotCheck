@@ -18,7 +18,7 @@ export function AppShell() {
       </a>
       <div className="flex min-h-[calc(100vh-var(--pc-titlebar-height,0px))] flex-col bg-[var(--pc-bg)]">
         <MockModeBanner />
-        <div className="flex flex-1 flex-col lg:flex-row lg:items-start">
+        <div className="flex flex-1 flex-col lg:flex-row lg:items-start lg:pl-[218px]">
           <Sidebar />
           <main
             id="main-content"
