@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { FeatureFlagMap, SettingsResponse, TagConfigRecord } from "../lib/types.js";
+import type {
+  FeatureFlagMap,
+  SettingsResponse,
+  TagConfigPreviewResponse,
+  TagConfigRecord
+} from "../lib/types.js";
 import { apiRequest } from "../lib/api.js";
 
 type FeatureFlagKey = keyof FeatureFlagMap;
@@ -94,4 +99,14 @@ export function useTagConfigMutations() {
       onSuccess: invalidate
     })
   };
+}
+
+export function usePreviewTagConfig() {
+  return useMutation({
+    mutationFn: (record: TagConfigRecord) =>
+      apiRequest<TagConfigPreviewResponse>("/api/settings/tag-config/preview", {
+        method: "POST",
+        body: JSON.stringify(record)
+      })
+  });
 }

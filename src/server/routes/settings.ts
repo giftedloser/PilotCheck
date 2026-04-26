@@ -15,6 +15,7 @@ import {
   upsertTagConfig
 } from "../db/queries/settings.js";
 import { scheduleRecompute } from "../engine/recompute-scheduler.js";
+import { previewTagConfig } from "../engine/preview-tag-config.js";
 import { logger } from "../logger.js";
 
 const tagConfigSchema = z.object({
@@ -72,6 +73,15 @@ export function settingsRouter(db: Database.Database) {
     upsertTagConfig(db, result.data);
     scheduleRecompute(db);
     response.status(201).json(getSettings(db).tagConfig);
+  });
+
+  router.post("/tag-config/preview", requireDelegatedAuth, (request, response) => {
+    const result = tagConfigSchema.safeParse(request.body);
+    if (!result.success) {
+      response.status(400).json({ message: "Invalid tag config.", errors: result.error.flatten().fieldErrors });
+      return;
+    }
+    response.json(previewTagConfig(db, result.data));
   });
 
   router.put("/tag-config/:groupTag", requireDelegatedAuth, (request, response) => {

@@ -280,6 +280,29 @@ export interface TagConfigRecord {
   propertyLabel: string;
 }
 
+export interface TagConfigPreviewResponse {
+  record: TagConfigRecord;
+  matchedDevices: number;
+  impact: {
+    propertyLabelChanges: number;
+    addedTagMismatch: number;
+    clearedTagMismatch: number;
+    addedNotInTargetGroup: number;
+    clearedNotInTargetGroup: number;
+  };
+  sampleDevices: Array<{
+    deviceKey: DeviceKey;
+    deviceName: string | null;
+    serialNumber: string | null;
+    assignedProfileName: string | null;
+    currentPropertyLabel: string | null;
+    nextPropertyLabel: string;
+    currentFlags: FlagCode[];
+    nextFlags: FlagCode[];
+    flagChanges: string[];
+  }>;
+}
+
 export interface GraphReadiness {
   configured: boolean;
   missing: string[];

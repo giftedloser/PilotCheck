@@ -204,6 +204,31 @@ describe("Settings tag-config CRUD", () => {
     // Zod validation should reject — expect 4xx
     expect(res.status).toBeGreaterThanOrEqual(400);
   });
+
+  it("POST /api/settings/tag-config/preview reports impact without persisting", async () => {
+    const app = createApp(db);
+    const before = await request(app).get("/api/settings/tag-config").expect(200);
+    const originalLodge = before.body.find((r: { groupTag: string }) => r.groupTag === "Lodge");
+
+    const res = await request(app)
+      .post("/api/settings/tag-config/preview")
+      .send({
+        groupTag: "Lodge",
+        propertyLabel: "Preview Only",
+        expectedProfileNames: ["No-Such-Profile"],
+        expectedGroupNames: ["No-Such-Group"]
+      })
+      .expect(200);
+
+    expect(res.body.record.groupTag).toBe("Lodge");
+    expect(res.body.matchedDevices).toBeGreaterThan(0);
+    expect(typeof res.body.impact.propertyLabelChanges).toBe("number");
+    expect(Array.isArray(res.body.sampleDevices)).toBe(true);
+
+    const after = await request(app).get("/api/settings/tag-config").expect(200);
+    const unchangedLodge = after.body.find((r: { groupTag: string }) => r.groupTag === "Lodge");
+    expect(unchangedLodge).toEqual(originalLodge);
+  });
 });
 
 // ──────────────────────────────────────────────

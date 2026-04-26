@@ -9,6 +9,7 @@ import {
   KeyRound,
   LockKeyhole,
   Plus,
+  Search,
   Tag,
   ToggleLeft,
   ToggleRight,
@@ -30,7 +31,12 @@ import { Button } from "../components/ui/button.js";
 import { Card } from "../components/ui/card.js";
 import { Input } from "../components/ui/input.js";
 import { useAuthStatus, useLogin, useLogout } from "../hooks/useAuth.js";
-import { useSetFeatureFlag, useSettings, useTagConfigMutations } from "../hooks/useSettings.js";
+import {
+  usePreviewTagConfig,
+  useSetFeatureFlag,
+  useSettings,
+  useTagConfigMutations
+} from "../hooks/useSettings.js";
 import type { TagConfigRecord } from "../lib/types.js";
 
 const REQUIRED_ENV = [
@@ -66,6 +72,7 @@ export function SettingsPage() {
   const login = useLogin();
   const logout = useLogout();
   const mutations = useTagConfigMutations();
+  const preview = usePreviewTagConfig();
   const featureFlagMutation = useSetFeatureFlag();
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +86,19 @@ export function SettingsPage() {
   });
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  const buildFormRecord = (): TagConfigRecord => ({
+    groupTag: form.groupTag.trim(),
+    propertyLabel: form.propertyLabel.trim(),
+    expectedProfileNames: form.expectedProfileNames
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean),
+    expectedGroupNames: form.expectedGroupNames
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean)
+  });
 
   if (settings.isLoading) return <LoadingState label="Loading settings…" />;
   if (settings.isError || !settings.data) {
@@ -671,26 +691,28 @@ export function SettingsPage() {
             </div>
           </div>
           <div className="mt-4">
-            <Button
-              disabled={
-                !isAuthed || !form.groupTag || !form.propertyLabel || mutations.create.isPending
-              }
-              title={!isAuthed ? "Sign in as an admin to save mappings" : undefined}
-              onClick={() =>
-                mutations.create.mutate(
-                  {
-                    groupTag: form.groupTag,
-                    propertyLabel: form.propertyLabel,
-                    expectedProfileNames: form.expectedProfileNames
-                      .split(",")
-                      .map((value) => value.trim())
-                      .filter(Boolean),
-                    expectedGroupNames: form.expectedGroupNames
-                      .split(",")
-                      .map((value) => value.trim())
-                      .filter(Boolean)
-                  },
-                  {
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="secondary"
+                disabled={
+                  !isAuthed || !form.groupTag.trim() || !form.propertyLabel.trim() || preview.isPending
+                }
+                title={!isAuthed ? "Sign in as an admin to preview mappings" : undefined}
+                onClick={() => preview.mutate(buildFormRecord())}
+              >
+                <Search className="h-3.5 w-3.5" />
+                {preview.isPending ? "Previewing…" : "Preview impact"}
+              </Button>
+              <Button
+                disabled={
+                  !isAuthed ||
+                  !form.groupTag.trim() ||
+                  !form.propertyLabel.trim() ||
+                  mutations.create.isPending
+                }
+                title={!isAuthed ? "Sign in as an admin to save mappings" : undefined}
+                onClick={() =>
+                  mutations.create.mutate(buildFormRecord(), {
                     onSuccess: () => {
                       setForm({
                         groupTag: "",
@@ -699,16 +721,109 @@ export function SettingsPage() {
                         expectedGroupNames: ""
                       });
                       setTouched({});
+                      preview.reset();
                     }
-                  }
-                )
-              }
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {mutations.create.isPending ? "Saving…" : "Save mapping"}
-            </Button>
+                  })
+                }
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {mutations.create.isPending ? "Saving…" : "Save mapping"}
+              </Button>
+            </div>
           </div>
         </Card>
+
+        {preview.isError ? (
+          <Card className="border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)]/30 p-4 text-[12px] text-[var(--pc-critical)]">
+            {preview.error instanceof Error ? preview.error.message : "Could not preview this mapping."}
+          </Card>
+        ) : preview.data ? (
+          <Card className="p-5">
+            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-[13px] font-semibold text-[var(--pc-text)]">
+                  Preview for {preview.data.record.groupTag}
+                </div>
+                <div className="text-[11.5px] text-[var(--pc-text-muted)]">
+                  {preview.data.matchedDevices} devices currently carry this group tag.
+                </div>
+              </div>
+              <span className="rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] text-[var(--pc-text-secondary)]">
+                Not saved
+              </span>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-5">
+              <PreviewMetric
+                label="Property labels"
+                value={preview.data.impact.propertyLabelChanges}
+              />
+              <PreviewMetric
+                label="+ Tag mismatch"
+                value={preview.data.impact.addedTagMismatch}
+                tone={preview.data.impact.addedTagMismatch > 0 ? "warning" : "neutral"}
+              />
+              <PreviewMetric
+                label="- Tag mismatch"
+                value={preview.data.impact.clearedTagMismatch}
+                tone={preview.data.impact.clearedTagMismatch > 0 ? "healthy" : "neutral"}
+              />
+              <PreviewMetric
+                label="+ Target group"
+                value={preview.data.impact.addedNotInTargetGroup}
+                tone={preview.data.impact.addedNotInTargetGroup > 0 ? "warning" : "neutral"}
+              />
+              <PreviewMetric
+                label="- Target group"
+                value={preview.data.impact.clearedNotInTargetGroup}
+                tone={preview.data.impact.clearedNotInTargetGroup > 0 ? "healthy" : "neutral"}
+              />
+            </div>
+
+            {preview.data.sampleDevices.length > 0 ? (
+              <div className="mt-4 overflow-hidden rounded-[var(--pc-radius)] border border-[var(--pc-border)]">
+                <div className="border-b border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
+                  Sample changed devices
+                </div>
+                <ul className="divide-y divide-[var(--pc-border)]">
+                  {preview.data.sampleDevices.map((device) => (
+                    <li key={device.deviceKey} className="px-3 py-2.5">
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="truncate text-[12.5px] font-semibold text-[var(--pc-text)]">
+                            {device.deviceName ?? device.serialNumber ?? device.deviceKey}
+                          </div>
+                          <div className="mt-0.5 text-[11px] text-[var(--pc-text-muted)]">
+                            Profile: {device.assignedProfileName ?? "none"}
+                          </div>
+                        </div>
+                        <div className="font-mono text-[10.5px] text-[var(--pc-text-muted)]">
+                          {device.currentPropertyLabel ?? "none"} -&gt; {device.nextPropertyLabel}
+                        </div>
+                      </div>
+                      {device.flagChanges.length > 0 ? (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {device.flagChanges.map((change) => (
+                            <span
+                              key={change}
+                              className="rounded bg-[var(--pc-tint-subtle)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--pc-text-secondary)]"
+                            >
+                              {change}
+                            </span>
+                          ))}
+                        </div>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div className="mt-4 rounded-[var(--pc-radius)] border border-dashed border-[var(--pc-border)] px-4 py-3 text-[12px] text-[var(--pc-text-muted)]">
+                No device rows would change under this mapping.
+              </div>
+            )}
+          </Card>
+        ) : null}
 
         {settings.data.tagConfig.length === 0 ? (
           <Card className="border-dashed px-5 py-8 text-center text-[12.5px] text-[var(--pc-text-muted)]">
@@ -845,6 +960,32 @@ function SettingsSectionHeader({
         <p className="mt-0.5 text-[11px] text-[var(--pc-text-muted)]">{detail}</p>
       </div>
       {actions ? <div className="shrink-0">{actions}</div> : null}
+    </div>
+  );
+}
+
+function PreviewMetric({
+  label,
+  value,
+  tone = "neutral"
+}: {
+  label: string;
+  value: number;
+  tone?: "neutral" | "healthy" | "warning";
+}) {
+  const toneClass =
+    tone === "healthy"
+      ? "text-[var(--pc-healthy)]"
+      : tone === "warning"
+        ? "text-[var(--pc-warning)]"
+        : "text-[var(--pc-text)]";
+
+  return (
+    <div className="rounded-[var(--pc-radius)] border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2.5">
+      <div className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
+        {label}
+      </div>
+      <div className={`mt-1 text-[20px] font-semibold tabular-nums ${toneClass}`}>{value}</div>
     </div>
   );
 }
