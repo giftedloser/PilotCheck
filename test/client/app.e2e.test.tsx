@@ -52,7 +52,7 @@ const deviceDetailPayload = {
   summary: deviceListPayload.items[0],
   identity: {
     autopilotId: "auto-1",
-    intuneId: null,
+    intuneId: "mdm-1",
     entraId: "entra-1",
     trustType: "ServerAd",
     matchConfidence: "high",
@@ -206,6 +206,8 @@ describe("client drilldown", () => {
     // so the device name is shown in the hero header. Switch to the enrollment
     // tab where the diagnostic panel renders each flag title.
     await screen.findAllByText("Device Diagnostics", {}, { timeout: 3000 });
+    expect(screen.getByRole("button", { name: /open in intune/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /open in entra/i })).toBeInTheDocument();
     // Two "Enrollment" buttons exist: the breakpoint chip in the hero and the
     // tab nav button. Either one activates the enrollment tab; grab the tab.
     const enrollmentButtons = screen.getAllByRole("button", { name: /enrollment/i });

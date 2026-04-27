@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
+  ExternalLink,
   Fingerprint,
   GitBranch,
   Radio,
@@ -48,6 +49,7 @@ import { useToast } from "../components/shared/toast.js";
 import { StatusBadge } from "../components/shared/StatusBadge.js";
 import { useDevice } from "../hooks/useDevices.js";
 import { useSettings } from "../hooks/useSettings.js";
+import { openExternalUrl } from "../lib/desktop.js";
 import type { FlagCode, FlagExplanation, HealthLevel } from "../lib/types.js";
 import { cn } from "../lib/utils.js";
 
@@ -273,6 +275,91 @@ function TabHeading({
   );
 }
 
+function intuneDeviceUrl(intuneId: string) {
+  return `https://intune.microsoft.com/#view/Microsoft_Intune_Devices/DeviceSettingsMenuBlade/~/overview/mdmDeviceId/${encodeURIComponent(intuneId)}`;
+}
+
+function entraDeviceUrl(entraId: string) {
+  return `https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeviceDetailsMenuBlade/~/Properties/objectId/${encodeURIComponent(entraId)}`;
+}
+
+function openUrlInBrowser(url: string) {
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer";
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+}
+
+function DevicePortalLinks({
+  intuneId,
+  entraId,
+}: {
+  intuneId: string | null;
+  entraId: string | null;
+}) {
+  const toast = useToast();
+  const links = [
+    intuneId
+      ? {
+          label: "Open in Intune",
+          url: intuneDeviceUrl(intuneId),
+        }
+      : null,
+    entraId
+      ? {
+          label: "Open in Entra",
+          url: entraDeviceUrl(entraId),
+        }
+      : null,
+  ].filter(Boolean) as Array<{ label: string; url: string }>;
+
+  if (links.length === 0) return null;
+
+  const handleOpen = async (label: string, url: string) => {
+    const openedNatively = await openExternalUrl(url);
+    if (!openedNatively) {
+      try {
+        openUrlInBrowser(url);
+      } catch {
+        toast.push({
+          variant: "error",
+          title: "Could not open portal",
+          description: label,
+        });
+        return;
+      }
+    }
+
+    toast.push({
+      variant: "info",
+      title: "Opening Microsoft portal",
+      description: label,
+      durationMs: 1500,
+    });
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {links.map((link) => (
+        <button
+          key={link.label}
+          type="button"
+          onClick={() => void handleOpen(link.label, link.url)}
+          className="inline-flex items-center gap-1.5 rounded-[var(--pc-radius-sm)] border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-accent)]/40 hover:text-[var(--pc-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+          title={link.url}
+        >
+          <ExternalLink className="h-3.5 w-3.5 text-[var(--pc-accent)]" />
+          {link.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function DeviceDetailPage() {
   const { deviceKey } = useParams({ from: "/devices/$deviceKey" });
   const search = useSearch({ from: "/devices/$deviceKey" }) as { tab?: TabKey };
@@ -430,6 +517,10 @@ export function DeviceDetailPage() {
             </div>
           </div>
           <div className="flex flex-col items-start gap-2 lg:items-end">
+            <DevicePortalLinks
+              intuneId={data.identity.intuneId}
+              entraId={data.identity.entraId}
+            />
             <StatusBadge health={data.summary.health} />
             <p
               className="max-w-md text-[12px] leading-snug text-[var(--pc-text-secondary)] lg:text-right"
