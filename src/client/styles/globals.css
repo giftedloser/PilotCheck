@@ -167,7 +167,12 @@
 }
 
 html {
-  background: var(--pc-bg);
+  background:
+    linear-gradient(
+      to bottom,
+      var(--pc-titlebar-bg) 0 var(--pc-titlebar-height, 0px),
+      var(--pc-bg) var(--pc-titlebar-height, 0px)
+    );
   font-size: 14px;
   overflow-x: hidden;
 }
@@ -182,6 +187,19 @@ body {
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 89;
+  width: 16px;
+  height: var(--pc-titlebar-height, 0px);
+  border-bottom: 1px solid var(--pc-titlebar-border);
+  background: var(--pc-titlebar-bg);
+  pointer-events: none;
 }
 
 #root {
