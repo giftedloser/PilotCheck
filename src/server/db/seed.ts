@@ -596,6 +596,11 @@ function seedActionLog(db: Database.Database) {
 }
 
 export async function seedMockData(db: Database.Database) {
+  // Clear tag_config first so reseeding can't leave behind hand-typed
+  // entries from prior dev sessions (the live persist layer upserts and
+  // would otherwise preserve them).
+  db.prepare("DELETE FROM tag_config").run();
+
   const basePayload = buildMockPayload();
   persistSnapshot(db, basePayload);
   computeAllDeviceStates(db);
@@ -616,4 +621,33 @@ export async function seedMockData(db: Database.Database) {
 
   persistSnapshot(db, basePayload);
   computeAllDeviceStates(db);
+
+  // Reset sync history so a freshly seeded DB shows a healthy "just now"
+  // sync, not whatever stale attempts were logged in prior dev sessions.
+  seedSyncHistory(db, basePayload.intuneRows.length);
+}
+
+function seedSyncHistory(db: Database.Database, devicesSynced: number) {
+  db.prepare("DELETE FROM sync_log").run();
+  const insert = db.prepare(
+    "INSERT INTO sync_log (sync_type, started_at, completed_at, devices_synced, errors) VALUES (?, ?, ?, ?, '[]')"
+  );
+  // A small history of healthy runs leading up to "just now". Durations are
+  // realistic enough to populate the success-rate / avg-duration tiles.
+  // Ordered oldest → newest so the latest insert keeps the highest rowid
+  // (listSyncLogs reads ORDER BY id DESC).
+  const runs = [
+    { hoursAgo: 24, durationMs: 2_100, type: "full" as const },
+    { hoursAgo: 12, durationMs: 1_180, type: "incremental" as const },
+    { hoursAgo: 4, durationMs: 1_320, type: "incremental" as const },
+    { hoursAgo: 1.5, durationMs: 1_250, type: "incremental" as const },
+    { hoursAgo: 0.05, durationMs: 1_400, type: "manual" as const }
+  ];
+  for (const run of runs) {
+    const startedAt = isoOffset(run.hoursAgo);
+    const completedAt = new Date(
+      Date.parse(startedAt) + run.durationMs
+    ).toISOString();
+    insert.run(run.type, startedAt, completedAt, devicesSynced);
+  }
 }

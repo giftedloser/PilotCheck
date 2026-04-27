@@ -1,7 +1,6 @@
 import { Link, useRouterState, useSearch } from "@tanstack/react-router";
 import {
   Building2,
-  Command,
   DatabaseZap,
   GitBranch,
   History,
@@ -147,8 +146,8 @@ export function Sidebar() {
             <Search className="h-3.5 w-3.5" />
             Search devices
           </span>
-          <span className="flex items-center gap-1 text-[10px] text-[var(--pc-sidebar-text)]">
-            <Command className="h-3 w-3" />K
+          <span className="font-mono text-[10px] text-[var(--pc-sidebar-text)]">
+            Ctrl+K
           </span>
         </button>
       </div>

@@ -383,7 +383,7 @@ export function CommandPalette() {
               open
             </span>
             <span>
-              <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono">⌘K</kbd>{" "}
+              <kbd className="rounded border border-[var(--pc-border)] px-1 py-px font-mono">Ctrl+K</kbd>{" "}
               toggle
             </span>
           </div>

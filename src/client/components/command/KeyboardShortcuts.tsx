@@ -59,7 +59,7 @@ export function KeyboardShortcuts() {
     const onKey = (event: KeyboardEvent) => {
       // Don't fight typing.
       if (isEditable(event.target)) return;
-      // Don't intercept modified keys (palette uses ⌘K).
+      // Don't intercept modified keys (palette uses Ctrl+K).
       if (event.metaKey || event.ctrlKey || event.altKey) return;
 
       // `?` opens the overlay. (Most layouts produce "?" with shift+/.)
@@ -140,7 +140,7 @@ export function KeyboardShortcuts() {
     {
       label: "Global",
       items: [
-        { keys: ["⌘", "K"], label: "Open command palette" },
+        { keys: ["Ctrl", "K"], label: "Open command palette" },
         { keys: ["?"], label: "Toggle this shortcut overlay" },
         { keys: ["Esc"], label: "Close overlays" }
       ]
