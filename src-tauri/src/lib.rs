@@ -30,6 +30,37 @@ fn get_desktop_api_token(token: tauri::State<'_, DesktopApiToken>) -> String {
   token.0.clone()
 }
 
+#[tauri::command]
+fn open_external_url(url: String) -> Result<(), String> {
+  if !(url.starts_with("https://") || url.starts_with("http://"))
+    || url.chars().any(|character| character.is_control())
+  {
+    return Err("Only http and https URLs can be opened externally.".to_string());
+  }
+
+  let mut command = if cfg!(target_os = "windows") {
+    let mut command = Command::new("rundll32");
+    command.arg("url.dll,FileProtocolHandler").arg(&url);
+    command
+  } else if cfg!(target_os = "macos") {
+    let mut command = Command::new("open");
+    command.arg(&url);
+    command
+  } else {
+    let mut command = Command::new("xdg-open");
+    command.arg(&url);
+    command
+  };
+
+  #[cfg(target_os = "windows")]
+  command.creation_flags(CREATE_NO_WINDOW);
+
+  command
+    .spawn()
+    .map(|_| ())
+    .map_err(|error| format!("Could not open external URL: {error}"))
+}
+
 #[cfg(target_os = "windows")]
 fn normalize_resource_path(path: PathBuf) -> PathBuf {
   let raw = path.to_string_lossy();
@@ -108,7 +139,10 @@ pub fn run() {
   let app = tauri::Builder::default()
     .manage(BackendState(Mutex::new(None)))
     .manage(DesktopApiToken(create_desktop_api_token()))
-    .invoke_handler(tauri::generate_handler![get_desktop_api_token])
+    .invoke_handler(tauri::generate_handler![
+      get_desktop_api_token,
+      open_external_url
+    ])
     .setup(|app| {
       app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
 

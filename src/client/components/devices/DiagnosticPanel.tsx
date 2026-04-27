@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 
 import type { DeviceDetailResponse, FlagExplanation } from "../../lib/types.js";
+import { openExternalUrl } from "../../lib/desktop.js";
 import { useToast } from "../shared/toast.js";
 import { Card } from "../ui/card.js";
 import {
@@ -247,6 +248,18 @@ function PlaybookRow({ step }: { step: PlaybookStep }) {
   };
 
   const onOpen = async () => {
+    const openedNatively = await openExternalUrl(step.payload);
+    if (openedNatively) {
+      markAction("opened");
+      toast.push({
+        variant: "info",
+        title: "Opened playbook link",
+        description: step.label,
+        durationMs: 1500
+      });
+      return;
+    }
+
     // window.open(..., "noopener,noreferrer") returns null per spec even on
     // success, so we can't trust its return value. Use an anchor click,
     // which keeps rel="noopener noreferrer" security and reliably tells us
