@@ -33,6 +33,9 @@ vi.mock("../../src/server/actions/remote-actions.js", () => remoteActionMocks);
 // resolution.
 const { createApp } = await import("../../src/server/app.js");
 const { runMigrations } = await import("../../src/server/db/migrate.js");
+const { __resetActionRateLimitForTests } = await import(
+  "../../src/server/auth/rate-limit.js"
+);
 
 function seedDevice(
   db: Database.Database,
@@ -79,6 +82,7 @@ beforeEach(() => {
   db = new Database(":memory:");
   runMigrations(db);
   Object.values(remoteActionMocks).forEach((fn) => fn.mockClear());
+  __resetActionRateLimitForTests();
 });
 
 describe("POST /api/actions/bulk — guardrails", () => {
@@ -184,6 +188,136 @@ describe("POST /api/actions/bulk — guardrails", () => {
       response.body.bulkRunId,
       response.body.bulkRunId
     ]);
+  });
+});
+
+describe("POST /api/actions/bulk — partial Graph failure", () => {
+  it("keeps going when individual Graph calls fail, fail-thrown, or 401, and audits each outcome", async () => {
+    const app = createApp(db);
+    seedDevice(db, { deviceKey: "dev-ok", intuneId: "intune-ok", serial: "OK0001" });
+    seedDevice(db, { deviceKey: "dev-503", intuneId: "intune-503", serial: "FAIL503" });
+    seedDevice(db, { deviceKey: "dev-401", intuneId: "intune-401", serial: "AUTH401" });
+    seedDevice(db, { deviceKey: "dev-throw", intuneId: "intune-throw", serial: "THROW01" });
+
+    remoteActionMocks.syncDevice
+      .mockResolvedValueOnce({ success: true, status: 204, message: "ok" })
+      .mockResolvedValueOnce({
+        success: false,
+        status: 503,
+        message: "Sync failed with status 503."
+      })
+      .mockResolvedValueOnce({
+        success: false,
+        status: 401,
+        message: "Sync failed with status 401."
+      })
+      .mockRejectedValueOnce(new Error("network blew up"));
+
+    const response = await request(app)
+      .post("/api/actions/bulk")
+      .send({
+        action: "sync",
+        deviceKeys: ["dev-ok", "dev-503", "dev-401", "dev-throw"]
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.total).toBe(4);
+    expect(response.body.successCount).toBe(1);
+    expect(response.body.failureCount).toBe(3);
+    expect(remoteActionMocks.syncDevice).toHaveBeenCalledTimes(4);
+
+    const statuses = response.body.results.map(
+      (r: { deviceKey: string; status: number }) => [r.deviceKey, r.status]
+    );
+    expect(statuses).toEqual([
+      ["dev-ok", 204],
+      ["dev-503", 503],
+      ["dev-401", 401],
+      ["dev-throw", 500]
+    ]);
+
+    const rows = db
+      .prepare(
+        "SELECT graph_response_status, notes, bulk_run_id FROM action_log ORDER BY id ASC"
+      )
+      .all() as Array<{
+      graph_response_status: number;
+      notes: string;
+      bulk_run_id: string | null;
+    }>;
+    expect(rows).toHaveLength(4);
+    expect(rows.map((r) => r.graph_response_status)).toEqual([204, 503, 401, 500]);
+    expect(new Set(rows.map((r) => r.bulk_run_id)).size).toBe(1);
+    expect(rows[3].notes).toMatch(/network blew up/);
+    expect(rows.every((r) => r.notes.startsWith("[bulk]"))).toBe(true);
+  });
+
+  it("does not abort the run when the very first device 401s (mid-flight token rejection)", async () => {
+    const app = createApp(db);
+    seedDevice(db, { deviceKey: "dev-a", intuneId: "intune-a", serial: "A1" });
+    seedDevice(db, { deviceKey: "dev-b", intuneId: "intune-b", serial: "B2" });
+    seedDevice(db, { deviceKey: "dev-c", intuneId: "intune-c", serial: "C3" });
+
+    remoteActionMocks.rotateLapsPassword
+      .mockResolvedValueOnce({
+        success: false,
+        status: 401,
+        message: "LAPS rotation failed with status 401."
+      })
+      .mockResolvedValueOnce({ success: true, status: 204, message: "ok" })
+      .mockResolvedValueOnce({ success: true, status: 204, message: "ok" });
+
+    const response = await request(app)
+      .post("/api/actions/bulk")
+      .send({ action: "rotate-laps", deviceKeys: ["dev-a", "dev-b", "dev-c"] });
+
+    // The bulk endpoint deliberately continues — surfacing per-device 401s
+    // rather than short-circuiting lets the operator see whether the failure
+    // is fleet-wide (true token expiry) or device-specific.
+    expect(response.status).toBe(200);
+    expect(remoteActionMocks.rotateLapsPassword).toHaveBeenCalledTimes(3);
+    expect(response.body.successCount).toBe(2);
+    expect(response.body.failureCount).toBe(1);
+  });
+});
+
+describe("POST /api/actions/:deviceKey/:action — partial Graph failure", () => {
+  it("propagates the Graph status code as the HTTP status when a single action fails", async () => {
+    const app = createApp(db);
+    seedDevice(db, { deviceKey: "dev-403", intuneId: "intune-403" });
+    remoteActionMocks.wipeDevice.mockResolvedValueOnce({
+      success: false,
+      status: 403,
+      message: "Wipe failed with status 403."
+    });
+
+    const response = await request(app).post("/api/actions/dev-403/wipe").send({});
+    expect(response.status).toBe(403);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toMatch(/403/);
+
+    const row = db
+      .prepare("SELECT graph_response_status, notes FROM action_log")
+      .get() as { graph_response_status: number; notes: string };
+    expect(row.graph_response_status).toBe(403);
+    expect(row.notes).toMatch(/403/);
+  });
+
+  it("captures thrown exceptions as a 500 audit row instead of leaking the stack to the client", async () => {
+    const app = createApp(db);
+    seedDevice(db, { deviceKey: "dev-throw", intuneId: "intune-throw" });
+    remoteActionMocks.retireDevice.mockRejectedValueOnce(new Error("connection reset"));
+
+    const response = await request(app).post("/api/actions/dev-throw/retire").send({});
+    expect(response.status).toBe(500);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe("connection reset");
+
+    const row = db
+      .prepare("SELECT graph_response_status, notes FROM action_log")
+      .get() as { graph_response_status: number; notes: string };
+    expect(row.graph_response_status).toBe(500);
+    expect(row.notes).toBe("connection reset");
   });
 });
 
