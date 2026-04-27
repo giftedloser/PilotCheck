@@ -106,8 +106,8 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-auto w-full shrink-0 flex-col border-b border-[var(--pc-sidebar-border)] bg-[var(--pc-sidebar-bg)] text-[var(--pc-sidebar-text)] lg:fixed lg:left-0 lg:top-[var(--pc-titlebar-height,0px)] lg:h-[calc(100vh-var(--pc-titlebar-height,0px))] lg:w-[218px] lg:border-b-0 lg:border-r">
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-3 py-2.5 lg:px-4 lg:py-3">
+      {/* Mobile brand; desktop branding lives in the title bar. */}
+      <div className="flex items-center gap-2.5 px-3 py-2.5 lg:hidden">
         <img
           src="/runway.png"
           alt=""
@@ -126,7 +126,7 @@ export function Sidebar() {
             <button
               type="button"
               onClick={cycleTheme}
-              className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--pc-sidebar-border)] bg-[var(--pc-sidebar-bg)] text-[var(--pc-sidebar-text)] transition-[border-color,color,background-color,transform] hover:-translate-y-0.5 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-sidebar-border)] hover:text-[var(--pc-sidebar-text-active)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)] lg:hidden"
+              className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--pc-sidebar-border)] bg-[var(--pc-sidebar-bg)] text-[var(--pc-sidebar-text)] transition-[border-color,color,background-color,transform] hover:-translate-y-0.5 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-sidebar-border)] hover:text-[var(--pc-sidebar-text-active)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
               title={`Current: ${themeLabels[theme]}. Click to cycle.`}
               aria-label={`Current theme: ${themeLabels[theme]}. Click to cycle theme.`}
             >
@@ -136,7 +136,7 @@ export function Sidebar() {
         })()}
       </div>
 
-      <div className="hidden px-3 pb-2 lg:block">
+      <div className="hidden px-3 pb-2 pt-3 lg:block">
         <button
           type="button"
           onClick={requestCommandPaletteOpen}
