@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Added [`docs/user-guide.md`](docs/user-guide.md), a comprehensive
+  technician-facing guide covering access, triage workflows, every major
+  page, remote actions, LAPS/BitLocker, health flags, escalation, and
+  operational safety.
+
 ### ConfigMgr signal — honesty pass
 
 - **Renamed labels** to make the v1 ConfigMgr signal honest about what it

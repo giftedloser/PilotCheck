@@ -330,6 +330,7 @@ file you can read.
 ## Documentation
 
 - **[docs/architecture.md](./docs/architecture.md)** — system architecture, data flow, schema overview
+- **[docs/user-guide.md](./docs/user-guide.md)** — comprehensive technician guide for day-to-day Runway use
 - **[docs/engine.md](./docs/engine.md)** — health flags, rule DSL, custom rules
 - **[docs/graph-setup.md](./docs/graph-setup.md)** — app registration, permissions, redirect URIs
 - **[docs/troubleshooting.md](./docs/troubleshooting.md)** — live Graph troubleshooting and symptom-to-fix tables
