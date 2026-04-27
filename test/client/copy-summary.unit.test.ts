@@ -11,12 +11,12 @@ function makeDetail(overrides: Partial<DeviceDetailResponse> = {}): DeviceDetail
       health: "warning",
       diagnosis: "Profile assigned but not enrolled",
       flags: [],
-      propertyLabel: "Lodge / Gilpin",
-      assignedProfileName: "AP-Lodge-UserDriven",
+      propertyLabel: "North / River",
+      assignedProfileName: "AP-North-UserDriven",
       deploymentMode: "userDriven",
       complianceState: "compliant",
-      autopilotAssignedUserUpn: "alice@bhwk.com",
-      intunePrimaryUserUpn: "alice@bhwk.com",
+      autopilotAssignedUserUpn: "alice@example.test",
+      intunePrimaryUserUpn: "alice@example.test",
       ...overrides.summary
     },
     identity: {
@@ -68,8 +68,8 @@ describe("buildSummaryText", () => {
 
   it("includes property, profile, and deployment mode", () => {
     const text = buildSummaryText(makeDetail());
-    expect(text).toContain("Property: Lodge / Gilpin");
-    expect(text).toContain("Profile: AP-Lodge-UserDriven");
+    expect(text).toContain("Property: North / River");
+    expect(text).toContain("Profile: AP-North-UserDriven");
     expect(text).toContain("Deployment Mode: userDriven");
   });
 

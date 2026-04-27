@@ -40,10 +40,10 @@ describe("GET /api/provisioning/discover", () => {
   it("returns discovery results for a known tag", async () => {
     const app = createApp(db);
     const res = await request(app)
-      .get("/api/provisioning/discover?groupTag=Lodge")
+      .get("/api/provisioning/discover?groupTag=North")
       .expect(200);
 
-    expect(res.body.groupTag).toBe("Lodge");
+    expect(res.body.groupTag).toBe("North");
     expect(typeof res.body.deviceCount).toBe("number");
     expect(Array.isArray(res.body.matchingGroups)).toBe(true);
     expect(Array.isArray(res.body.matchingProfiles)).toBe(true);
@@ -52,10 +52,10 @@ describe("GET /api/provisioning/discover", () => {
   it("returns deviceCount and group/profile arrays for a tag with matches", async () => {
     const app = createApp(db);
     const res = await request(app)
-      .get("/api/provisioning/discover?groupTag=Lodge")
+      .get("/api/provisioning/discover?groupTag=North")
       .expect(200);
 
-    // Seed has Lodge devices and a group with "Lodge" in its name
+    // Seed has North devices and a group with "North" in its name
     expect(res.body.deviceCount).toBeGreaterThanOrEqual(1);
     expect(res.body.matchingGroups.length).toBeGreaterThanOrEqual(1);
 
@@ -82,12 +82,12 @@ describe("GET /api/provisioning/discover", () => {
   it("includes existingConfig when tag_config exists", async () => {
     const app = createApp(db);
     const res = await request(app)
-      .get("/api/provisioning/discover?groupTag=Lodge")
+      .get("/api/provisioning/discover?groupTag=North")
       .expect(200);
 
-    // Seed has a tag_config for "Lodge"
+    // Seed has a tag_config for "North"
     expect(res.body.existingConfig).not.toBeNull();
-    expect(res.body.existingConfig.groupTag).toBe("Lodge");
+    expect(res.body.existingConfig.groupTag).toBe("North");
     expect(typeof res.body.existingConfig.propertyLabel).toBe("string");
     expect(Array.isArray(res.body.existingConfig.expectedProfileNames)).toBe(true);
     expect(Array.isArray(res.body.existingConfig.expectedGroupNames)).toBe(true);
@@ -111,9 +111,9 @@ describe("POST /api/provisioning/validate", () => {
     const res = await request(app)
       .post("/api/provisioning/validate")
       .send({
-        groupTag: "Lodge",
-        groupId: "grp-lodge-devices",
-        profileId: "prof-lodge-user"
+        groupTag: "North",
+        groupId: "grp-north-devices",
+        profileId: "prof-north-user"
       })
       .expect(200);
 
@@ -126,9 +126,9 @@ describe("POST /api/provisioning/validate", () => {
     const res = await request(app)
       .post("/api/provisioning/validate")
       .send({
-        groupTag: "Lodge",
+        groupTag: "North",
         groupId: "nonexistent-group-id",
-        profileId: "prof-lodge-user"
+        profileId: "prof-north-user"
       })
       .expect(200);
 
@@ -141,8 +141,8 @@ describe("POST /api/provisioning/validate", () => {
     const res = await request(app)
       .post("/api/provisioning/validate")
       .send({
-        groupTag: "Lodge",
-        groupId: "grp-lodge-devices",
+        groupTag: "North",
+        groupId: "grp-north-devices",
         profileId: "nonexistent-profile"
       })
       .expect(200);
@@ -155,7 +155,7 @@ describe("POST /api/provisioning/validate", () => {
     const app = createApp(db);
     const res = await request(app)
       .post("/api/provisioning/validate")
-      .send({ groupTag: "Lodge" })
+      .send({ groupTag: "North" })
       .expect(200);
 
     expect(res.body.warnings.length).toBeGreaterThanOrEqual(1);
@@ -168,8 +168,8 @@ describe("POST /api/provisioning/validate", () => {
       .post("/api/provisioning/validate")
       .send({
         groupTag: "NONEXISTENT_TAG",
-        groupId: "grp-lodge-devices",
-        profileId: "prof-lodge-user"
+        groupId: "grp-north-devices",
+        profileId: "prof-north-user"
       })
       .expect(200);
 
@@ -201,10 +201,10 @@ describe("Settings tag-config auth guard", () => {
   it("PUT /api/settings/tag-config/:tag returns 401 without auth", async () => {
     const app = createApp(db);
     await request(app)
-      .put("/api/settings/tag-config/Lodge")
+      .put("/api/settings/tag-config/North")
       .send({
-        groupTag: "Lodge",
-        propertyLabel: "Lodge Updated",
+        groupTag: "North",
+        propertyLabel: "North Updated",
         expectedProfileNames: [],
         expectedGroupNames: []
       })
@@ -213,7 +213,7 @@ describe("Settings tag-config auth guard", () => {
 
   it("DELETE /api/settings/tag-config/:tag returns 401 without auth", async () => {
     const app = createApp(db);
-    await request(app).delete("/api/settings/tag-config/Lodge").expect(401);
+    await request(app).delete("/api/settings/tag-config/North").expect(401);
   });
 
   it("GET /api/settings/tag-config remains accessible without auth (read-only)", async () => {
@@ -262,7 +262,7 @@ describe("Group write operations require auth", () => {
   it("PATCH /api/groups/:groupId returns 401 without auth", async () => {
     const app = createApp(db);
     await request(app)
-      .patch("/api/groups/grp-lodge-devices")
+      .patch("/api/groups/grp-north-devices")
       .send({ membershipRule: "(device.devicePhysicalIds -any _ -contains \"test\")" })
       .expect(401);
   });
@@ -270,7 +270,7 @@ describe("Group write operations require auth", () => {
   it("POST /api/groups/:groupId/members returns 401 without auth", async () => {
     const app = createApp(db);
     await request(app)
-      .post("/api/groups/grp-lodge-devices/members")
+      .post("/api/groups/grp-north-devices/members")
       .send({ deviceKey: "some-key" })
       .expect(401);
   });
@@ -278,7 +278,7 @@ describe("Group write operations require auth", () => {
   it("DELETE /api/groups/:groupId/members/:deviceKey returns 401 without auth", async () => {
     const app = createApp(db);
     await request(app)
-      .delete("/api/groups/grp-lodge-devices/members/some-key")
+      .delete("/api/groups/grp-north-devices/members/some-key")
       .expect(401);
   });
 });

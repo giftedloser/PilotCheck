@@ -18,7 +18,7 @@ const settingsPayload = {
   appAccess: { mode: "disabled", required: false, allowedUsersConfigured: false },
   featureFlags: { sccm_detection: true },
   tagConfig: [
-    { groupTag: "Lodge", expectedProfileNames: ["Lodge-UD"], expectedGroupNames: [], propertyLabel: "Lodge" }
+    { groupTag: "North", expectedProfileNames: ["North-UD"], expectedGroupNames: [], propertyLabel: "North" }
   ]
 };
 
@@ -26,9 +26,9 @@ const deviceListPayload = {
   items: [
     {
       deviceKey: "ap:auto-1",
-      deviceName: "DESKTOP-Lodge-001",
+      deviceName: "DESKTOP-North-001",
       serialNumber: "CZC123",
-      propertyLabel: "Lodge / Gilpin",
+      propertyLabel: "North / River",
       health: "critical",
       flags: ["no_profile_assigned"],
       flagCount: 1,
@@ -36,7 +36,7 @@ const deviceListPayload = {
       deploymentMode: null,
       lastCheckinAt: null,
       complianceState: null,
-      autopilotAssignedUserUpn: "user1@bhwk.com",
+      autopilotAssignedUserUpn: "user1@example.test",
       intunePrimaryUserUpn: null,
       diagnosis: "Autopilot identity exists, but no deployment profile is assigned.",
       matchConfidence: "high",
@@ -64,8 +64,8 @@ const deviceDetailPayload = {
     autopilotRecord: {
       id: "auto-1",
       serial: "CZC123",
-      groupTag: "Lodge",
-      assignedUser: "user1@bhwk.com"
+      groupTag: "North",
+      assignedUser: "user1@example.test"
     },
     targetingGroups: [],
     assignedProfile: null,
@@ -81,7 +81,7 @@ const deviceDetailPayload = {
       summary: "Autopilot identity exists, but no deployment profile is assigned.",
       whyItMatters: "Provisioning cannot continue without a deployment profile.",
       checks: ["Check profile group targeting."],
-      rawData: ["groupTag=Lodge"]
+      rawData: ["groupTag=North"]
     }
   ],
   ruleViolations: [],
@@ -103,7 +103,7 @@ const deviceDetailPayload = {
     ownershipType: "corporate"
   },
   enrollment: {
-    enrollmentProfileName: "AP-Lodge-UserDriven",
+    enrollmentProfileName: "AP-North-UserDriven",
     managedDeviceOwnerType: "company",
     registrationDate: "2026-01-15T00:00:00.000Z",
     firstSeenAt: "2026-01-10T00:00:00.000Z",
@@ -112,7 +112,7 @@ const deviceDetailPayload = {
     hasConfigMgrClient: false
   },
   groupMemberships: [
-    { groupId: "grp-1", groupName: "AP-Lodge-Devices", membershipType: "dynamic" }
+    { groupId: "grp-1", groupName: "AP-North-Devices", membershipType: "dynamic" }
   ],
   provisioningTimeline: {
     firstSeenAt: "2026-01-10T00:00:00.000Z",
@@ -200,7 +200,7 @@ describe("client drilldown", () => {
     expect(await screen.findByText("Device Queue")).toBeInTheDocument();
 
     // Click into the seeded device row → device detail
-    fireEvent.click(await screen.findByText("DESKTOP-Lodge-001"));
+    fireEvent.click(await screen.findByText("DESKTOP-North-001"));
 
     // Device detail renders; the default tab is severity-driven (targeting),
     // so the device name is shown in the hero header. Switch to the enrollment
@@ -221,10 +221,10 @@ describe("client drilldown", () => {
     expect(await findDashboardTitle()).toBeInTheDocument();
 
     fireEvent.change(screen.getAllByPlaceholderText(/search devices by name/i)[0], {
-      target: { value: "Lodge" }
+      target: { value: "North" }
     });
 
-    fireEvent.click(await screen.findByRole("button", { name: /DESKTOP-Lodge-001/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /DESKTOP-North-001/i }));
 
     expect(
       await screen.findByText("Device Diagnostics", {}, { timeout: 3000 })
@@ -235,7 +235,7 @@ describe("client drilldown", () => {
     await renderApp();
 
     fireEvent.click((await screen.findAllByText("Critical Devices"))[0]);
-    fireEvent.click(await screen.findByText("DESKTOP-Lodge-001"));
+    fireEvent.click(await screen.findByText("DESKTOP-North-001"));
     await screen.findAllByText("Device Diagnostics", {}, { timeout: 3000 });
     const enrollmentButtons = screen.getAllByRole("button", { name: /enrollment/i });
     fireEvent.click(enrollmentButtons[enrollmentButtons.length - 1]);

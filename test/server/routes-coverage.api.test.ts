@@ -68,8 +68,8 @@ describe("GET /api/profiles", () => {
 describe("GET /api/profiles/:profileId", () => {
   it("returns detail for a known profile", async () => {
     const app = createApp(db);
-    const res = await request(app).get("/api/profiles/prof-lodge-user").expect(200);
-    expect(res.body.profileName).toBe("AP-Lodge-UserDriven");
+    const res = await request(app).get("/api/profiles/prof-north-user").expect(200);
+    expect(res.body.profileName).toBe("AP-North-UserDriven");
     expect(Array.isArray(res.body.targetingGroups)).toBe(true);
     expect(Array.isArray(res.body.deviceBreakdown)).toBe(true);
   });
@@ -102,8 +102,8 @@ describe("GET /api/groups", () => {
 describe("GET /api/groups/:groupId", () => {
   it("returns group detail with members array", async () => {
     const app = createApp(db);
-    const res = await request(app).get("/api/groups/grp-lodge-devices").expect(200);
-    expect(res.body.groupName).toBe("AP-Lodge-Devices");
+    const res = await request(app).get("/api/groups/grp-north-devices").expect(200);
+    expect(res.body.groupName).toBe("AP-North-Devices");
     expect(Array.isArray(res.body.members)).toBe(true);
     expect(Array.isArray(res.body.assignedProfiles)).toBe(true);
     expect(res.body.memberCount).toBe(res.body.members.length);
@@ -111,7 +111,7 @@ describe("GET /api/groups/:groupId", () => {
 
   it("members have expected shape", async () => {
     const app = createApp(db);
-    const res = await request(app).get("/api/groups/grp-lodge-devices").expect(200);
+    const res = await request(app).get("/api/groups/grp-north-devices").expect(200);
     if (res.body.members.length > 0) {
       const member = res.body.members[0];
       expect(typeof member.deviceKey).toBe("string");
@@ -128,13 +128,13 @@ describe("GET /api/groups/:groupId", () => {
 describe("GET /api/groups/:groupId/check/:deviceKey", () => {
   it("returns isMember true for a device in the group", async () => {
     const app = createApp(db);
-    // Get a device that is in grp-lodge-devices
-    const groupRes = await request(app).get("/api/groups/grp-lodge-devices").expect(200);
+    // Get a device that is in grp-north-devices
+    const groupRes = await request(app).get("/api/groups/grp-north-devices").expect(200);
     if (groupRes.body.members.length === 0) return; // skip if no members
 
     const deviceKey = groupRes.body.members[0].deviceKey;
     const checkRes = await request(app)
-      .get(`/api/groups/grp-lodge-devices/check/${deviceKey}`)
+      .get(`/api/groups/grp-north-devices/check/${deviceKey}`)
       .expect(200);
 
     expect(checkRes.body.isMember).toBe(true);
@@ -144,7 +144,7 @@ describe("GET /api/groups/:groupId/check/:deviceKey", () => {
   it("returns 404 for unknown device key", async () => {
     const app = createApp(db);
     await request(app)
-      .get("/api/groups/grp-lodge-devices/check/nonexistent-device")
+      .get("/api/groups/grp-north-devices/check/nonexistent-device")
       .expect(404);
   });
 });
@@ -157,7 +157,7 @@ describe("Settings tag-config CRUD", () => {
     const app = createApp(db);
     const res = await request(app).get("/api/settings").expect(200);
     expect(Array.isArray(res.body.tagConfig)).toBe(true);
-    expect(res.body.tagConfig.length).toBeGreaterThanOrEqual(3); // Lodge, BHK, Kiosk
+    expect(res.body.tagConfig.length).toBeGreaterThanOrEqual(3); // North, South, Kiosk
   });
 
   it("GET /api/settings/tag-config returns tag config array", async () => {
@@ -169,18 +169,18 @@ describe("Settings tag-config CRUD", () => {
   it("PUT updates an existing tag config", async () => {
     const app = createApp(db);
     await request(app)
-      .put("/api/settings/tag-config/Lodge")
+      .put("/api/settings/tag-config/North")
       .send({
-        groupTag: "Lodge",
-        propertyLabel: "Lodge Updated",
-        expectedProfileNames: ["AP-Lodge-UserDriven"],
-        expectedGroupNames: ["AP-Lodge-Devices"]
+        groupTag: "North",
+        propertyLabel: "North Updated",
+        expectedProfileNames: ["AP-North-UserDriven"],
+        expectedGroupNames: ["AP-North-Devices"]
       })
       .expect(200);
 
     const res = await request(app).get("/api/settings/tag-config").expect(200);
-    const lodge = res.body.find((r: { groupTag: string }) => r.groupTag === "Lodge");
-    expect(lodge.propertyLabel).toBe("Lodge Updated");
+    const north = res.body.find((r: { groupTag: string }) => r.groupTag === "North");
+    expect(north.propertyLabel).toBe("North Updated");
   });
 
   it("DELETE removes a tag config and returns 204", async () => {
@@ -208,26 +208,26 @@ describe("Settings tag-config CRUD", () => {
   it("POST /api/settings/tag-config/preview reports impact without persisting", async () => {
     const app = createApp(db);
     const before = await request(app).get("/api/settings/tag-config").expect(200);
-    const originalLodge = before.body.find((r: { groupTag: string }) => r.groupTag === "Lodge");
+    const originalNorth = before.body.find((r: { groupTag: string }) => r.groupTag === "North");
 
     const res = await request(app)
       .post("/api/settings/tag-config/preview")
       .send({
-        groupTag: "Lodge",
+        groupTag: "North",
         propertyLabel: "Preview Only",
         expectedProfileNames: ["No-Such-Profile"],
         expectedGroupNames: ["No-Such-Group"]
       })
       .expect(200);
 
-    expect(res.body.record.groupTag).toBe("Lodge");
+    expect(res.body.record.groupTag).toBe("North");
     expect(res.body.matchedDevices).toBeGreaterThan(0);
     expect(typeof res.body.impact.propertyLabelChanges).toBe("number");
     expect(Array.isArray(res.body.sampleDevices)).toBe(true);
 
     const after = await request(app).get("/api/settings/tag-config").expect(200);
-    const unchangedLodge = after.body.find((r: { groupTag: string }) => r.groupTag === "Lodge");
-    expect(unchangedLodge).toEqual(originalLodge);
+    const unchangedNorth = after.body.find((r: { groupTag: string }) => r.groupTag === "North");
+    expect(unchangedNorth).toEqual(originalNorth);
   });
 });
 

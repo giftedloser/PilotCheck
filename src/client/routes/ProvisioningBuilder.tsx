@@ -262,7 +262,7 @@ export function ProvisioningBuilderPage() {
                       onKeyDown={(event) =>
                         event.key === "Enter" && handleDiscover()
                       }
-                      placeholder="Enter group tag, for example Lodge, BHK, or Kiosk"
+                      placeholder="Enter group tag, for example North, South, or Kiosk"
                       className="h-10 pl-8"
                     />
                   </div>

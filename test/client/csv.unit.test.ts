@@ -14,7 +14,7 @@ describe("csvEscape", () => {
   });
 
   it("wraps and escapes strings containing commas", () => {
-    expect(csvEscape("Lodge, Gilpin")).toBe('"Lodge, Gilpin"');
+    expect(csvEscape("North, River")).toBe('"North, River"');
   });
 
   it("wraps and escapes strings containing quotes", () => {
@@ -40,8 +40,8 @@ describe("devicesToCsv", () => {
     flagCount: 0,
     diagnosis: "",
     activeRules: [],
-    propertyLabel: "Lodge",
-    assignedProfileName: "AP-Lodge-UserDriven",
+    propertyLabel: "North",
+    assignedProfileName: "AP-North-UserDriven",
     lastCheckinAt: "2026-04-10T12:00:00.000Z",
     matchConfidence: "high" as const,
     autopilotAssignedUserUpn: null,
@@ -86,9 +86,9 @@ describe("devicesToCsv", () => {
 
   it("escapes values that contain commas", () => {
     const csv = devicesToCsv([
-      makeDevice({ propertyLabel: "Lodge, Gilpin" })
+      makeDevice({ propertyLabel: "North, River" })
     ]);
-    expect(csv).toContain('"Lodge, Gilpin"');
+    expect(csv).toContain('"North, River"');
   });
 
   it("returns just a header for empty input", () => {

@@ -71,7 +71,7 @@ describe("correlation engine", () => {
           serial_number: "CZC123",
           model: null,
           manufacturer: null,
-          group_tag: "Lodge",
+          group_tag: "North",
           assigned_user_upn: null,
           deployment_profile_id: null,
           deployment_profile_name: null,

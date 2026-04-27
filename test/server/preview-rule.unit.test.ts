@@ -212,8 +212,8 @@ describe("previewRule — counting & sampling", () => {
 describe("previewRule — scope filtering routes through the live evaluator", () => {
   it("property scope only counts devices whose propertyLabel matches", () => {
     seedDevices([
-      { serial: "SN-L1", compliance: "noncompliant", groupTag: "Lodge", propertyLabel: "Lodge" },
-      { serial: "SN-L2", compliance: "noncompliant", groupTag: "Lodge", propertyLabel: "Lodge" },
+      { serial: "SN-L1", compliance: "noncompliant", groupTag: "North", propertyLabel: "North" },
+      { serial: "SN-L2", compliance: "noncompliant", groupTag: "North", propertyLabel: "North" },
       { serial: "SN-K1", compliance: "noncompliant", groupTag: "Kiosk", propertyLabel: "Kiosk" }
     ]);
 
@@ -221,18 +221,18 @@ describe("previewRule — scope filtering routes through the live evaluator", ()
       db,
       { type: "leaf", field: "complianceState", op: "eq", value: "noncompliant" },
       "property",
-      "Lodge"
+      "North"
     );
 
     expect(result.count).toBe(2);
     expect(result.total).toBe(3);
-    expect(result.sampleDevices.every((d) => d.propertyLabel === "Lodge")).toBe(true);
+    expect(result.sampleDevices.every((d) => d.propertyLabel === "North")).toBe(true);
   });
 
   it("profile scope only counts devices on the named profile", () => {
     seedDevices([
-      { serial: "SN-A", compliance: "noncompliant", groupTag: "Lodge", profile: "AP-Lodge-UD" },
-      { serial: "SN-B", compliance: "noncompliant", groupTag: "Lodge", profile: "AP-Lodge-UD" },
+      { serial: "SN-A", compliance: "noncompliant", groupTag: "North", profile: "AP-North-UD" },
+      { serial: "SN-B", compliance: "noncompliant", groupTag: "North", profile: "AP-North-UD" },
       { serial: "SN-C", compliance: "noncompliant", groupTag: "Kiosk", profile: "AP-Kiosk-SD" }
     ]);
 
@@ -249,7 +249,7 @@ describe("previewRule — scope filtering routes through the live evaluator", ()
 
   it("global scope ignores scopeValue and considers every device", () => {
     seedDevices([
-      { serial: "SN-A", compliance: "noncompliant", groupTag: "Lodge", propertyLabel: "Lodge" },
+      { serial: "SN-A", compliance: "noncompliant", groupTag: "North", propertyLabel: "North" },
       { serial: "SN-B", compliance: "noncompliant", groupTag: "Kiosk", propertyLabel: "Kiosk" }
     ]);
 
@@ -257,7 +257,7 @@ describe("previewRule — scope filtering routes through the live evaluator", ()
       db,
       { type: "leaf", field: "complianceState", op: "eq", value: "noncompliant" },
       "global",
-      "Lodge" // ignored when scope is global
+      "North" // ignored when scope is global
     );
 
     expect(result.count).toBe(2);
@@ -331,16 +331,16 @@ describe("previewRule — boolean & compound predicates", () => {
 
   it("compound and-predicate matches only the intersection", () => {
     seedDevices([
-      { serial: "SN-A", compliance: "noncompliant", groupTag: "Lodge", propertyLabel: "Lodge" },
+      { serial: "SN-A", compliance: "noncompliant", groupTag: "North", propertyLabel: "North" },
       { serial: "SN-B", compliance: "noncompliant", groupTag: "Kiosk", propertyLabel: "Kiosk" },
-      { serial: "SN-C", compliance: "compliant", groupTag: "Lodge", propertyLabel: "Lodge" }
+      { serial: "SN-C", compliance: "compliant", groupTag: "North", propertyLabel: "North" }
     ]);
 
     const result = previewRule(db, {
       type: "and",
       children: [
         { type: "leaf", field: "complianceState", op: "eq", value: "noncompliant" },
-        { type: "leaf", field: "propertyLabel", op: "eq", value: "Lodge" }
+        { type: "leaf", field: "propertyLabel", op: "eq", value: "North" }
       ]
     });
 

@@ -34,9 +34,9 @@ function rule(
 const baseContext: RuleContext = {
   deviceName: "POS-001",
   serialNumber: "CZC123",
-  propertyLabel: "Lodge",
-  groupTag: "Lodge",
-  assignedProfileName: "AP-Lodge-UserDriven",
+  propertyLabel: "North",
+  groupTag: "North",
+  assignedProfileName: "AP-North-UserDriven",
   profileAssignmentStatus: "assigned",
   trustType: "AzureAd",
   hasAutopilotRecord: true,
@@ -56,7 +56,7 @@ describe("evaluateRules — operators", () => {
           type: "leaf",
           field: "propertyLabel",
           op: "eq",
-          value: "lodge"
+          value: "north"
         })
       ],
       baseContext
@@ -114,7 +114,7 @@ describe("evaluateRules — operators", () => {
         type: "leaf",
         field: "propertyLabel",
         op: "in",
-        value: "lodge, bhk, kiosk"
+        value: "north, south, kiosk"
       },
       { name: "in-list" }
     );
@@ -123,7 +123,7 @@ describe("evaluateRules — operators", () => {
         type: "leaf",
         field: "propertyLabel",
         op: "not_in",
-        value: "kiosk,bhk"
+        value: "kiosk,south"
       },
       { name: "not-in-list" }
     );
@@ -197,7 +197,7 @@ describe("evaluateRules — operator edge cases", () => {
 
   it("neq returns false when values match (case-insensitive)", () => {
     const result = evaluateRules(
-      [rule({ type: "leaf", field: "propertyLabel", op: "neq", value: "lodge" })],
+      [rule({ type: "leaf", field: "propertyLabel", op: "neq", value: "north" })],
       baseContext
     );
     expect(result).toHaveLength(0);
@@ -213,7 +213,7 @@ describe("evaluateRules — operator edge cases", () => {
 
   it("in returns false when the field is null", () => {
     const result = evaluateRules(
-      [rule({ type: "leaf", field: "propertyLabel", op: "in", value: "lodge,bhk" })],
+      [rule({ type: "leaf", field: "propertyLabel", op: "in", value: "north,south" })],
       { ...baseContext, propertyLabel: null }
     );
     expect(result).toHaveLength(0);
@@ -221,7 +221,7 @@ describe("evaluateRules — operator edge cases", () => {
 
   it("not_in returns true when the field is null (null is not in any list)", () => {
     const result = evaluateRules(
-      [rule({ type: "leaf", field: "propertyLabel", op: "not_in", value: "lodge,bhk" })],
+      [rule({ type: "leaf", field: "propertyLabel", op: "not_in", value: "north,south" })],
       { ...baseContext, propertyLabel: null }
     );
     expect(result).toHaveLength(1);
@@ -267,8 +267,8 @@ describe("evaluateRules — compound predicates", () => {
         rule({
           type: "and",
           children: [
-            { type: "leaf", field: "propertyLabel", op: "eq", value: "Lodge" },
-            { type: "leaf", field: "propertyLabel", op: "eq", value: "BHK" }
+            { type: "leaf", field: "propertyLabel", op: "eq", value: "North" },
+            { type: "leaf", field: "propertyLabel", op: "eq", value: "South" }
           ]
         })
       ],
@@ -284,7 +284,7 @@ describe("evaluateRules — compound predicates", () => {
           type: "or",
           children: [
             { type: "leaf", field: "propertyLabel", op: "eq", value: "Kiosk" },
-            { type: "leaf", field: "propertyLabel", op: "eq", value: "Lodge" }
+            { type: "leaf", field: "propertyLabel", op: "eq", value: "North" }
           ]
         })
       ],
@@ -326,7 +326,7 @@ describe("evaluateRules — scope filtering", () => {
       [
         rule(
           { type: "leaf", field: "deviceName", op: "exists", value: null },
-          { scope: "property", scopeValue: "Lodge" }
+          { scope: "property", scopeValue: "North" }
         )
       ],
       baseContext
@@ -339,7 +339,7 @@ describe("evaluateRules — scope filtering", () => {
       [
         rule(
           { type: "leaf", field: "deviceName", op: "exists", value: null },
-          { scope: "profile", scopeValue: "AP-Lodge-UserDriven" }
+          { scope: "profile", scopeValue: "AP-North-UserDriven" }
         )
       ],
       baseContext

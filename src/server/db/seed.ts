@@ -64,31 +64,31 @@ function buildMockPayload(): SnapshotPayload {
     entraRows: [],
     groupRows: [
       {
-        id: "grp-lodge-devices",
-        display_name: "AP-Lodge-Devices",
-        membership_rule: '(device.devicePhysicalIds -any (_ -contains "[OrderID]:Lodge"))',
+        id: "grp-north-devices",
+        display_name: "AP-North-Devices",
+        membership_rule: '(device.devicePhysicalIds -any (_ -contains "[OrderID]:North"))',
         membership_rule_processing_state: "On",
         membership_type: "DynamicMembership",
         last_synced_at: now,
-        raw_json: JSON.stringify({ id: "grp-lodge-devices" })
+        raw_json: JSON.stringify({ id: "grp-north-devices" })
       },
       {
-        id: "grp-lodge-hybrid",
-        display_name: "AP-Lodge-Hybrid",
-        membership_rule: '(device.devicePhysicalIds -any (_ -contains "[OrderID]:Lodge-Hybrid"))',
+        id: "grp-north-hybrid",
+        display_name: "AP-North-Hybrid",
+        membership_rule: '(device.devicePhysicalIds -any (_ -contains "[OrderID]:North-Hybrid"))',
         membership_rule_processing_state: "On",
         membership_type: "DynamicMembership",
         last_synced_at: now,
-        raw_json: JSON.stringify({ id: "grp-lodge-hybrid" })
+        raw_json: JSON.stringify({ id: "grp-north-hybrid" })
       },
       {
-        id: "grp-bhk-devices",
-        display_name: "AP-BHK-Devices",
-        membership_rule: '(device.devicePhysicalIds -any (_ -contains "[OrderID]:BHK"))',
+        id: "grp-south-devices",
+        display_name: "AP-South-Devices",
+        membership_rule: '(device.devicePhysicalIds -any (_ -contains "[OrderID]:South"))',
         membership_rule_processing_state: "On",
         membership_type: "DynamicMembership",
         last_synced_at: now,
-        raw_json: JSON.stringify({ id: "grp-bhk-devices" })
+        raw_json: JSON.stringify({ id: "grp-south-devices" })
       },
       {
         id: "grp-kiosk-devices",
@@ -121,37 +121,37 @@ function buildMockPayload(): SnapshotPayload {
     membershipRows: [],
     profileRows: [
       {
-        id: "prof-lodge-user",
-        display_name: "AP-Lodge-UserDriven",
+        id: "prof-north-user",
+        display_name: "AP-North-UserDriven",
         deployment_mode: "userDriven",
         out_of_box_experience: JSON.stringify({ privacySettingsHidden: true, userType: "standard" }),
         hybrid_join_config: null,
-        assigned_group_ids: JSON.stringify(["grp-lodge-devices"]),
+        assigned_group_ids: JSON.stringify(["grp-north-devices"]),
         last_synced_at: now,
-        raw_json: JSON.stringify({ id: "prof-lodge-user" })
+        raw_json: JSON.stringify({ id: "prof-north-user" })
       },
       {
-        id: "prof-lodge-hybrid",
-        display_name: "AP-Lodge-Hybrid",
+        id: "prof-north-hybrid",
+        display_name: "AP-North-Hybrid",
         deployment_mode: "userDriven",
         out_of_box_experience: JSON.stringify({ privacySettingsHidden: true, userType: "standard" }),
         hybrid_join_config: JSON.stringify({
-          domain: "bhwk.com",
-          ou: "OU=Autopilot,OU=Workstations,DC=bhwk,DC=com"
+          domain: "example.test",
+          ou: "OU=Autopilot,OU=Workstations,DC=example,DC=test"
         }),
-        assigned_group_ids: JSON.stringify(["grp-lodge-hybrid"]),
+        assigned_group_ids: JSON.stringify(["grp-north-hybrid"]),
         last_synced_at: now,
-        raw_json: JSON.stringify({ id: "prof-lodge-hybrid" })
+        raw_json: JSON.stringify({ id: "prof-north-hybrid" })
       },
       {
-        id: "prof-bhk-user",
-        display_name: "AP-BHK-UserDriven",
+        id: "prof-south-user",
+        display_name: "AP-South-UserDriven",
         deployment_mode: "userDriven",
         out_of_box_experience: JSON.stringify({ privacySettingsHidden: true, userType: "standard" }),
         hybrid_join_config: null,
-        assigned_group_ids: JSON.stringify(["grp-bhk-devices"]),
+        assigned_group_ids: JSON.stringify(["grp-south-devices"]),
         last_synced_at: now,
-        raw_json: JSON.stringify({ id: "prof-bhk-user" })
+        raw_json: JSON.stringify({ id: "prof-south-user" })
       },
       {
         id: "prof-kiosk-self",
@@ -165,23 +165,23 @@ function buildMockPayload(): SnapshotPayload {
       }
     ],
     profileAssignmentRows: [
-      { profile_id: "prof-lodge-user", group_id: "grp-lodge-devices", last_synced_at: now },
-      { profile_id: "prof-lodge-hybrid", group_id: "grp-lodge-hybrid", last_synced_at: now },
-      { profile_id: "prof-bhk-user", group_id: "grp-bhk-devices", last_synced_at: now },
+      { profile_id: "prof-north-user", group_id: "grp-north-devices", last_synced_at: now },
+      { profile_id: "prof-north-hybrid", group_id: "grp-north-hybrid", last_synced_at: now },
+      { profile_id: "prof-south-user", group_id: "grp-south-devices", last_synced_at: now },
       { profile_id: "prof-kiosk-self", group_id: "grp-kiosk-devices", last_synced_at: now }
     ],
     tagConfigRows: [
       {
-        groupTag: "Lodge",
-        expectedProfileNames: ["AP-Lodge-UserDriven", "AP-Lodge-Hybrid"],
-        expectedGroupNames: ["AP-Lodge-Devices", "AP-Lodge-Hybrid"],
-        propertyLabel: "Lodge / Gilpin"
+        groupTag: "North",
+        expectedProfileNames: ["AP-North-UserDriven", "AP-North-Hybrid"],
+        expectedGroupNames: ["AP-North-Devices", "AP-North-Hybrid"],
+        propertyLabel: "North / River"
       },
       {
-        groupTag: "BHK",
-        expectedProfileNames: ["AP-BHK-UserDriven"],
-        expectedGroupNames: ["AP-BHK-Devices"],
-        propertyLabel: "Black Hawk"
+        groupTag: "South",
+        expectedProfileNames: ["AP-South-UserDriven"],
+        expectedGroupNames: ["AP-South-Devices"],
+        propertyLabel: "South Campus"
       },
       {
         groupTag: "Kiosk",
@@ -227,41 +227,41 @@ function buildMockPayload(): SnapshotPayload {
     // 18 healthy devices spread across tags with hardware variety
     ...Array.from({ length: 18 }, (_, index) => ({
       kind: "healthy",
-      tag: index < 8 ? "Lodge" : index < 14 ? "BHK" : "Kiosk",
+      tag: index < 8 ? "North" : index < 14 ? "South" : "Kiosk",
       serial: `CZC10${(index + 1).toString().padStart(4, "0")}`,
       hwIndex: index
     })),
     // Problem scenarios
-    { kind: "hybrid_risk", tag: "Lodge", serial: "CZC2000001", hwIndex: 0 },
-    { kind: "hybrid_risk", tag: "Lodge", serial: "CZC2000002", hwIndex: 1 },
-    { kind: "hybrid_risk", tag: "Lodge", serial: "CZC2000003", hwIndex: 6 },
-    { kind: "no_profile", tag: "Lodge", serial: "CZC3000001", hwIndex: 2 },
-    { kind: "no_profile", tag: "BHK", serial: "CZC3000002", hwIndex: 3 },
-    { kind: "group_miss", tag: "Lodge", serial: "CZC4000001", hwIndex: 4 },
-    { kind: "group_miss", tag: "BHK", serial: "CZC4000002", hwIndex: 5 },
-    { kind: "user_mismatch", tag: "Lodge", serial: "CZC5000001", hwIndex: 8 },
-    { kind: "user_mismatch", tag: "BHK", serial: "CZC5000002", hwIndex: 9 },
-    { kind: "tag_mismatch", tag: "Lodge", serial: "CZC6000001", hwIndex: 7 },
-    { kind: "tag_mismatch", tag: "BHK", serial: "CZC6000002", hwIndex: 3 },
+    { kind: "hybrid_risk", tag: "North", serial: "CZC2000001", hwIndex: 0 },
+    { kind: "hybrid_risk", tag: "North", serial: "CZC2000002", hwIndex: 1 },
+    { kind: "hybrid_risk", tag: "North", serial: "CZC2000003", hwIndex: 6 },
+    { kind: "no_profile", tag: "North", serial: "CZC3000001", hwIndex: 2 },
+    { kind: "no_profile", tag: "South", serial: "CZC3000002", hwIndex: 3 },
+    { kind: "group_miss", tag: "North", serial: "CZC4000001", hwIndex: 4 },
+    { kind: "group_miss", tag: "South", serial: "CZC4000002", hwIndex: 5 },
+    { kind: "user_mismatch", tag: "North", serial: "CZC5000001", hwIndex: 8 },
+    { kind: "user_mismatch", tag: "South", serial: "CZC5000002", hwIndex: 9 },
+    { kind: "tag_mismatch", tag: "North", serial: "CZC6000001", hwIndex: 7 },
+    { kind: "tag_mismatch", tag: "South", serial: "CZC6000002", hwIndex: 3 },
     { kind: "orphaned", tag: "Kiosk", serial: "CZC7000001", hwIndex: 5 },
-    { kind: "orphaned", tag: "Lodge", serial: "CZC7000002", hwIndex: 2 },
-    { kind: "no_autopilot", tag: "Lodge", serial: "CZC8000001", hwIndex: 4 },
-    { kind: "no_autopilot", tag: "BHK", serial: "CZC8000002", hwIndex: 6 },
-    { kind: "identity_conflict", tag: "Lodge", serial: "CZC9000001", hwIndex: 0 },
-    { kind: "not_enrolled", tag: "BHK", serial: "CZC9000002", hwIndex: 1 },
-    { kind: "drift_seed", tag: "Lodge", serial: "CZC9000003", hwIndex: 8 },
+    { kind: "orphaned", tag: "North", serial: "CZC7000002", hwIndex: 2 },
+    { kind: "no_autopilot", tag: "North", serial: "CZC8000001", hwIndex: 4 },
+    { kind: "no_autopilot", tag: "South", serial: "CZC8000002", hwIndex: 6 },
+    { kind: "identity_conflict", tag: "North", serial: "CZC9000001", hwIndex: 0 },
+    { kind: "not_enrolled", tag: "South", serial: "CZC9000002", hwIndex: 1 },
+    { kind: "drift_seed", tag: "North", serial: "CZC9000003", hwIndex: 8 },
     // Additional realistic scenarios
-    { kind: "stale_checkin", tag: "Lodge", serial: "CZC9100001", hwIndex: 3 },
-    { kind: "stale_checkin", tag: "BHK", serial: "CZC9100002", hwIndex: 7 },
-    { kind: "healthy", tag: "Lodge", serial: "CZC9200001", hwIndex: 9 },
-    { kind: "healthy", tag: "BHK", serial: "CZC9200002", hwIndex: 8 },
+    { kind: "stale_checkin", tag: "North", serial: "CZC9100001", hwIndex: 3 },
+    { kind: "stale_checkin", tag: "South", serial: "CZC9100002", hwIndex: 7 },
+    { kind: "healthy", tag: "North", serial: "CZC9200001", hwIndex: 9 },
+    { kind: "healthy", tag: "South", serial: "CZC9200002", hwIndex: 8 },
     { kind: "healthy", tag: "Kiosk", serial: "CZC9200003", hwIndex: 5 }
   ];
 
   // Users per tag to create shared-user scenarios
   const userPool = {
-    Lodge: ["mjarvis@bhwk.com", "jsmith@bhwk.com", "kgarcia@bhwk.com", "tchen@bhwk.com"],
-    BHK: ["rpatel@bhwk.com", "lnguyen@bhwk.com", "dbrown@bhwk.com"],
+    North: ["operator.one@example.test", "operator.two@example.test", "operator.three@example.test", "operator.four@example.test"],
+    South: ["rpatel@example.test", "lnguyen@example.test", "dbrown@example.test"],
     Kiosk: [null] // kiosks have no user
   };
 
@@ -278,25 +278,25 @@ function buildMockPayload(): SnapshotPayload {
     const autopilotId = `auto-${seq}`;
     const intuneId = `int-${seq}`;
     const baseProfile =
-      scenario.tag === "Lodge"
-        ? "prof-lodge-user"
-        : scenario.tag === "BHK"
-          ? "prof-bhk-user"
+      scenario.tag === "North"
+        ? "prof-north-user"
+        : scenario.tag === "South"
+          ? "prof-south-user"
           : "prof-kiosk-self";
     const profileName =
-      scenario.tag === "Lodge"
-        ? "AP-Lodge-UserDriven"
-        : scenario.tag === "BHK"
-          ? "AP-BHK-UserDriven"
+      scenario.tag === "North"
+        ? "AP-North-UserDriven"
+        : scenario.tag === "South"
+          ? "AP-South-UserDriven"
           : "AP-Kiosk-SelfDeploying";
     const groupId =
-      scenario.tag === "Lodge"
-        ? "grp-lodge-devices"
-        : scenario.tag === "BHK"
-          ? "grp-bhk-devices"
+      scenario.tag === "North"
+        ? "grp-north-devices"
+        : scenario.tag === "South"
+          ? "grp-south-devices"
           : "grp-kiosk-devices";
-    const pool = userPool[scenario.tag as keyof typeof userPool] ?? userPool.Lodge;
-    const user = pool[index % pool.length] ?? `user${seq}@bhwk.com`;
+    const pool = userPool[scenario.tag as keyof typeof userPool] ?? userPool.North;
+    const user = pool[index % pool.length] ?? `user${seq}@example.test`;
 
     // ── Autopilot record ─────────────────────────────────────────
     if (scenario.kind !== "no_autopilot") {
@@ -309,14 +309,14 @@ function buildMockPayload(): SnapshotPayload {
         assigned_user_upn:
           scenario.tag === "Kiosk" ? null : user,
         deployment_profile_id:
-          scenario.kind === "no_profile" ? null : scenario.kind === "tag_mismatch" && scenario.tag === "Lodge" ? "prof-bhk-user" : scenario.kind === "hybrid_risk" ? "prof-lodge-hybrid" : baseProfile,
+          scenario.kind === "no_profile" ? null : scenario.kind === "tag_mismatch" && scenario.tag === "North" ? "prof-south-user" : scenario.kind === "hybrid_risk" ? "prof-north-hybrid" : baseProfile,
         deployment_profile_name:
           scenario.kind === "no_profile"
             ? null
-            : scenario.kind === "tag_mismatch" && scenario.tag === "Lodge"
-              ? "AP-BHK-UserDriven"
+            : scenario.kind === "tag_mismatch" && scenario.tag === "North"
+              ? "AP-South-UserDriven"
               : scenario.kind === "hybrid_risk"
-                ? "AP-Lodge-Hybrid"
+                ? "AP-North-Hybrid"
                 : profileName,
         profile_assignment_status:
           scenario.kind === "group_miss" ? "pending" : scenario.kind === "no_profile" ? "notAssigned" : "assigned",
@@ -360,7 +360,7 @@ function buildMockPayload(): SnapshotPayload {
         managed_device_owner_type: "company",
         last_sync_datetime: lastSync,
         primary_user_upn: scenario.kind === "user_mismatch"
-          ? `other${seq}@bhwk.com`
+          ? `other${seq}@example.test`
           : scenario.tag === "Kiosk"
             ? null
             : user,
@@ -400,7 +400,7 @@ function buildMockPayload(): SnapshotPayload {
       registration_datetime: isoOffset(24 + index * 3),
       device_physical_ids:
         scenario.kind === "identity_conflict"
-          ? JSON.stringify(["[OrderID]:Lodge"])
+          ? JSON.stringify(["[OrderID]:North"])
           : JSON.stringify(["[ZTDId]:ABC123", `[OrderID]:${scenario.tag}`]),
       last_synced_at: now,
       raw_json: JSON.stringify({ id: entraId, deviceId, displayName: name, trustType: scenario.kind === "hybrid_risk" ? "AzureAd" : "ServerAd" })
@@ -410,10 +410,10 @@ function buildMockPayload(): SnapshotPayload {
     const membershipTargets =
       scenario.kind === "group_miss"
         ? []
-        : scenario.kind === "tag_mismatch" && scenario.tag === "Lodge"
-          ? ["grp-bhk-devices"]
+        : scenario.kind === "tag_mismatch" && scenario.tag === "North"
+          ? ["grp-south-devices"]
           : scenario.kind === "hybrid_risk"
-            ? ["grp-lodge-hybrid"]
+            ? ["grp-north-hybrid"]
             : [groupId];
 
     membershipTargets.forEach((membershipGroupId) => {
@@ -432,8 +432,8 @@ function buildMockPayload(): SnapshotPayload {
         last_synced_at: now
       });
     }
-    // Add VIP for first 3 Lodge devices
-    if (scenario.tag === "Lodge" && index < 3) {
+    // Add VIP for first 3 North devices
+    if (scenario.tag === "North" && index < 3) {
       payload.membershipRows.push({
         group_id: "grp-vip-devices",
         member_device_id: entraId,
@@ -559,22 +559,22 @@ function seedActionLog(db: Database.Database) {
 
   const sampleBulkRunId = "00000000-0000-4000-8000-000000000001";
   const actions = [
-    { serial: "CZC100001", name: "DESKTOP-LODGE-001", intuneId: "int-1", action: "sync", by: "mjarvis@bhwk.com", hoursAgo: 2, status: 204, notes: "Sync initiated successfully." },
-    { serial: "CZC100001", name: "DESKTOP-LODGE-001", intuneId: "int-1", action: "sync", by: "mjarvis@bhwk.com", hoursAgo: 26, status: 204, notes: "Sync initiated successfully." },
-    { serial: "CZC100002", name: "DESKTOP-LODGE-002", intuneId: "int-2", action: "reboot", by: "mjarvis@bhwk.com", hoursAgo: 4, status: 204, notes: "Reboot command sent." },
-    { serial: "CZC100003", name: "DESKTOP-LODGE-003", intuneId: "int-3", action: "rename", by: "jsmith@bhwk.com", hoursAgo: 8, status: 204, notes: "Renamed to DESKTOP-LODGE-EXEC." },
-    { serial: "CZC100009", name: "DESKTOP-BHK-009", intuneId: "int-9", action: "sync", by: "rpatel@bhwk.com", hoursAgo: 1, status: 204, notes: "Sync initiated successfully." },
-    { serial: "CZC100009", name: "DESKTOP-BHK-009", intuneId: "int-9", action: "rotate-laps", by: "rpatel@bhwk.com", hoursAgo: 12, status: 200, notes: "LAPS password rotated." },
-    { serial: "CZC2000001", name: "DESKTOP-LODGE-019", intuneId: "int-19", action: "sync", by: "mjarvis@bhwk.com", hoursAgo: 3, status: 204, notes: "Sync initiated successfully." },
-    { serial: "CZC5000001", name: "DESKTOP-LODGE-026", intuneId: "int-26", action: "change-primary-user", by: "mjarvis@bhwk.com", hoursAgo: 6, status: 204, notes: "Primary user changed to jsmith@bhwk.com." },
-    { serial: "CZC100015", name: "DESKTOP-KIOSK-015", intuneId: "int-15", action: "autopilot-reset", by: "kgarcia@bhwk.com", hoursAgo: 48, status: 204, notes: "Autopilot reset initiated." },
-    { serial: "CZC100015", name: "DESKTOP-KIOSK-015", intuneId: "int-15", action: "wipe", by: "mjarvis@bhwk.com", hoursAgo: 72, status: 204, notes: "Full wipe initiated." },
-    { serial: "CZC9100001", name: "DESKTOP-LODGE-037", intuneId: "int-37", action: "sync", by: "mjarvis@bhwk.com", hoursAgo: 0.5, status: 504, notes: "Gateway timeout — device unreachable." },
-    { serial: "CZC9100001", name: "DESKTOP-LODGE-037", intuneId: "int-37", action: "reboot", by: "mjarvis@bhwk.com", hoursAgo: 0.3, status: 504, notes: "Gateway timeout — device unreachable." },
-    { serial: null, name: null, intuneId: null, action: "create_group", by: "mjarvis@bhwk.com", hoursAgo: 96, status: 201, notes: "VIP-Executive-Devices (Assigned) — Group created." },
-    { serial: "CZC100001", name: "DESKTOP-LODGE-001", intuneId: "int-1", action: "add_to_group", by: "mjarvis@bhwk.com", hoursAgo: 95, status: 204, notes: "Group grp-vip-devices — Member added." },
-    { serial: "CZC100010", name: "DESKTOP-BHK-010", intuneId: "int-10", action: "sync", by: "lnguyen@bhwk.com", hoursAgo: 5, status: 204, notes: "[bulk] Sync initiated successfully.", bulkRunId: sampleBulkRunId },
-    { serial: "CZC100011", name: "DESKTOP-BHK-011", intuneId: "int-11", action: "sync", by: "lnguyen@bhwk.com", hoursAgo: 5, status: 204, notes: "[bulk] Sync initiated successfully.", bulkRunId: sampleBulkRunId }
+    { serial: "CZC100001", name: "DESKTOP-NORTH-001", intuneId: "int-1", action: "sync", by: "operator.one@example.test", hoursAgo: 2, status: 204, notes: "Sync initiated successfully." },
+    { serial: "CZC100001", name: "DESKTOP-NORTH-001", intuneId: "int-1", action: "sync", by: "operator.one@example.test", hoursAgo: 26, status: 204, notes: "Sync initiated successfully." },
+    { serial: "CZC100002", name: "DESKTOP-NORTH-002", intuneId: "int-2", action: "reboot", by: "operator.one@example.test", hoursAgo: 4, status: 204, notes: "Reboot command sent." },
+    { serial: "CZC100003", name: "DESKTOP-NORTH-003", intuneId: "int-3", action: "rename", by: "operator.two@example.test", hoursAgo: 8, status: 204, notes: "Renamed to DESKTOP-NORTH-EXEC." },
+    { serial: "CZC100009", name: "DESKTOP-South-009", intuneId: "int-9", action: "sync", by: "rpatel@example.test", hoursAgo: 1, status: 204, notes: "Sync initiated successfully." },
+    { serial: "CZC100009", name: "DESKTOP-South-009", intuneId: "int-9", action: "rotate-laps", by: "rpatel@example.test", hoursAgo: 12, status: 200, notes: "LAPS password rotated." },
+    { serial: "CZC2000001", name: "DESKTOP-NORTH-019", intuneId: "int-19", action: "sync", by: "operator.one@example.test", hoursAgo: 3, status: 204, notes: "Sync initiated successfully." },
+    { serial: "CZC5000001", name: "DESKTOP-NORTH-026", intuneId: "int-26", action: "change-primary-user", by: "operator.one@example.test", hoursAgo: 6, status: 204, notes: "Primary user changed to operator.two@example.test." },
+    { serial: "CZC100015", name: "DESKTOP-KIOSK-015", intuneId: "int-15", action: "autopilot-reset", by: "operator.three@example.test", hoursAgo: 48, status: 204, notes: "Autopilot reset initiated." },
+    { serial: "CZC100015", name: "DESKTOP-KIOSK-015", intuneId: "int-15", action: "wipe", by: "operator.one@example.test", hoursAgo: 72, status: 204, notes: "Full wipe initiated." },
+    { serial: "CZC9100001", name: "DESKTOP-NORTH-037", intuneId: "int-37", action: "sync", by: "operator.one@example.test", hoursAgo: 0.5, status: 504, notes: "Gateway timeout — device unreachable." },
+    { serial: "CZC9100001", name: "DESKTOP-NORTH-037", intuneId: "int-37", action: "reboot", by: "operator.one@example.test", hoursAgo: 0.3, status: 504, notes: "Gateway timeout — device unreachable." },
+    { serial: null, name: null, intuneId: null, action: "create_group", by: "operator.one@example.test", hoursAgo: 96, status: 201, notes: "VIP-Executive-Devices (Assigned) — Group created." },
+    { serial: "CZC100001", name: "DESKTOP-NORTH-001", intuneId: "int-1", action: "add_to_group", by: "operator.one@example.test", hoursAgo: 95, status: 204, notes: "Group grp-vip-devices — Member added." },
+    { serial: "CZC100010", name: "DESKTOP-South-010", intuneId: "int-10", action: "sync", by: "lnguyen@example.test", hoursAgo: 5, status: 204, notes: "[bulk] Sync initiated successfully.", bulkRunId: sampleBulkRunId },
+    { serial: "CZC100011", name: "DESKTOP-South-011", intuneId: "int-11", action: "sync", by: "lnguyen@example.test", hoursAgo: 5, status: 204, notes: "[bulk] Sync initiated successfully.", bulkRunId: sampleBulkRunId }
   ];
 
   const txn = db.transaction(() => {

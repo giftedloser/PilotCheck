@@ -58,7 +58,7 @@ function seedDevice(
        assignment_break_point, active_flags, flag_count, overall_health, diagnosis, match_confidence,
        matched_on, identity_conflict, active_rule_ids, computed_at
      ) VALUES (
-       ?, ?, ?, ?, ?, 'POS-01', 'Lodge',
+       ?, ?, ?, ?, ?, 'POS-01', 'North',
        NULL, NULL, NULL, NULL,
        NULL, NULL, 0, 1, 0,
        0, NULL, 1, NULL,

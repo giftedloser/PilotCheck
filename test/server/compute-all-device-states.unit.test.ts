@@ -214,7 +214,7 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-D",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "failed"
           })
         ],
@@ -235,7 +235,7 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-E",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned",
             first_profile_assigned_at: HOURS_AGO_72,
             first_seen_at: HOURS_AGO_72
@@ -272,7 +272,7 @@ describe("computeAllDeviceStates — flag detection", () => {
         profileRows: [
           profile({
             id: "prof-hybrid",
-            display_name: "Lodge-Hybrid",
+            display_name: "North-Hybrid",
             deployment_mode: "hybridAzureADJoined",
             hybrid_join_config: "enabled"
           })
@@ -324,7 +324,7 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-H",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             assigned_user_upn: "alice@casino.com"
           })
         ],
@@ -351,7 +351,7 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-I",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             assigned_user_upn: "Alice@Casino.com"
           })
         ],
@@ -378,7 +378,7 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-J",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             entra_device_id: "entra-j"
           })
         ],
@@ -406,7 +406,7 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-K",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           })
         ],
@@ -434,7 +434,7 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-L",
-            group_tag: "Lodge",
+            group_tag: "North",
             deployment_profile_id: "prof-wrong",
             deployment_profile_name: "WrongProfile",
             entra_device_id: "entra-l"
@@ -445,10 +445,10 @@ describe("computeAllDeviceStates — flag detection", () => {
         profileRows: [profile({ id: "prof-wrong", display_name: "WrongProfile" })],
         tagConfigRows: [
           {
-            groupTag: "Lodge",
-            expectedProfileNames: ["Lodge-UD"],
+            groupTag: "North",
+            expectedProfileNames: ["North-UD"],
             expectedGroupNames: [],
-            propertyLabel: "Lodge"
+            propertyLabel: "North"
           }
         ]
       })
@@ -467,21 +467,21 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-M",
-            group_tag: "Lodge",
-            deployment_profile_name: "Lodge-UD",
+            group_tag: "North",
+            deployment_profile_name: "North-UD",
             entra_device_id: "entra-m"
           })
         ],
         intuneRows: [intune({ id: "int-1", serial_number: "SN-M", entra_device_id: "entra-m" })],
         entraRows: [entra({ id: "entra-m", serial_number: "SN-M" })],
-        groupRows: [group({ id: "grp-lodge", display_name: "Lodge-Devices" })],
+        groupRows: [group({ id: "grp-north", display_name: "North-Devices" })],
         // No membership row → device is not in the group
         tagConfigRows: [
           {
-            groupTag: "Lodge",
-            expectedProfileNames: ["Lodge-UD"],
-            expectedGroupNames: ["Lodge-Devices"],
-            propertyLabel: "Lodge"
+            groupTag: "North",
+            expectedProfileNames: ["North-UD"],
+            expectedGroupNames: ["North-Devices"],
+            propertyLabel: "North"
           }
         ]
       })
@@ -500,9 +500,9 @@ describe("computeAllDeviceStates — flag detection", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-OK",
-            group_tag: "Lodge",
-            deployment_profile_id: "prof-lodge",
-            deployment_profile_name: "Lodge-UD",
+            group_tag: "North",
+            deployment_profile_id: "prof-north",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned",
             assigned_user_upn: "alice@casino.com",
             entra_device_id: "entra-ok"
@@ -525,16 +525,16 @@ describe("computeAllDeviceStates — flag detection", () => {
             trust_type: "ServerAd"
           })
         ],
-        groupRows: [group({ id: "grp-lodge", display_name: "Lodge-Devices" })],
-        membershipRows: [membership("grp-lodge", "entra-ok")],
-        profileRows: [profile({ id: "prof-lodge", display_name: "Lodge-UD" })],
-        profileAssignmentRows: [profileAssignment("prof-lodge", "grp-lodge")],
+        groupRows: [group({ id: "grp-north", display_name: "North-Devices" })],
+        membershipRows: [membership("grp-north", "entra-ok")],
+        profileRows: [profile({ id: "prof-north", display_name: "North-UD" })],
+        profileAssignmentRows: [profileAssignment("prof-north", "grp-north")],
         tagConfigRows: [
           {
-            groupTag: "Lodge",
-            expectedProfileNames: ["Lodge-UD"],
-            expectedGroupNames: ["Lodge-Devices"],
-            propertyLabel: "Lodge"
+            groupTag: "North",
+            expectedProfileNames: ["North-UD"],
+            expectedGroupNames: ["North-Devices"],
+            propertyLabel: "North"
           }
         ]
       })
@@ -553,7 +553,7 @@ describe("computeAllDeviceStates — flag detection", () => {
       snapshot({
         autopilotRows: [
           autopilot({ id: "ap-1", serial_number: "SN-1" }),
-          autopilot({ id: "ap-2", serial_number: "SN-2", deployment_profile_name: "Lodge-UD" })
+          autopilot({ id: "ap-2", serial_number: "SN-2", deployment_profile_name: "North-UD" })
         ],
         intuneRows: [
           intune({ id: "int-2", serial_number: "SN-2" }),

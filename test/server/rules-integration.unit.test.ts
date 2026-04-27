@@ -135,7 +135,7 @@ describe("custom rule → computeAllDeviceStates integration", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-RULE",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           })
         ],
@@ -159,7 +159,7 @@ describe("custom rule → computeAllDeviceStates integration", () => {
     // intune fresh, compliant). A custom critical rule must still push
     // overall_health to critical.
     const rule = createRule(db, {
-      name: "Lodge property must always be warning or worse",
+      name: "North property must always be warning or worse",
       description: "",
       severity: "critical",
       scope: "global",
@@ -167,7 +167,7 @@ describe("custom rule → computeAllDeviceStates integration", () => {
         type: "leaf",
         field: "propertyLabel",
         op: "eq",
-        value: "Lodge"
+        value: "North"
       }
     });
 
@@ -178,18 +178,18 @@ describe("custom rule → computeAllDeviceStates integration", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-P",
-            group_tag: "Lodge",
-            deployment_profile_name: "Lodge-UD",
+            group_tag: "North",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           })
         ],
         intuneRows: [intune({ id: "int-1", serial_number: "SN-P" })],
         tagConfigRows: [
           {
-            groupTag: "Lodge",
-            expectedProfileNames: ["Lodge-UD"],
+            groupTag: "North",
+            expectedProfileNames: ["North-UD"],
             expectedGroupNames: [],
-            propertyLabel: "Lodge"
+            propertyLabel: "North"
           }
         ]
       })
@@ -231,7 +231,7 @@ describe("custom rule → computeAllDeviceStates integration", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-X",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned",
             assigned_user_upn: "alice@casino.com"
           })
@@ -271,7 +271,7 @@ describe("custom rule → computeAllDeviceStates integration", () => {
       predicate: { type: "leaf", field: "serialNumber", op: "exists", value: null }
     });
     createRule(db, {
-      name: "Property-scoped to Casino — won't match Lodge devices",
+      name: "Property-scoped to Casino — won't match North devices",
       description: "",
       severity: "critical",
       scope: "property",
@@ -286,18 +286,18 @@ describe("custom rule → computeAllDeviceStates integration", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-S",
-            group_tag: "Lodge",
-            deployment_profile_name: "Lodge-UD",
+            group_tag: "North",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           })
         ],
         intuneRows: [intune({ id: "int-1", serial_number: "SN-S" })],
         tagConfigRows: [
           {
-            groupTag: "Lodge",
-            expectedProfileNames: ["Lodge-UD"],
+            groupTag: "North",
+            expectedProfileNames: ["North-UD"],
             expectedGroupNames: [],
-            propertyLabel: "Lodge"
+            propertyLabel: "North"
           }
         ]
       })
@@ -361,13 +361,13 @@ describe("custom rule → computeAllDeviceStates integration", () => {
           autopilot({
             id: "ap-sccm",
             serial_number: "SN-SCCM",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           }),
           autopilot({
             id: "ap-mdm",
             serial_number: "SN-MDM",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           })
         ],
@@ -396,14 +396,14 @@ describe("custom rule → computeAllDeviceStates integration", () => {
 
   it("matches a compound AND predicate spanning autopilot and intune context", () => {
     const rule = createRule(db, {
-      name: "Noncompliant Lodge devices",
+      name: "Noncompliant North devices",
       description: "",
       severity: "critical",
       scope: "global",
       predicate: {
         type: "and",
         children: [
-          { type: "leaf", field: "propertyLabel", op: "eq", value: "Lodge" },
+          { type: "leaf", field: "propertyLabel", op: "eq", value: "North" },
           { type: "leaf", field: "complianceState", op: "eq", value: "noncompliant" }
         ]
       }
@@ -416,15 +416,15 @@ describe("custom rule → computeAllDeviceStates integration", () => {
           autopilot({
             id: "ap-match",
             serial_number: "SN-MATCH",
-            group_tag: "Lodge",
-            deployment_profile_name: "Lodge-UD",
+            group_tag: "North",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           }),
           autopilot({
             id: "ap-miss",
             serial_number: "SN-MISS",
-            group_tag: "Lodge",
-            deployment_profile_name: "Lodge-UD",
+            group_tag: "North",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           })
         ],
@@ -438,10 +438,10 @@ describe("custom rule → computeAllDeviceStates integration", () => {
         ],
         tagConfigRows: [
           {
-            groupTag: "Lodge",
-            expectedProfileNames: ["Lodge-UD"],
+            groupTag: "North",
+            expectedProfileNames: ["North-UD"],
             expectedGroupNames: [],
-            propertyLabel: "Lodge"
+            propertyLabel: "North"
           }
         ]
       })
@@ -478,7 +478,7 @@ describe("custom rule → computeAllDeviceStates integration", () => {
           autopilot({
             id: "ap-1",
             serial_number: "SN-Z",
-            deployment_profile_name: "Lodge-UD",
+            deployment_profile_name: "North-UD",
             profile_assignment_status: "assigned"
           })
         ],

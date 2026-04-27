@@ -56,14 +56,14 @@ describe("RulesSection.buildPayload", () => {
 
   it("keeps string fields as-is", () => {
     const payload = buildPayload({
-      name: "Lodge only",
+      name: "North only",
       description: "",
       severity: "info",
       field: "propertyLabel",
       op: "eq",
-      value: "Lodge"
+      value: "North"
     });
-    expect(payload.predicate).toMatchObject({ value: "Lodge" });
+    expect(payload.predicate).toMatchObject({ value: "North" });
   });
 
   it("keeps CSV strings raw for in / not_in so the engine can split", () => {
@@ -73,11 +73,11 @@ describe("RulesSection.buildPayload", () => {
       severity: "info",
       field: "assignedProfileName",
       op: "in",
-      value: "Lodge-UD, Casino-SD, Kiosk"
+      value: "North-UD, Casino-SD, Kiosk"
     });
     expect(payload.predicate).toMatchObject({
       op: "in",
-      value: "Lodge-UD, Casino-SD, Kiosk"
+      value: "North-UD, Casino-SD, Kiosk"
     });
   });
 
