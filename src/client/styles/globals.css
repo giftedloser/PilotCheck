@@ -265,6 +265,11 @@ select:disabled {
   background: transparent;
 }
 
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  margin-top: var(--pc-titlebar-height, 0px);
+}
+
 ::-webkit-scrollbar-thumb {
   background: var(--pc-border);
   border-radius: 3px;
