@@ -71,7 +71,7 @@ export function DesktopTitleBar() {
   return (
     <header
       data-tauri-drag-region
-      className="fixed left-0 right-0 top-0 z-[90] flex h-[38px] w-full select-none items-center border-b border-[var(--pc-border)] bg-[var(--pc-surface)] text-[var(--pc-text)] backdrop-blur-xl"
+      className="fixed left-0 top-0 z-[90] flex h-[38px] w-screen select-none items-center border-b border-[var(--pc-titlebar-border)] bg-[var(--pc-titlebar-bg)] text-[var(--pc-titlebar-text)] backdrop-blur-xl"
       onDoubleClick={() => {
         void toggleMaximize();
       }}
@@ -95,7 +95,7 @@ export function DesktopTitleBar() {
         </div>
         <div
           data-tauri-drag-region
-          className="hidden truncate border-l border-[var(--pc-border)] pl-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--pc-text-muted)] sm:block"
+          className="hidden truncate border-l border-[var(--pc-titlebar-border)] pl-2 text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--pc-titlebar-text-muted)] sm:block"
         >
           Fleet readiness console
         </div>
@@ -158,10 +158,10 @@ function WindowButton({
       title={label}
       onClick={onClick}
       className={cn(
-        "grid w-11 place-items-center text-[var(--pc-text-secondary)] transition-[background-color,color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[var(--pc-accent)]",
+        "grid w-11 place-items-center text-[var(--pc-titlebar-control)] transition-[background-color,color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[var(--pc-accent)]",
         danger
           ? "hover:bg-[#d93025] hover:text-[var(--pc-accent-contrast)]"
-          : "hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
+          : "hover:bg-[var(--pc-titlebar-control-hover)] hover:text-[var(--pc-titlebar-text)]"
       )}
     >
       {children}
