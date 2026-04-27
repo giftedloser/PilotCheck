@@ -52,7 +52,11 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Tauri signing & code-signing keys — never commit
+.tauri/
+.runway/
+~/
 *.key
+*.key.pub
 *.pem
 *.pfx
 *.p12

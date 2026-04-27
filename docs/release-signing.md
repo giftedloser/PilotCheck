@@ -1,42 +1,48 @@
 # Release Signing & Auto-Update
 
-Runway ships as a Tauri-bundled MSI. To distribute updates safely two
-signing flows must be configured. This file documents the manual
-one-time setup; the rest of the pipeline (CI release, `latest.json`
-publication) is just GitHub Releases plumbing.
+Runway ships as a Tauri-bundled Windows app. To distribute updates
+safely, two separate signing flows matter:
 
-## 1. Tauri update signing key (mandatory before first release)
+1. **Tauri updater signing** proves an update artifact came from the
+   Runway release key. This is configured.
+2. **Windows Authenticode signing** proves the installer/executable was
+   published by a trusted Windows code-signing identity. This still
+   needs a real certificate before the first broad install.
+
+This file documents the release setup and the remaining hand-off.
+
+## 1. Tauri update signing key (configured)
 
 The Tauri updater verifies every downloaded artifact against an
-embedded ed25519 public key. Without it, every install is on its own
-trust path.
+embedded ed25519 public key. Without it, installs cannot safely receive
+in-app updates.
 
-```bash
-# Generate the keypair. Use a strong passphrase — losing it means
-# regenerating and shipping a new release that users have to install
-# manually.
-npx @tauri-apps/cli signer generate -w ~/.runway/runway-update.key
+```powershell
+npx tauri signer generate -w "$env:USERPROFILE\.tauri\runway.key"
+```
 
-# Capture the printed PUBLIC key and paste it into:
-#   src-tauri/tauri.conf.json → plugins.updater.pubkey
-#
-# The PRIVATE key (`runway-update.key`) and its passphrase are the
-# update signing material. Keep them outside the repo. CI loads them
-# via these env vars at release time:
-#
-#   TAURI_SIGNING_PRIVATE_KEY        (file contents, not path)
-#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD
+The current public key is already embedded at
+`src-tauri/tauri.conf.json -> plugins.updater.pubkey`. The private key
+is expected at `%USERPROFILE%\.tauri\runway.key` for local release
+builds and must stay outside the repo.
+
+For CI or another release machine, load the signing material via:
+
+```powershell
+$env:TAURI_SIGNING_PRIVATE_KEY = Get-Content "$env:USERPROFILE\.tauri\runway.key" -Raw
+$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "<key password>"
 ```
 
 When `tauri build` runs with those env vars present, the updater
-sidecar files (`*.msi.zip` + `*.msi.zip.sig` on Windows) are produced
-alongside the regular installer. Upload all three to the GitHub
-Release and publish a `latest.json` manifest that points at them.
+artifacts and their `.sig` files are produced alongside the regular
+installer. Upload the installer, updater artifacts, signatures, and a
+`latest.json` manifest to the GitHub Release.
 
-## 2. Authenticode signing (recommended for Windows)
+## 2. Authenticode signing (still required for a polished 1.0)
 
 Without Authenticode, every install triggers SmartScreen
-"unrecognized publisher" warnings. Two paths:
+"unrecognized publisher" warnings even if the Tauri updater artifacts
+are signed. Two paths:
 
 - **EV cert** — best UX, no SmartScreen reputation warm-up. Required
   for enterprise distribution. Cost: ~$300/year, vendor-bound to a
@@ -53,6 +59,9 @@ Once you have a cert, set `bundle.windows.signCommand` in
 
 Or use `azuresigntool` if you stored the cert in Azure Key Vault.
 
+Current status: `bundle.windows.signCommand` is intentionally `null`
+until a real certificate and timestamping flow are available.
+
 ## 3. `latest.json` shape
 
 The updater polls the URL listed in
@@ -60,13 +69,13 @@ The updater polls the URL listed in
 
 ```json
 {
-  "version": "0.2.0",
+  "version": "0.1.0",
   "notes": "Release notes shown in the in-app updater dialog.",
-  "pub_date": "2026-04-26T12:00:00Z",
+  "pub_date": "2026-04-27T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "<contents of *.msi.zip.sig>",
-      "url": "https://github.com/giftedloser/PilotCheck/releases/download/v0.2.0/Runway_0.2.0_x64_en-US.msi.zip"
+      "url": "https://github.com/giftedloser/PilotCheck/releases/download/v0.1.0/Runway_0.1.0_x64_en-US.msi.zip"
     }
   }
 }
@@ -80,9 +89,12 @@ release's `latest.json` asset.
 A GitHub Actions workflow at `.github/workflows/release.yml` (not yet
 authored) should:
 
-1. Build `npm run build:desktop-runtime`.
-2. Run `tauri build` with the two `TAURI_SIGNING_*` secrets exported.
-3. Upload the MSI, `*.msi.zip`, `*.msi.zip.sig`, and a generated
+1. Run `npm ci`.
+2. Run `npm run check`.
+3. Run `npm run build:desktop-runtime`.
+4. Run `npm run tauri:build` with the two `TAURI_SIGNING_*` secrets
+   exported.
+5. Upload the installer, updater artifact(s), `.sig` files, and a generated
    `latest.json` to the release named after the tag.
 
 Until that workflow exists, releases are produced locally with the

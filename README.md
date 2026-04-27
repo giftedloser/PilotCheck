@@ -44,6 +44,10 @@ Runway is ready for controlled live testing when:
   ConfigMgr/SCCM states.
 - Admin sign-in, sign-out, and one low-risk delegated action such as Intune
   device sync have been validated.
+- Tauri updater signing is configured, and Windows Authenticode signing has
+  either been wired with a real certificate or accepted as the remaining
+  SmartScreen risk for a controlled pilot. See
+  [`docs/release-signing.md`](docs/release-signing.md).
 - The security review in [`docs/security-report.md`](docs/security-report.md)
   and the preflight in
   [`docs/live-testing-checklist.md`](docs/live-testing-checklist.md) have been
@@ -330,6 +334,7 @@ file you can read.
 - **[docs/graph-setup.md](./docs/graph-setup.md)** — app registration, permissions, redirect URIs
 - **[docs/troubleshooting.md](./docs/troubleshooting.md)** — live Graph troubleshooting and symptom-to-fix tables
 - **[docs/live-testing-checklist.md](./docs/live-testing-checklist.md)** — pre-flight checks before connecting a tenant
+- **[docs/release-signing.md](./docs/release-signing.md)** — updater signing, Authenticode status, release artifact shape
 - **[docs/security-report.md](./docs/security-report.md)** — security posture summary for review/approval
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** — development workflow, conventions
 - **[CHANGELOG.md](./CHANGELOG.md)** — release notes

@@ -37,10 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hardware-hash payloads. Stops a malformed POST from filling memory
   before validation runs.
 - **In-app log viewer.** Pino now multistreams into a 500-entry ring
-  buffer; `GET /api/health/logs?level=warn&limit=200` exposes the
-  buffer to a future Settings panel and to ops investigating "why
-  didn't sync run". `dev:server` script pipes through `pino-pretty` to
-  preserve colored output locally.
+  buffer; `GET /api/health/logs?level=warn&limit=200` powers the
+  Settings → Recent Logs panel for ops investigating "why didn't sync
+  run". `dev:server` script pipes through `pino-pretty` to preserve
+  colored output locally.
 - **Audit log export.** `GET /api/actions/logs/export?format=csv|ndjson`
   streams the full action audit trail with sensible Content-Disposition
   headers. The Action Audit page has a new "Export CSV" button.
@@ -62,14 +62,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Graceful shutdown.** SIGTERM/SIGINT now closes the HTTP server,
   waits up to 10s for any in-flight sync to drain, then closes the
   SQLite handle cleanly before exit.
-- **Tauri updater plugin wired.** `tauri-plugin-updater` is registered
-  and the updater capability is enabled. Signing key generation and
-  release flow are documented in
-  [`docs/release-signing.md`](docs/release-signing.md). Signed updater
-  artifacts will publish to `latest.json` once the keypair is generated
-  and the public key is pasted into `tauri.conf.json`.
-- Authenticode signing slot in `tauri.conf.json` ready for a Windows
-  code-signing cert (`bundle.windows.signCommand`).
+- **Tauri updater plugin wired.** `tauri-plugin-updater` is registered,
+  the updater capability is enabled, and the updater public key is
+  embedded in `tauri.conf.json`. The release flow is documented in
+  [`docs/release-signing.md`](docs/release-signing.md).
+- Authenticode signing slot in `tauri.conf.json` remains ready for a
+  Windows code-signing cert (`bundle.windows.signCommand`).
 
 ### Fixed
 
@@ -143,9 +141,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Operate, History) with deep-linkable `?tab=` search params so tickets
   can reference a specific section. The default tab auto-selects the
   highest-severity failing subsystem when none is specified.
-- **Expanded bulk actions** — `retire` and `rotate-laps` join `sync` and
-  `reboot` on `/api/actions/bulk`, gated behind the existing delegated-
-  auth check and 200-device cap. The confirmation modal now has three
+- **Expanded bulk actions** — `rotate-laps` joins `sync` and `reboot`
+  on `/api/actions/bulk`, gated behind the existing delegated-auth
+  check and 200-device cap. The confirmation modal now has three
   phases (confirming → running → results) with per-device pass/fail
   status and Graph response codes after the run completes.
 - Typed Graph response interfaces replace `any` across the four core

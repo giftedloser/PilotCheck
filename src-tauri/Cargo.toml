@@ -3,8 +3,8 @@ name = "pilotcheck"
 version = "0.1.0"
 description = "Runway desktop shell"
 authors = ["giftedloser"]
-license = ""
-repository = ""
+license = "MIT"
+repository = "https://github.com/giftedloser/PilotCheck"
 edition = "2021"
 rust-version = "1.77.2"
 
