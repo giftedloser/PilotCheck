@@ -125,14 +125,14 @@ export function DeviceListPage() {
         toast.push({
           variant: "success",
           title: `Bulk ${label.toLowerCase()} queued`,
-          description: `${result.successCount} of ${result.total} devices accepted.`,
+          description: `${result.successCount} of ${result.total} devices accepted. Check Action Audit for the timeline.`,
         });
         clearSelection();
       } else {
         toast.push({
           variant: "warning",
           title: `Bulk ${label.toLowerCase()} partially completed`,
-          description: `${result.successCount} succeeded, ${result.failureCount} failed.`,
+          description: `${result.successCount} succeeded, ${result.failureCount} failed. Check Action Audit for details.`,
           durationMs: 8000,
         });
       }
@@ -167,6 +167,11 @@ export function DeviceListPage() {
       description: `${devices.data.items.length} devices saved.`,
     });
   };
+
+  const selectedOnPage =
+    devices.data?.items.filter((device) => selectedKeys.has(device.deviceKey))
+      .length ?? 0;
+  const selectedOffPage = Math.max(0, selectedKeys.size - selectedOnPage);
 
   return (
     <div className="space-y-5">
@@ -312,6 +317,11 @@ export function DeviceListPage() {
             <span className="text-[12px] font-medium text-[var(--pc-text)]">
               {selectedKeys.size} selected
             </span>
+            {selectedOffPage > 0 ? (
+              <span className="rounded-full bg-[var(--pc-tint-subtle)] px-2 py-0.5 text-[11px] text-[var(--pc-text-muted)]">
+                {selectedOffPage} off-page
+              </span>
+            ) : null}
             <span className="h-4 w-px bg-[var(--pc-border)]" />
             <Button
               variant="secondary"

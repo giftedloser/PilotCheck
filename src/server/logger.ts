@@ -21,6 +21,13 @@ const LEVEL_NAMES: Record<number, LogEntry["level"]> = {
 
 const RING_CAPACITY = 500;
 const ring: LogEntry[] = [];
+const REDACT_PATHS = [
+  'req.headers["authorization"]',
+  'req.headers["cookie"]',
+  'req.headers["set-cookie"]',
+  'req.headers["x-runway-desktop-token"]',
+  'res.headers["set-cookie"]'
+];
 
 function pushEntry(entry: LogEntry) {
   ring.push(entry);
@@ -38,10 +45,10 @@ const ringStream = new Writable({
         const parsed = JSON.parse(line) as Record<string, unknown>;
         const level = typeof parsed.level === "number" ? LEVEL_NAMES[parsed.level] ?? "info" : "info";
         pushEntry({
+          ...parsed,
           time: new Date(Number(parsed.time ?? Date.now())).toISOString(),
           level,
-          msg: typeof parsed.msg === "string" ? parsed.msg : "",
-          ...parsed
+          msg: typeof parsed.msg === "string" ? parsed.msg : ""
         });
       }
     } catch {
@@ -52,7 +59,10 @@ const ringStream = new Writable({
 });
 
 export const logger = pino(
-  { level: process.env.LOG_LEVEL ?? "info" },
+  {
+    level: process.env.LOG_LEVEL ?? "info",
+    redact: { paths: REDACT_PATHS, censor: "[redacted]" }
+  },
   pino.multistream([
     { stream: process.stdout },
     { stream: ringStream }

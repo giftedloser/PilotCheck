@@ -19,6 +19,7 @@ import { useToast } from "../components/shared/toast.js";
 import { ConfirmDialog } from "../components/shared/ConfirmDialog.js";
 
 import { PageHeader } from "../components/layout/PageHeader.js";
+import { LogViewerSection } from "../components/settings/LogViewerSection.js";
 import { RulesSection } from "../components/settings/RulesSection.js";
 import { SystemHealthSection } from "../components/settings/SystemHealthSection.js";
 import { GraphCredentialsWizard } from "../components/setup/GraphCredentialsWizard.js";
@@ -981,6 +982,9 @@ export function SettingsPage() {
 
       {/* Section 8: Custom rules */}
       <RulesSection />
+
+      {/* Section 9: Recent logs */}
+      <LogViewerSection />
 
       <ConfirmDialog
         open={deleteTarget !== null}

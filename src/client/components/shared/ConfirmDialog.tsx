@@ -1,4 +1,5 @@
 import { AlertTriangle, X } from "lucide-react";
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef } from "react";
 
 import { Button } from "../ui/button.js";
@@ -17,6 +18,7 @@ interface ConfirmDialogProps {
   onCancel: () => void;
   isLoading?: boolean;
   confirmDisabled?: boolean;
+  children?: ReactNode;
 }
 
 export function ConfirmDialog({
@@ -32,7 +34,8 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
   isLoading,
-  confirmDisabled: confirmBlocked = false
+  confirmDisabled: confirmBlocked = false,
+  children
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -116,6 +119,7 @@ export function ConfirmDialog({
           <p className="text-[12.5px] leading-relaxed text-[var(--pc-text-secondary)]">
             {description}
           </p>
+          {children ? <div className="mt-4">{children}</div> : null}
           {requireTyped ? (
             <div className="mt-4 space-y-1.5">
               <label className="block text-[11px] font-medium uppercase tracking-wide text-[var(--pc-text-muted)]">

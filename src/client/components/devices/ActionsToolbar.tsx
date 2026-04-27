@@ -175,14 +175,21 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
       toast.push({
         variant: result.success ? "success" : "error",
         title: `${spec.label} ${result.success ? "dispatched" : "failed"}`,
-        description: result.message ?? (result.success ? "Action sent to Intune." : "Action failed.")
+        description:
+          result.message ??
+          (result.success
+            ? "Action sent to Intune. Check Action Audit for the timeline."
+            : "Action failed. Check Action Audit for details.")
       });
       setPending(null);
     } catch (error) {
       toast.push({
         variant: "error",
         title: `${spec.label} failed`,
-        description: error instanceof Error ? error.message : "Action failed."
+        description:
+          error instanceof Error
+            ? `${error.message} Check Action Audit for details.`
+            : "Action failed. Check Action Audit for details."
       });
       setPending(null);
     }
@@ -278,11 +285,9 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
         onCancel={() => setPending(null)}
         isLoading={action.isPending}
         confirmDisabled={inputBlocked}
-      />
-
-      {pending?.needsInput ? (
-        <div className="fixed inset-x-0 bottom-6 z-[60] mx-auto w-full max-w-md px-4">
-          <div className="rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-3 shadow-xl">
+      >
+        {pending?.needsInput ? (
+          <div className="space-y-1.5">
             <label className="block text-[11px] font-medium uppercase tracking-wide text-[var(--pc-text-muted)]">
               {pending.needsInput === "newName" ? "New device name" : "Primary user"}
             </label>
@@ -300,8 +305,8 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
               autoFocus
             />
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </ConfirmDialog>
     </>
   );
 }

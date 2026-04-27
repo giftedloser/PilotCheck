@@ -18,6 +18,7 @@ const SETTINGS_NAV = [
   { href: "#tags", label: "Tags" },
   { href: "#health", label: "Health" },
   { href: "#rules", label: "Rules" },
+  { href: "#logs", label: "Logs" },
 ] as const;
 
 export function SettingsJumpNav() {
