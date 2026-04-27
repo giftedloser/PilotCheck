@@ -1,21 +1,37 @@
+# ---------------------------------------------------------------------------
+# Runway .gitignore
+# Local-first Windows triage console. Treat anything that touches a real
+# tenant, a real device DB, or a signing key as untracked by default.
+# ---------------------------------------------------------------------------
+
 # Dependencies
 node_modules/
 .pnp
 .pnp.js
+jspm_packages/
 
 # Build outputs
 dist/
 build/
+out/
 .vite/
+.next/
+.turbo/
+
+# Tauri build outputs
 src-tauri/target/
 src-tauri/gen/
+src-tauri/WixTools/
+src-tauri/.cargo/
 
 # Test / coverage
 coverage/
 *.lcov
 .nyc_output/
+playwright-report/
+test-results/
 
-# Local data & secrets
+# Local data & secrets — never commit a real tenant's state
 data/
 *.sqlite
 *.sqlite-journal
@@ -24,6 +40,8 @@ data/
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
 
 # Logs
 logs/
@@ -33,34 +51,41 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Claude Code
+# Tauri signing & code-signing keys — never commit
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Claude Code / local agent workspaces
 .claude/
-
-# Local agent workspaces
 .codex/
+.tauri-runtime/
+.tmp-npm-tree.json
 
-# Editor / OS
-.DS_Store
-desktop.ini
-Thumbs.db
+# Editor / IDE
 .idea/
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.example.json
+.history/
 *.swp
 *.swo
+*.bak
+*.orig
 
-# TypeScript incremental
+# OS cruft
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# TypeScript incremental builds
 *.tsbuildinfo
-
-# Tauri signing keys
-*.key
-*.pem
 
 # Non-Windows icon assets (Windows-only project)
 /runway.ico
 src-tauri/icons/ios/
 src-tauri/icons/android/
 src-tauri/icons/icon.icns
-.tauri-runtime/
-.tmp-npm-tree.json

@@ -7,7 +7,7 @@ Runway is the user-facing app name for the PilotCheck project.
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078d4.svg)
 
 > A local-first triage console for **Windows** Autopilot, Intune, Entra ID,
-> and Graph-derived ConfigMgr/SCCM visibility.
+> and Graph-derived ConfigMgr / SCCM client presence.
 > Windows-only by design.
 
 Runway correlates Windows device identities across Microsoft Autopilot,
@@ -78,9 +78,11 @@ Runway is ready for controlled live testing when:
   to the device queue.
 - **Tag mapping dictionary** — maps Autopilot group tags to expected profiles
   and target groups, with JSON import/export for versioning.
-- **SCCM visibility** — optional ConfigMgr/SCCM status appears alongside
-  Graph, Intune, and Entra signals on device detail pages using Intune's
-  `managementAgent` value.
+- **ConfigMgr / SCCM client presence** — optional, presence-only signal that
+  appears alongside Graph, Intune, and Entra on device detail pages. Derived
+  from Intune's `managementAgent` value. Tells you whether a ConfigMgr client
+  is reported on the device — not whether it is healthy, on-site, or pulling
+  the right update channel.
 - **Tenant access gate** — Entra sign-in gate locks the app before operators
   can see fleet data once Graph is configured; delegated admin consent remains
   separate.
@@ -204,29 +206,37 @@ when producing screenshots or reports for leadership.
 
 ### SCCM / ConfigMgr visibility
 
-Runway does **not** connect directly to a Configuration Manager site server,
-does **not** store SCCM credentials, and does **not** run SCCM actions.
+Runway does **not** connect to a Configuration Manager site server, does
+**not** store SCCM credentials, and does **not** run SCCM actions.
 
-For v1.0, the SCCM check answers one specific question:
+For v1.0, the SCCM check answers exactly one question:
 
 > Does Microsoft Graph / Intune report this Windows device as having a
 > Configuration Manager client?
 
-Runway reads `managedDevice.managementAgent` from Microsoft Graph. If the value
-contains `configurationManager`, Runway shows `ConfigMgr detected`.
+This is a **presence-only** signal. It does not confirm site assignment,
+policy retrieval, last-policy-request time, inventory freshness, MP/DP
+reachability, software update group membership, or which authority
+(ConfigMgr vs Windows Update for Business) is driving updates on the device.
 
-| Runway status             | Meaning                                                                 |
-| ------------------------- | ----------------------------------------------------------------------- |
-| `ConfigMgr detected`      | Intune reports a ConfigMgr/co-managed agent value.                      |
-| `ConfigMgr not detected`  | Intune reports a management agent, but not a ConfigMgr value.           |
-| `Not reported by Intune`  | The Intune record exists, but Graph did not return `managementAgent`.   |
-| `Cannot determine`        | No Intune managed-device record exists for the correlated device.       |
-| `Signal disabled`         | The optional SCCM/ConfigMgr visibility flag is off in Settings.         |
+Runway reads `managedDevice.managementAgent` from Microsoft Graph. If the
+value contains `configurationManager`, Runway shows the ConfigMgr client as
+reported.
 
-If you need true SCCM client health — site assignment, policy retrieval,
-inventory freshness, MP/DP reachability, or console record status — that should
-be a future direct SCCM connector via AdminService, read-only SQL, or a trusted
-ConfigMgr PowerShell host.
+| Runway status                   | Meaning                                                                          |
+| ------------------------------- | -------------------------------------------------------------------------------- |
+| `ConfigMgr client reported`     | Intune's `managementAgent` contains `configurationManager`.                      |
+| `ConfigMgr client not reported` | Intune reports a management agent, but it does not contain `configurationManager`. |
+| `Not reported by Intune`        | The Intune record exists, but Graph did not return `managementAgent`.            |
+| `Cannot determine`              | No Intune managed-device record exists for the correlated device.                |
+| `Signal disabled`               | The optional ConfigMgr presence flag is off in Settings.                         |
+
+If you need true ConfigMgr client health — site assignment, policy retrieval,
+inventory freshness, MP/DP reachability, software update deployment status,
+or console record status — that requires a direct ConfigMgr connector via
+AdminService, read-only SQL, or a trusted ConfigMgr PowerShell host. That
+work is **not in v1.0** and is on the roadmap as an optional, opt-in
+connector.
 
 ### Required Graph permissions
 

@@ -48,8 +48,8 @@ Runway does not connect directly to SCCM. It reads Intune's `managedDevice.manag
 - Pick one device with no Intune record if you have one in the pilot set.
 - In Graph Explorer, validate the raw value with:
   `GET https://graph.microsoft.com/v1.0/deviceManagement/managedDevices?$filter=contains(deviceName,'DEVICE-NAME')&$select=deviceName,serialNumber,managementAgent,lastSyncDateTime`
-- Confirm a ConfigMgr/co-managed device shows `ConfigMgr detected` and a `managementAgent` value containing `configurationManager`.
-- Confirm an Intune-only device shows `ConfigMgr not detected` when `managementAgent` is present but does not contain `configurationManager`.
+- Confirm a ConfigMgr/co-managed device shows `ConfigMgr client reported` and a `managementAgent` value containing `configurationManager`.
+- Confirm an Intune-only device shows `ConfigMgr client not reported` when `managementAgent` is present but does not contain `configurationManager`.
 - Confirm a device with no Intune record shows `Cannot determine`, not a false SCCM failure.
 - Confirm a device whose Intune record omits `managementAgent` shows `Not reported by Intune`, not a false SCCM failure.
 - Confirm there are no SCCM action buttons; this feature is visibility-only.

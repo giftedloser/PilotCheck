@@ -32,7 +32,7 @@ export function ConfigMgrConnectionPanel({
       <div className="mb-4 flex items-center gap-2">
         <Cable className="h-4 w-4 text-[var(--pc-accent)]" />
         <span className="text-[13px] font-semibold text-[var(--pc-text)]">
-          SCCM / ConfigMgr Connection
+          SCCM / ConfigMgr Client Signal
         </span>
         <SourceBadge source="sccm" size="xs" />
       </div>
@@ -66,8 +66,12 @@ export function ConfigMgrConnectionPanel({
         </div>
       </div>
       <div className="mt-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-tint-subtle)] px-3 py-2 text-[11.5px] leading-5 text-[var(--pc-text-muted)]">
-        This is a read-only SCCM/ConfigMgr visibility check derived from Microsoft Graph / Intune.
-        Runway is not connecting to a Configuration Manager site server or running SCCM actions.
+        Presence-only signal derived from Microsoft Graph / Intune
+        <span className="font-mono"> managementAgent</span>. It indicates whether
+        a ConfigMgr client is reported on the device — it does not confirm site
+        assignment, policy retrieval, update authority, or patching health.
+        Runway does not connect to a Configuration Manager site server and does
+        not run SCCM actions.
       </div>
     </Card>
   );

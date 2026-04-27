@@ -8,7 +8,7 @@
 
 ## Changes
 
-## <!-- Bulleted list of the meaningful changes. -->
+<!-- Bulleted list of the meaningful changes. -->
 
 -
 

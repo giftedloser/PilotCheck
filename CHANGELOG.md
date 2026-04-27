@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ConfigMgr signal — honesty pass
+
+- **Renamed labels** to make the v1 ConfigMgr signal honest about what it
+  is: a *presence* check, not a health check. UI strings change from
+  `ConfigMgr detected` / `ConfigMgr not detected` to
+  `ConfigMgr client reported` / `ConfigMgr client not reported`. The
+  device-detail panel title moves from "SCCM / ConfigMgr Connection" to
+  "SCCM / ConfigMgr Client Signal" — Runway does not open a connection.
+- **Tightened tooltips, source cards, and footer disclaimers** to spell
+  out that the signal does not confirm site assignment, policy retrieval,
+  inventory freshness, software-update deployment status, or update
+  authority. README, architecture, and live-testing docs updated to match.
+- A direct ConfigMgr connector (AdminService / read-only SQL / trusted
+  PowerShell host) remains a v-next, opt-in roadmap item; explicitly out
+  of scope for v1.
+
 ### Tier 2 hardening (post-audit)
 
 - **DB snapshot before destructive maintenance.** Every schema migration

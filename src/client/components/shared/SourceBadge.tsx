@@ -37,7 +37,7 @@ const SOURCE_META: Record<
   },
   sccm: {
     label: "SCCM",
-    full: "Configuration Manager client signal derived from Intune managementAgent",
+    full: "ConfigMgr client presence — derived from Intune managementAgent (presence only, not health)",
     ring: "ring-orange-500/30",
     bg: "bg-orange-500/15 text-orange-600",
     dot: "bg-orange-500"

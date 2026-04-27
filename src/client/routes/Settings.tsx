@@ -579,9 +579,9 @@ export function SettingsPage() {
             <SourceCard
               source="sccm"
               items={[
-                "ConfigMgr client signal",
-                "Co-management indicator",
+                "ConfigMgr client presence",
                 "Derived from Intune managementAgent",
+                "No site-server connection",
               ]}
             />
           </div>

@@ -4,7 +4,26 @@
   "private": true,
   "type": "module",
   "license": "MIT",
-  "description": "Runway: local-first Windows Autopilot, Intune, Entra, and SCCM readiness triage.",
+  "description": "Runway — a local-first triage console for Windows Autopilot, Intune, Entra ID, and Graph-derived ConfigMgr client presence. Windows-only by design.",
+  "keywords": [
+    "autopilot",
+    "intune",
+    "entra-id",
+    "microsoft-graph",
+    "configmgr",
+    "sccm",
+    "windows",
+    "endpoint-management",
+    "device-triage",
+    "tauri",
+    "react",
+    "typescript",
+    "local-first"
+  ],
+  "author": "Runway contributors",
+  "os": [
+    "win32"
+  ],
   "engines": {
     "node": ">=24.14 <25",
     "npm": ">=11"

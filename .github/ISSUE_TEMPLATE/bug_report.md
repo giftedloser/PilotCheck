@@ -25,9 +25,13 @@ If applicable, add screenshots or paste the relevant pino log lines.
 **Environment**
 
 - Runway version / commit:
-- OS:
+- OS (Windows build):
 - Node version:
-- Mock mode or live Graph:
+- Run mode (`npm run dev` / desktop / built server):
+- Data mode (mock / live Graph):
+- App-access gate (`APP_ACCESS_MODE`):
+- Affected signal (Autopilot / Intune / Entra / ConfigMgr presence / engine / UI):
 
 **Additional context**
-Anything else that might help.
+Anything else that might help — recent sync output, the rule the device
+landed on, the exact `managementAgent` value, etc.

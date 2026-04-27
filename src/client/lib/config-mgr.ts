@@ -52,18 +52,18 @@ export function getConfigMgrSignal(
   if (device.enrollment.hasConfigMgrClient) {
     return {
       status: "detected",
-      label: "ConfigMgr detected",
+      label: "ConfigMgr client reported",
       detail:
-        "Intune reports a Configuration Manager management agent for this device.",
+        "Intune reports a Configuration Manager management agent on this device. Presence only — this does not confirm site assignment, policy retrieval, or update authority.",
       rawValue: device.enrollment.managementAgent
     };
   }
 
   return {
     status: "not_detected",
-    label: "ConfigMgr not detected",
+    label: "ConfigMgr client not reported",
     detail:
-      "Intune reports a management agent, but it is not a Configuration Manager/co-management value.",
+      "Intune reports a management agent, but it is not a Configuration Manager value. The device may be missing the ConfigMgr client, or be managed by Intune-only policies.",
     rawValue: device.enrollment.managementAgent
   };
 }

@@ -108,10 +108,15 @@ open AdminService, SQL, WMI, or PowerShell sessions to an SCCM site.
 
 Instead, the sync layer reads Intune's `managedDevice.managementAgent` field
 through Microsoft Graph. The engine treats values containing
-`configurationManager` as a positive ConfigMgr/co-management signal. This is
-enough to answer "does Intune see this device as ConfigMgr/co-managed?", but it
-does not replace a site-server health check for policy, inventory, or client
-assignment.
+`configurationManager` as a **client-presence** signal — i.e., Intune is
+reporting a ConfigMgr management agent on the device. This answers "does
+Intune say this device has a ConfigMgr client?" and nothing more. It is not a
+client-health check, does not prove site assignment, policy retrieval,
+inventory freshness, MP/DP reachability, software-update deployment
+membership, or which authority (ConfigMgr vs Windows Update for Business) is
+currently driving updates on the device. A direct ConfigMgr connector is on
+the roadmap as an opt-in v-next feature; it is explicitly out of scope for
+v1.
 
 ## State transitions
 
