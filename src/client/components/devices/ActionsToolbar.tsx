@@ -125,13 +125,17 @@ const INTUNE_BACKED_ACTIONS = new Set<RemoteActionType>([
 
 function actionAvailability(
   spec: ActionSpec,
-  device: DeviceDetailResponse
+  device: DeviceDetailResponse,
+  isAuthed: boolean
 ): { disabled: boolean; reason?: string } {
   if (INTUNE_BACKED_ACTIONS.has(spec.type) && !device.identity.intuneId) {
     return { disabled: true, reason: "This device has no Intune enrollment." };
   }
   if (spec.type === "delete-autopilot" && !device.identity.autopilotId) {
     return { disabled: true, reason: "This device has no Autopilot registration." };
+  }
+  if (!isAuthed) {
+    return { disabled: true, reason: "Admin sign-in required." };
   }
   return { disabled: false };
 }
@@ -202,37 +206,6 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
       ? !primaryUserId.trim()
       : false;
 
-  if (!isAuthed) {
-    return (
-      <Card className="p-5">
-        <div className="mb-3 flex items-center gap-2">
-          <Terminal className="h-4 w-4 text-[var(--pc-accent)]" />
-          <span className="text-[13px] font-semibold text-[var(--pc-text)]">Remote Actions</span>
-        </div>
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-3">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
-            <div>
-              <div className="text-[12.5px] font-medium text-[var(--pc-text)]">Admin sign-in required</div>
-              <div className="mt-0.5 text-[11.5px] text-[var(--pc-text-muted)]">
-                Remote actions and LAPS retrieval require a delegated Microsoft account with the
-                correct Intune permissions.
-              </div>
-            </div>
-          </div>
-          <Button
-            onClick={() => login.mutate()}
-            disabled={login.isPending || !login.canStart}
-            title={login.blockedReason ?? undefined}
-            className="shrink-0"
-          >
-            {!login.canStart ? "Unavailable" : login.isPending ? "Opening…" : "Sign in"}
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
   return (
     <>
       <Card className="p-5">
@@ -241,14 +214,40 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
             <Terminal className="h-4 w-4 text-[var(--pc-accent)]" />
             <span className="text-[13px] font-semibold text-[var(--pc-text)]">Remote Actions</span>
           </div>
-          <div className="text-[11px] text-[var(--pc-text-muted)]">
-            Signed in as <span className="text-[var(--pc-text-secondary)]">{auth.data?.user}</span>
-          </div>
+          {isAuthed ? (
+            <div className="text-[11px] text-[var(--pc-text-muted)]">
+              Signed in as <span className="text-[var(--pc-text-secondary)]">{auth.data?.user}</span>
+            </div>
+          ) : null}
         </div>
+
+        {!isAuthed ? (
+          <div className="mb-4 flex items-center justify-between gap-4 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-3">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
+              <div>
+                <div className="text-[12.5px] font-medium text-[var(--pc-text)]">Admin sign-in required</div>
+                <div className="mt-0.5 text-[11.5px] text-[var(--pc-text-muted)]">
+                  Remote actions and LAPS retrieval require a delegated Microsoft account with the
+                  correct Intune permissions.
+                </div>
+              </div>
+            </div>
+            <Button
+              onClick={() => login.mutate()}
+              disabled={login.isPending || !login.canStart}
+              title={login.blockedReason ?? undefined}
+              className="shrink-0"
+            >
+              {!login.canStart ? "Unavailable" : login.isPending ? "Opening…" : "Sign in"}
+            </Button>
+          </div>
+        ) : null}
+
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {ACTIONS.map((spec) => {
             const Icon = spec.icon;
-            const availability = actionAvailability(spec, device);
+            const availability = actionAvailability(spec, device, isAuthed);
             return (
               <button
                 key={spec.type}

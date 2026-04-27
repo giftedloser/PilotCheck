@@ -261,6 +261,57 @@ describe("client drilldown", () => {
     HTMLAnchorElement.prototype.click = originalClick;
   });
 
+  it("shows remote action buttons disabled before admin sign-in", async () => {
+    const mockSettings = {
+      ...settingsPayload,
+      graph: { configured: false, missing: ["AZURE_TENANT_ID"] }
+    };
+    const jsonResponse = (body: unknown, status = 200) =>
+      new Response(JSON.stringify(body), {
+        status,
+        headers: { "Content-Type": "application/json" }
+      });
+    global.fetch = vi.fn(async (input) => {
+      const url = String(input);
+      if (url.includes("/api/auth/access-status"))
+        return jsonResponse({
+          required: false,
+          configured: false,
+          mode: "disabled",
+          authenticated: false,
+          user: null,
+          name: null,
+          expiresAt: null,
+          allowedUsersConfigured: false,
+          reason: "App access enforcement is disabled."
+        });
+      if (url.includes("/api/auth/status"))
+        return jsonResponse({ authenticated: false, user: null });
+      if (url.includes("/api/settings")) return jsonResponse(mockSettings);
+      if (url.includes("/api/sync/status"))
+        return jsonResponse({ inProgress: false, lastError: null });
+      if (url.includes("/api/devices/ap:auto-1/related-devices")) return jsonResponse([]);
+      if (url.includes("/api/devices/ap:auto-1/history")) return jsonResponse({ entries: [] });
+      if (url.includes("/api/devices/ap:auto-1")) return jsonResponse(deviceDetailPayload);
+      if (url.includes("/api/devices")) return jsonResponse(deviceListPayload);
+      if (url.includes("/api/dashboard")) return jsonResponse(dashboardPayload);
+      return jsonResponse({ message: "Not found" }, 404);
+    }) as typeof fetch;
+
+    await renderApp();
+
+    fireEvent.click((await screen.findAllByText("Critical Devices"))[0]);
+    fireEvent.click(await screen.findByText("DESKTOP-North-001"));
+    await screen.findAllByText("Device Diagnostics", {}, { timeout: 3000 });
+    fireEvent.click(screen.getByRole("button", { name: /^actions$/i }));
+
+    expect(await screen.findByText("Admin sign-in required")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Unavailable" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /sync now/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /change primary user/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /factory wipe/i })).toBeDisabled();
+  });
+
   it("opens the admin sign-in shell before navigating to Microsoft", async () => {
     const popup = {
       closed: false,
