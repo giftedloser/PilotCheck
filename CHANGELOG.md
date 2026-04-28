@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No entries yet.
 
+## [1.0.1] - 2026-04-28
+
+### Fixed
+
+- Stabilized the Provisioning Builder wide-screen layout so the readiness
+  review no longer shifts into a sparse side rail before a tag is loaded.
+
 ## [1.0.0] - 2026-04-28
 
 ### Documentation
@@ -224,5 +231,6 @@ No entries yet.
 - README, CONTRIBUTING, SECURITY, `docs/` (architecture, engine,
   graph-setup), MIT LICENSE.
 
-[Unreleased]: https://github.com/giftedloser/Runway/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/giftedloser/Runway/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/giftedloser/Runway/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/giftedloser/Runway/releases/tag/v1.0.0
