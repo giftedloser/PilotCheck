@@ -38,8 +38,8 @@ jobs:
       - name: Lint and tests
         run: npm run check
 
-      - name: Build client and server
-        run: npm run build
+      - name: Build client, server, and desktop runtime
+        run: npm run build && npm run build:desktop-runtime
 
       - name: Tauri Rust checks
         run: npm run check:tauri
