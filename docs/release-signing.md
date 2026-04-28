@@ -6,8 +6,9 @@ safely, two separate signing flows matter:
 1. **Tauri updater signing** proves an update artifact came from the
    Runway release key. This is configured.
 2. **Windows Authenticode signing** proves the installer/executable was
-   published by a trusted Windows code-signing identity. This still
-   needs a real certificate before the first broad install.
+   published by a trusted Windows code-signing identity. This is optional
+   for Runway's current distribution model because it requires a paid
+   certificate or a third-party open-source signing program.
 
 This file documents the release setup and the remaining hand-off.
 
@@ -38,17 +39,22 @@ artifacts and their `.sig` files are produced alongside the regular
 installer. Upload the installer, updater artifacts, signatures, and a
 `latest.json` manifest to the GitHub Release.
 
-## 2. Authenticode signing (still required for a polished 1.0)
+## 2. Authenticode signing (optional)
 
 Without Authenticode, every install triggers SmartScreen
 "unrecognized publisher" warnings even if the Tauri updater artifacts
-are signed. Two paths:
+are signed. That warning is acceptable for internal/manual installs as
+long as the release notes clearly state that the build is unsigned.
+
+If Runway later needs verified-publisher UX, use one of these paths:
 
 - **EV cert** — best UX, no SmartScreen reputation warm-up. Required
   for enterprise distribution. Cost: ~$300/year, vendor-bound to a
   hardware token.
 - **Standard code-signing cert** — works, but SmartScreen still warns
   for ~30 days while Microsoft builds reputation.
+- **Open-source signing program** — apply to a free program such as
+  SignPath Foundation if the project qualifies.
 
 Once you have a cert, set `bundle.windows.signCommand` in
 `tauri.conf.json` to the `signtool` invocation, e.g.:
@@ -59,8 +65,8 @@ Once you have a cert, set `bundle.windows.signCommand` in
 
 Or use `azuresigntool` if you stored the cert in Azure Key Vault.
 
-Current status: `bundle.windows.signCommand` is intentionally `null`
-until a real certificate and timestamping flow are available.
+Current status: `bundle.windows.signCommand` is intentionally `null`.
+Runway can ship unsigned Windows installers with the expected warning.
 
 ## 3. `latest.json` shape
 
