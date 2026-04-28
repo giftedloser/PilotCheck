@@ -1,6 +1,6 @@
 {
   "name": "pilotcheck",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -50,12 +50,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/giftedloser/PilotCheck.git"
+    "url": "git+https://github.com/giftedloser/Runway.git"
   },
   "bugs": {
-    "url": "https://github.com/giftedloser/PilotCheck/issues"
+    "url": "https://github.com/giftedloser/Runway/issues"
   },
-  "homepage": "https://github.com/giftedloser/PilotCheck#readme",
+  "homepage": "https://github.com/giftedloser/Runway#readme",
   "dependencies": {
     "@azure/msal-node": "^5.1.2",
     "@fontsource-variable/inter": "^5.2.8",

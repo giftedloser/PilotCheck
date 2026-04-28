@@ -68,7 +68,7 @@ guidance for Win32 apps.
 `graph-client.ts`, and the sync orchestrator; breaks the "unattended
 background sync out of the box" story unless A2 is adopted.
 
-### Option B — Per-tenant operator registration (v0.1.0 commitment)
+### Option B — Per-tenant operator registration (v1.0.0 commitment)
 
 Keep the confidential-client code as-is, but formally document that
 Runway is a **self-hosted, bring-your-own-Entra-app-registration** tool.
@@ -109,11 +109,11 @@ and maintain, more ways to misconfigure.
 
 ## Recommendation
 
-**v0.1.0 ships on Option B**, explicitly framed. This matches what the code
+**v1.0.0 ships on Option B**, explicitly framed. This matches what the code
 actually does today and what most internal enterprise tools look like. The
 setup friction is real but is the honest cost of the current architecture.
 
-**Option A remains the long-term target** and is tracked as a post-v0.1.0
+**Option A remains the long-term target** and is tracked as a post-v1.0.0
 milestone. It's the architecturally correct choice for a distributed desktop
 app, but it's a real code change that deserves its own design pass — not a
 pre-tag scramble.

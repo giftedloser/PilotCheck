@@ -69,13 +69,13 @@ The updater polls the URL listed in
 
 ```json
 {
-  "version": "0.1.0",
+  "version": "1.0.0",
   "notes": "Release notes shown in the in-app updater dialog.",
   "pub_date": "2026-04-27T12:00:00Z",
   "platforms": {
     "windows-x86_64": {
       "signature": "<contents of *.msi.zip.sig>",
-      "url": "https://github.com/giftedloser/PilotCheck/releases/download/v0.1.0/Runway_0.1.0_x64_en-US.msi.zip"
+      "url": "https://github.com/giftedloser/Runway/releases/download/v1.0.0/Runway_1.0.0_x64_en-US.msi.zip"
     }
   }
 }

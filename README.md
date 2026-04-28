@@ -1,8 +1,8 @@
 # Runway
 
-Runway is the user-facing app name for the PilotCheck project.
+Runway is the local-first Windows endpoint triage console in this repository.
 
-![CI](https://github.com/giftedloser/PilotCheck/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/giftedloser/Runway/actions/workflows/ci.yml/badge.svg)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078d4.svg)
 

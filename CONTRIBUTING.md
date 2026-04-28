@@ -8,8 +8,8 @@ welcome.
 ## Development
 
 ```bash
-git clone https://github.com/giftedloser/PilotCheck.git
-cd PilotCheck
+git clone https://github.com/giftedloser/Runway.git
+cd Runway
 npm install
 npm run db:migrate
 npm run db:seed:mock

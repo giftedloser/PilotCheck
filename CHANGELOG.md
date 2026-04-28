@@ -4,11 +4,14 @@ All notable changes to Runway will be documented in this file. The
 format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> Runway is pre-release. No versioned tags have been cut yet — every
-> change below lives on `main`. Once the first public release is cut, the
-> Unreleased section will be split and the `[0.1.0]` link activated.
+> Runway 1.0.0 is the first versioned release candidate. Cut tag `v1.0.0`
+> from the release commit when the signed Windows artifacts are ready.
 
 ## [Unreleased]
+
+No entries yet.
+
+## [1.0.0] - 2026-04-28
 
 ### Documentation
 
@@ -221,4 +224,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README, CONTRIBUTING, SECURITY, `docs/` (architecture, engine,
   graph-setup), MIT LICENSE.
 
-[Unreleased]: https://github.com/giftedloser/PilotCheck/commits/main
+[Unreleased]: https://github.com/giftedloser/Runway/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/giftedloser/Runway/releases/tag/v1.0.0

@@ -61,7 +61,7 @@ if (existsSync(stagedNodeModules) && stagedDependencyStamp !== dependencyStamp) 
     rmSync(stagedNodeModules, { recursive: true, force: true });
   } catch {
     throw new Error(
-      "Unable to refresh the staged desktop runtime dependencies. Close any running PilotCheck release build and rebuild."
+      "Unable to refresh the staged desktop runtime dependencies. Close any running Runway release build and rebuild."
     );
   }
 }

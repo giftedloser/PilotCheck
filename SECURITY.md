@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 If you discover a security issue in Runway, **please do not file a
-public GitHub issue**. Instead, open a [private security advisory](https://github.com/giftedloser/PilotCheck/security/advisories/new)
+public GitHub issue**. Instead, open a [private security advisory](https://github.com/giftedloser/Runway/security/advisories/new)
 on the repository, or email the maintainers directly.
 
 Please include:
