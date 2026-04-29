@@ -5,13 +5,17 @@ import { formatDistanceToNow } from "date-fns";
 import {
   ArrowRight,
   CheckCircle2,
+  Clock3,
   ClipboardCopy,
   Copy,
+  FileCheck2,
   GitBranch,
   Loader2,
+  Package,
   Rows3,
   Search,
   ShieldCheck,
+  Settings2,
   StretchHorizontal,
   Tag,
   TabletSmartphone,
@@ -47,6 +51,8 @@ import {
   formatMembershipType,
 } from "../components/provisioning/helpers.js";
 import type {
+  BuildPayloadGroup,
+  BuildPayloadItem,
   DiscoverResult,
   ProvisioningTagDevice,
   ValidateResult,
@@ -128,6 +134,10 @@ export function ProvisioningBuilderPage() {
     data?.matchingGroups.find(
       (group) => group.groupId === selectedProfile.viaGroupId,
     );
+  const selectedPayload =
+    selectedGroupId && data
+      ? (data.buildPayloadByGroupId[selectedGroupId] ?? null)
+      : null;
   const expectedGroups = data?.existingConfig?.expectedGroupNames ?? [];
   const expectedProfiles = data?.existingConfig?.expectedProfileNames ?? [];
   const isSelectedGroupExpected = selectedGroup
@@ -643,6 +653,11 @@ export function ProvisioningBuilderPage() {
                 </Card>
               </div>
 
+              <BuildPayloadPanel
+                payload={selectedPayload}
+                selectedGroupName={selectedGroup?.groupName ?? null}
+              />
+
               <TagDevicesPanel
                 groupTag={data.groupTag}
                 devices={tagDevices.data ?? []}
@@ -697,6 +712,18 @@ export function ProvisioningBuilderPage() {
                     ? selectedProfile.profileName
                     : "Select the Windows Autopilot profile for this path."
                 }
+              />
+              <StatusRow
+                label="Required apps found"
+                status={Boolean(selectedPayload?.requiredApps.length)}
+                helper={
+                  selectedPayload
+                    ? selectedPayload.requiredApps.length > 0
+                      ? `${selectedPayload.requiredApps.length} required app${selectedPayload.requiredApps.length === 1 ? "" : "s"} assigned through the selected group.`
+                      : "No required apps were found for the selected group."
+                    : "Select a target group to inspect the app payload."
+                }
+                tone="info"
               />
               <StatusRow
                 label="Stored config reference"
@@ -936,6 +963,128 @@ export function ProvisioningBuilderPage() {
       </div>
 
       <HardwareHashImport />
+    </div>
+  );
+}
+
+function BuildPayloadPanel({
+  payload,
+  selectedGroupName,
+}: {
+  payload: BuildPayloadGroup | null;
+  selectedGroupName: string | null;
+}) {
+  const totalPayload =
+    (payload?.requiredApps.length ?? 0) +
+    (payload?.configProfiles.length ?? 0) +
+    (payload?.compliancePolicies.length ?? 0);
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="flex flex-col gap-3 border-b border-[var(--pc-border)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-[var(--pc-accent)]" />
+            <div className="text-[13px] font-semibold text-[var(--pc-text)]">
+              Build Payload
+            </div>
+            <CountPill value={totalPayload} label="items" />
+          </div>
+          <div className="mt-1 text-[12px] text-[var(--pc-text-secondary)]">
+            {selectedGroupName ?? "No target group selected"}
+          </div>
+        </div>
+        <div className="inline-flex items-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2.5 py-1.5 text-[11px] text-[var(--pc-text-muted)]">
+          <Clock3 className="h-3.5 w-3.5" />
+          {formatRelativeTime(payload?.syncedAt ?? null)}
+        </div>
+      </div>
+
+      {!payload ? (
+        <EmptyPanel
+          message="No target group selected."
+          guidance="Select a target group to preview required apps, configuration profiles, and compliance policies."
+        />
+      ) : (
+        <div className="space-y-4 px-5 py-5">
+          <div className="grid gap-4 lg:grid-cols-3">
+            <PayloadSection
+              title="Required Apps"
+              icon={Package}
+              items={payload.requiredApps}
+              emptyLabel="No required apps assigned."
+            />
+            <PayloadSection
+              title="Configuration"
+              icon={Settings2}
+              items={payload.configProfiles}
+              emptyLabel="No configuration profiles assigned."
+            />
+            <PayloadSection
+              title="Compliance"
+              icon={FileCheck2}
+              items={payload.compliancePolicies}
+              emptyLabel="No compliance policies assigned."
+            />
+          </div>
+
+          {payload.warnings.length > 0 ? (
+            <IssueList
+              title="Payload Warnings"
+              items={payload.warnings}
+              tone="warning"
+            />
+          ) : null}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function PayloadSection({
+  title,
+  icon: Icon,
+  items,
+  emptyLabel,
+}: {
+  title: string;
+  icon: typeof Package;
+  items: BuildPayloadItem[];
+  emptyLabel: string;
+}) {
+  return (
+    <div className="rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55">
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--pc-border)] px-3 py-2.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--pc-accent)]" />
+          <div className="truncate text-[12px] font-semibold text-[var(--pc-text)]">
+            {title}
+          </div>
+        </div>
+        <span className="rounded-md bg-[var(--pc-tint-hover)] px-2 py-0.5 text-[10px] font-medium text-[var(--pc-text-secondary)]">
+          {items.length}
+        </span>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="px-3 py-4 text-[11.5px] text-[var(--pc-text-muted)]">
+          {emptyLabel}
+        </div>
+      ) : (
+        <div className="divide-y divide-[var(--pc-border)]">
+          {items.map((item) => (
+            <div key={item.payloadId} className="px-3 py-2.5">
+              <div className="truncate text-[12px] font-medium text-[var(--pc-text)]">
+                {item.payloadName}
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-[10.5px] uppercase tracking-wide text-[var(--pc-text-muted)]">
+                <span>{item.intent ?? item.targetType}</span>
+                <span>{formatRelativeTime(item.syncedAt)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

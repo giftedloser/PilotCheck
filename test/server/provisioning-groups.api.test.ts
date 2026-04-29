@@ -108,6 +108,7 @@ describe("GET /api/provisioning/discover", () => {
   });
 
   it("returns build payload keyed by matching group id", async () => {
+    db.prepare("DELETE FROM graph_assignments").run();
     db.prepare(
       `INSERT INTO graph_assignments (
         payload_kind, payload_id, payload_name, group_id, intent, target_type, raw_json, synced_at
