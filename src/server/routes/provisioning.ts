@@ -2,6 +2,7 @@ import { Router } from "express";
 import type Database from "better-sqlite3";
 
 import {
+  countDevicesForProvisioningTag,
   devicesForProvisioningTag,
   listProvisioningTags,
   payloadForGroups
@@ -79,12 +80,7 @@ export function provisioningRouter(db: Database.Database) {
       property_label: string;
     } | undefined;
 
-    // Count devices with this group tag
-    const deviceCount = (
-      db
-        .prepare(`SELECT COUNT(*) as count FROM autopilot_devices WHERE group_tag = ?`)
-        .get(groupTag) as { count: number }
-    ).count;
+    const deviceCount = countDevicesForProvisioningTag(db, groupTag);
 
     response.json({
       groupTag,
@@ -134,13 +130,9 @@ export function provisioningRouter(db: Database.Database) {
 
     // Check group tag has devices
     if (groupTag) {
-      const deviceCount = (
-        db
-          .prepare(`SELECT COUNT(*) as count FROM autopilot_devices WHERE group_tag = ?`)
-          .get(groupTag) as { count: number }
-      ).count;
+      const deviceCount = countDevicesForProvisioningTag(db, groupTag);
       if (deviceCount === 0) {
-        warnings.push(`No Autopilot devices currently have group tag "${groupTag}".`);
+        warnings.push(`No devices currently have group tag "${groupTag}".`);
       }
     }
 

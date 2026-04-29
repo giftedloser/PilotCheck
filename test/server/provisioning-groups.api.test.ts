@@ -77,6 +77,43 @@ describe("GET /api/provisioning/tag-devices", () => {
   });
 });
 
+describe("provisioning tag counts", () => {
+  it("keeps Tags, discovery, and tagged-device counts on device_state", async () => {
+    db.prepare(
+      `UPDATE device_state
+       SET group_tag = 'ReviewOnly'
+       WHERE device_key = (SELECT device_key FROM device_state LIMIT 1)`
+    ).run();
+
+    const app = createApp(db);
+    const tags = await request(app).get("/api/provisioning/tags").expect(200);
+    const reviewOnly = tags.body.find(
+      (tag: { groupTag: string }) => tag.groupTag === "ReviewOnly"
+    );
+    expect(reviewOnly).toBeDefined();
+
+    const discovery = await request(app)
+      .get("/api/provisioning/discover?groupTag=ReviewOnly")
+      .expect(200);
+    const devices = await request(app)
+      .get("/api/provisioning/tag-devices?groupTag=ReviewOnly")
+      .expect(200);
+
+    expect(discovery.body.deviceCount).toBe(reviewOnly.deviceCount);
+    expect(devices.body).toHaveLength(reviewOnly.deviceCount);
+
+    const validation = await request(app)
+      .post("/api/provisioning/validate")
+      .send({ groupTag: "ReviewOnly" })
+      .expect(200);
+    expect(
+      validation.body.warnings.some((warning: string) =>
+        warning.includes('No devices currently have group tag "ReviewOnly"')
+      )
+    ).toBe(false);
+  });
+});
+
 // ──────────────────────────────────────────────
 // Provisioning — discover
 // ──────────────────────────────────────────────
@@ -287,7 +324,7 @@ describe("POST /api/provisioning/validate", () => {
       .expect(200);
 
     expect(
-      res.body.warnings.some((w: string) => w.includes("No Autopilot devices"))
+      res.body.warnings.some((w: string) => w.includes("No devices"))
     ).toBe(true);
   });
 });

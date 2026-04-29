@@ -351,7 +351,7 @@ export function ProvisioningBuilderPage() {
               label="Devices With Tag"
               value={data ? String(data.deviceCount) : "—"}
               tone="neutral"
-              hint="Autopilot records carrying the searched tag."
+              hint="Devices carrying the searched tag."
             />
             <MetricCard
               label="Matching Groups"
@@ -1136,7 +1136,7 @@ function TagDevicesPanel({
       ) : devices.length === 0 ? (
         <EmptyPanel
           message={`No devices currently carry "${groupTag}".`}
-          guidance="Run a sync after tagged Autopilot records exist."
+          guidance="Run a sync after tagged devices exist."
         />
       ) : (
         <div>

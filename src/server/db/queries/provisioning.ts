@@ -138,6 +138,19 @@ export function devicesForProvisioningTag(
   }));
 }
 
+export function countDevicesForProvisioningTag(
+  db: Database.Database,
+  groupTag: string
+) {
+  // Provisioning UI counts use device_state so Tags, discovery, and the
+  // tagged-device panel agree on the same computed device inventory.
+  return (
+    db
+      .prepare("SELECT COUNT(*) as count FROM device_state WHERE group_tag = ?")
+      .get(groupTag) as { count: number }
+  ).count;
+}
+
 export function payloadForGroups(db: Database.Database, groupIds: string[]) {
   const payloadByGroupId: Record<string, BuildPayloadGroup> = Object.fromEntries(
     groupIds.map((groupId) => [groupId, emptyPayloadGroup()])
