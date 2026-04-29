@@ -7,6 +7,7 @@ import type {
 } from "../../../shared/types.js";
 import { config } from "../../config.js";
 import { asArray } from "../../engine/normalize.js";
+import { listEffectiveAppSettings } from "../../settings/app-settings.js";
 
 /**
  * Known feature-flag keys. Declaring them centrally means every read/write
@@ -79,6 +80,7 @@ export function getSettings(db: Database.Database): SettingsResponse {
       required: config.isAppAccessRequired,
       allowedUsersConfigured: config.appAccessAllowedUsers.length > 0
     },
+    appSettings: listEffectiveAppSettings(db),
     tagConfig: listTagConfig(db),
     featureFlags: listFeatureFlags(db)
   };
