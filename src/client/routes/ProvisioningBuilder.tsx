@@ -1,7 +1,9 @@
 ﻿import { useState } from "react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 import {
+  ArrowRight,
   CheckCircle2,
   ClipboardCopy,
   Copy,
@@ -12,17 +14,20 @@ import {
   ShieldCheck,
   StretchHorizontal,
   Tag,
+  TabletSmartphone,
   Users,
 } from "lucide-react";
 
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { SourceBadge } from "../components/shared/SourceBadge.js";
+import { StatusBadge } from "../components/shared/StatusBadge.js";
 import { useToast } from "../components/shared/toast.js";
 import { Button } from "../components/ui/button.js";
 import { Card } from "../components/ui/card.js";
 import { Input } from "../components/ui/input.js";
 import { apiRequest } from "../lib/api.js";
+import type { HealthLevel } from "../lib/types.js";
 import { cn } from "../lib/utils.js";
 import { HardwareHashImport } from "../components/provisioning/HardwareHashImport.js";
 import {
@@ -41,9 +46,11 @@ import {
   formatDeploymentMode,
   formatMembershipType,
 } from "../components/provisioning/helpers.js";
-import type { DiscoverResult, ValidateResult } from "../components/provisioning/types.js";
-
-
+import type {
+  DiscoverResult,
+  ProvisioningTagDevice,
+  ValidateResult,
+} from "../components/provisioning/types.js";
 
 export function ProvisioningBuilderPage() {
   const toast = useToast();
@@ -63,6 +70,15 @@ export function ProvisioningBuilderPage() {
     queryFn: () =>
       apiRequest<DiscoverResult>(
         `/api/provisioning/discover?groupTag=${encodeURIComponent(searchTag)}`,
+      ),
+    enabled: searchTag.length > 0,
+  });
+
+  const tagDevices = useQuery({
+    queryKey: ["provisioning-tag-devices", searchTag],
+    queryFn: () =>
+      apiRequest<ProvisioningTagDevice[]>(
+        `/api/provisioning/tag-devices?groupTag=${encodeURIComponent(searchTag)}`,
       ),
     enabled: searchTag.length > 0,
   });
@@ -626,6 +642,15 @@ export function ProvisioningBuilderPage() {
                   )}
                 </Card>
               </div>
+
+              <TagDevicesPanel
+                groupTag={data.groupTag}
+                devices={tagDevices.data ?? []}
+                isLoading={tagDevices.isLoading}
+                isError={tagDevices.isError}
+                error={tagDevices.error}
+                onRetry={() => tagDevices.refetch()}
+              />
             </>
           ) : null}
         </div>
@@ -913,4 +938,109 @@ export function ProvisioningBuilderPage() {
       <HardwareHashImport />
     </div>
   );
+}
+
+function TagDevicesPanel({
+  groupTag,
+  devices,
+  isLoading,
+  isError,
+  error,
+  onRetry,
+}: {
+  groupTag: string;
+  devices: ProvisioningTagDevice[];
+  isLoading: boolean;
+  isError: boolean;
+  error: unknown;
+  onRetry: () => void;
+}) {
+  return (
+    <Card className="overflow-hidden">
+      <div className="flex flex-col gap-3 border-b border-[var(--pc-border)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <TabletSmartphone className="h-4 w-4 text-[var(--pc-accent)]" />
+            <div className="text-[13px] font-semibold text-[var(--pc-text)]">
+              Devices Carrying Tag
+            </div>
+            <CountPill value={devices.length} label="devices" />
+          </div>
+          <div className="mt-1 text-[12px] text-[var(--pc-text-secondary)]">
+            {groupTag}
+          </div>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="px-5 py-6">
+          <LoadingState label="Loading tagged devices..." />
+        </div>
+      ) : isError ? (
+        <div className="px-5 py-5">
+          <ErrorState
+            title="Could not load tagged devices"
+            error={error}
+            onRetry={onRetry}
+          />
+        </div>
+      ) : devices.length === 0 ? (
+        <EmptyPanel
+          message={`No devices currently carry "${groupTag}".`}
+          guidance="Run a sync after tagged Autopilot records exist."
+        />
+      ) : (
+        <div>
+          <div className="hidden grid-cols-[150px_minmax(0,1fr)_150px_170px_24px] border-b border-[var(--pc-border)] bg-[var(--pc-surface)] px-4 py-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)] sm:grid">
+            <div>Serial</div>
+            <div>Hostname</div>
+            <div>Last Sync</div>
+            <div>Current State</div>
+            <div />
+          </div>
+          <div className="max-h-[430px] divide-y divide-[var(--pc-border)] overflow-auto">
+            {devices.map((device) => (
+              <Link
+                key={device.deviceKey}
+                to="/devices/$deviceKey"
+                params={{ deviceKey: device.deviceKey }}
+                className="grid gap-2 px-4 py-3 transition-colors hover:bg-[var(--pc-tint-subtle)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)] sm:grid-cols-[150px_minmax(0,1fr)_150px_170px_24px] sm:items-center"
+              >
+                <div className="font-mono text-[11.5px] text-[var(--pc-text-secondary)]">
+                  {device.serialNumber ?? "Unknown"}
+                </div>
+                <div className="min-w-0">
+                  <div className="truncate text-[12.5px] font-medium text-[var(--pc-text)]">
+                    {device.deviceName ?? "No hostname"}
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-[var(--pc-text-muted)] sm:hidden">
+                    {formatRelativeTime(device.lastSyncAt)}
+                  </div>
+                </div>
+                <div className="hidden text-[11.5px] text-[var(--pc-text-muted)] sm:block">
+                  {formatRelativeTime(device.lastSyncAt)}
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusBadge health={device.health as HealthLevel} />
+                  {device.complianceState ? (
+                    <span className="text-[11px] text-[var(--pc-text-muted)]">
+                      {device.complianceState}
+                    </span>
+                  ) : null}
+                </div>
+                <ArrowRight className="hidden h-3.5 w-3.5 text-[var(--pc-text-muted)] sm:block" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function formatRelativeTime(value: string | null) {
+  if (!value) return "No sync";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Unknown";
+  return formatDistanceToNow(date, { addSuffix: true });
 }
