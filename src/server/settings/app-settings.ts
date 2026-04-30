@@ -10,7 +10,7 @@ const envWarningKeys = new Set<string>();
 
 interface AppSettingDefinition {
   key: string;
-  section: "sync-data" | "rules-thresholds" | "developer";
+  section: "sync-data" | "rules-thresholds" | "display-behavior" | "access-security" | "developer";
   label: string;
   description: string;
   valueType: Exclude<AppSettingValueType, "json">;
@@ -61,7 +61,7 @@ export const APP_SETTING_DEFINITIONS = [
     key: "rules.profileAssignedNotEnrolledHours",
     section: "rules-thresholds",
     label: "Profile assigned but not enrolled",
-    description: "Hours after profile assignment before an unenrolled Autopilot device is flagged.",
+    description: "Hours after profile assignment before an Autopilot identity that has not enrolled is flagged.",
     valueType: "number",
     defaultValue: 2,
     envVar: "PROFILE_ASSIGNED_NOT_ENROLLED_HOURS",
@@ -72,7 +72,7 @@ export const APP_SETTING_DEFINITIONS = [
     key: "rules.provisioningStalledHours",
     section: "rules-thresholds",
     label: "Provisioning stalled",
-    description: "Hours since last Intune check-in before an incomplete or unhealthy device is flagged.",
+    description: "Hours without meaningful enrollment progress before an in-flight device is flagged as stalled.",
     valueType: "number",
     defaultValue: 8,
     envVar: "PROVISIONING_STALLED_HOURS",
@@ -127,6 +127,71 @@ export const APP_SETTING_DEFINITIONS = [
     max: 168
   },
   {
+    key: "display.theme",
+    section: "display-behavior",
+    label: "Theme",
+    description: "Controls the Runway color theme. System follows Windows and falls back to Canopy Light.",
+    valueType: "string",
+    defaultValue: "system",
+    allowedValues: ["light", "dark", "system"]
+  },
+  {
+    key: "display.dateFormat",
+    section: "display-behavior",
+    label: "Date format",
+    description: "Controls whether timestamps are shown as relative time or absolute date/time.",
+    valueType: "string",
+    defaultValue: "relative",
+    allowedValues: ["relative", "absolute"]
+  },
+  {
+    key: "display.timeFormat",
+    section: "display-behavior",
+    label: "Time format",
+    description: "Controls absolute timestamp rendering.",
+    valueType: "string",
+    defaultValue: "24h",
+    allowedValues: ["12h", "24h"]
+  },
+  {
+    key: "display.tablePageSize",
+    section: "display-behavior",
+    label: "Table page size",
+    description: "Default row count for paginated operational tables.",
+    valueType: "number",
+    defaultValue: 50,
+    allowedValues: [25, 50, 100, 200],
+    integer: true
+  },
+  {
+    key: "display.defaultLandingScreen",
+    section: "display-behavior",
+    label: "Default landing screen",
+    description: "Route Runway opens on app launch.",
+    valueType: "string",
+    defaultValue: "devices",
+    allowedValues: ["devices", "tags", "provisioning"]
+  },
+  {
+    key: "behavior.confirmDestructiveActions",
+    section: "display-behavior",
+    label: "Confirm before destructive actions",
+    description: "Requires confirmation before destructive remediation actions.",
+    valueType: "boolean",
+    defaultValue: true
+  },
+  {
+    key: "security.sessionTimeoutMinutes",
+    section: "access-security",
+    label: "Session timeout",
+    description: "Minutes of browser inactivity before Runway signs out. Set 0 to never auto-logout.",
+    valueType: "number",
+    defaultValue: 60,
+    min: 0,
+    max: 1440,
+    integer: true
+  },
+  {
     key: "developer.seedMode",
     section: "developer",
     label: "Seed mode",
@@ -165,6 +230,13 @@ export interface AppSettingValues {
   actionLogRetentionDays: number;
   syncLogRetentionDays: number;
   retentionSweepIntervalHours: number;
+  theme: "light" | "dark" | "system";
+  dateFormat: "relative" | "absolute";
+  timeFormat: "12h" | "24h";
+  tablePageSize: 25 | 50 | 100 | 200;
+  defaultLandingScreen: "devices" | "tags" | "provisioning";
+  confirmDestructiveActions: boolean;
+  sessionTimeoutMinutes: number;
   seedMode: "mock" | "none";
 }
 
@@ -356,6 +428,13 @@ export function getAppSettingValues(db: Database.Database): AppSettingValues {
     actionLogRetentionDays: settings.get("retention.actionLogDays") as number,
     syncLogRetentionDays: settings.get("retention.syncLogDays") as number,
     retentionSweepIntervalHours: settings.get("retention.sweepIntervalHours") as number,
+    theme: settings.get("display.theme") as "light" | "dark" | "system",
+    dateFormat: settings.get("display.dateFormat") as "relative" | "absolute",
+    timeFormat: settings.get("display.timeFormat") as "12h" | "24h",
+    tablePageSize: settings.get("display.tablePageSize") as 25 | 50 | 100 | 200,
+    defaultLandingScreen: settings.get("display.defaultLandingScreen") as "devices" | "tags" | "provisioning",
+    confirmDestructiveActions: settings.get("behavior.confirmDestructiveActions") as boolean,
+    sessionTimeoutMinutes: settings.get("security.sessionTimeoutMinutes") as number,
     seedMode: settings.get("developer.seedMode") as "mock" | "none"
   };
 }

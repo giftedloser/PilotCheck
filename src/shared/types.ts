@@ -312,6 +312,14 @@ export interface AppAccessSettings {
   mode: "disabled" | "entra";
   required: boolean;
   allowedUsersConfigured: boolean;
+  allowedUsers: string[];
+}
+
+export interface SettingsAbout {
+  appVersion: string;
+  databaseSchemaVersion: string;
+  lastMigration: string | null;
+  logLevel: string;
 }
 
 /**
@@ -350,6 +358,7 @@ export interface EffectiveAppSetting {
 export interface SettingsResponse {
   graph: GraphReadiness;
   appAccess: AppAccessSettings;
+  about: SettingsAbout;
   appSettings: EffectiveAppSetting[];
   tagConfig: TagConfigRecord[];
   featureFlags: FeatureFlagMap;

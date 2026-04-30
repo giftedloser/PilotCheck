@@ -15,7 +15,12 @@ const dashboardPayload = {
 
 const settingsPayload = {
   graph: { configured: true, missing: [] },
-  appAccess: { mode: "disabled", required: false, allowedUsersConfigured: false },
+  appAccess: {
+    mode: "disabled",
+    required: false,
+    allowedUsersConfigured: false,
+    allowedUsers: []
+  },
   appSettings: [
     {
       key: "sync.intervalMinutes",
@@ -120,8 +125,131 @@ const settingsPayload = {
       envVar: "RETENTION_INTERVAL_HOURS",
       updatedAt: null,
       restartRequired: false
+    },
+    {
+      key: "rules.profileAssignedNotEnrolledHours",
+      section: "rules-thresholds",
+      label: "Profile assigned but not enrolled",
+      description: "Hours before a profile assignment without enrollment is flagged.",
+      value: 2,
+      defaultValue: 2,
+      valueType: "number",
+      source: "default",
+      envVar: "PROFILE_ASSIGNED_NOT_ENROLLED_HOURS",
+      updatedAt: null,
+      restartRequired: false
+    },
+    {
+      key: "rules.provisioningStalledHours",
+      section: "rules-thresholds",
+      label: "Provisioning stalled",
+      description: "Hours before an in-progress provisioning state is flagged as stalled.",
+      value: 8,
+      defaultValue: 8,
+      valueType: "number",
+      source: "default",
+      envVar: "PROVISIONING_STALLED_HOURS",
+      updatedAt: null,
+      restartRequired: false
+    },
+    {
+      key: "display.theme",
+      section: "display-behavior",
+      label: "Theme",
+      description: "Runway color theme.",
+      value: "system",
+      defaultValue: "system",
+      valueType: "string",
+      source: "default",
+      envVar: null,
+      updatedAt: null,
+      restartRequired: false
+    },
+    {
+      key: "display.dateFormat",
+      section: "display-behavior",
+      label: "Date format",
+      description: "Relative or absolute timestamps.",
+      value: "relative",
+      defaultValue: "relative",
+      valueType: "string",
+      source: "default",
+      envVar: null,
+      updatedAt: null,
+      restartRequired: false
+    },
+    {
+      key: "display.timeFormat",
+      section: "display-behavior",
+      label: "Time format",
+      description: "12-hour or 24-hour timestamps.",
+      value: "24h",
+      defaultValue: "24h",
+      valueType: "string",
+      source: "default",
+      envVar: null,
+      updatedAt: null,
+      restartRequired: false
+    },
+    {
+      key: "display.tablePageSize",
+      section: "display-behavior",
+      label: "Table page size",
+      description: "Default rows per page for paginated tables.",
+      value: 50,
+      defaultValue: 50,
+      valueType: "number",
+      source: "default",
+      envVar: null,
+      updatedAt: null,
+      restartRequired: false
+    },
+    {
+      key: "display.defaultLandingScreen",
+      section: "display-behavior",
+      label: "Default landing screen",
+      description: "Route opened at app launch.",
+      value: "devices",
+      defaultValue: "devices",
+      valueType: "string",
+      source: "default",
+      envVar: null,
+      updatedAt: null,
+      restartRequired: false
+    },
+    {
+      key: "behavior.confirmDestructiveActions",
+      section: "display-behavior",
+      label: "Confirm before destructive actions",
+      description: "Require confirmation before destructive operations.",
+      value: true,
+      defaultValue: true,
+      valueType: "boolean",
+      source: "default",
+      envVar: null,
+      updatedAt: null,
+      restartRequired: false
+    },
+    {
+      key: "security.sessionTimeoutMinutes",
+      section: "access-security",
+      label: "Session timeout",
+      description: "Minutes of inactivity before Runway signs out.",
+      value: 60,
+      defaultValue: 60,
+      valueType: "number",
+      source: "default",
+      envVar: null,
+      updatedAt: null,
+      restartRequired: false
     }
   ],
+  about: {
+    appVersion: "1.5.0",
+    databaseSchemaVersion: 10,
+    lastMigration: "010_app_settings.sql",
+    logLevel: "info"
+  },
   featureFlags: { sccm_detection: true },
   tagConfig: [
     { groupTag: "North", expectedProfileNames: ["North-UD"], expectedGroupNames: [], propertyLabel: "North" }
@@ -306,11 +434,17 @@ describe("client drilldown", () => {
     return screen.findByText("Fleet Health", {}, { timeout: 5000 });
   }
 
+  async function openOverview() {
+    await waitFor(() => expect(window.location.pathname).not.toBe("/"));
+    fireEvent.click(await screen.findByRole("link", { name: "Overview" }));
+    return findDashboardTitle();
+  }
+
   it("navigates from dashboard to devices to a device detail", async () => {
     await renderApp();
 
-    // Dashboard renders
-    expect(await findDashboardTitle()).toBeInTheDocument();
+    // Default landing opens Devices; Overview remains one click away.
+    expect(await openOverview()).toBeInTheDocument();
 
     // Drill into the Critical Devices quick-action link → device queue
     fireEvent.click((await screen.findAllByText("Critical Devices"))[0]);
@@ -336,7 +470,7 @@ describe("client drilldown", () => {
 
   it("saves sync interval from Settings", async () => {
     await renderApp();
-    expect(await findDashboardTitle()).toBeInTheDocument();
+    expect(await screen.findByText("Device Queue")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("link", { name: "Settings" }));
     expect(await screen.findByText("Sync & Data")).toBeInTheDocument();
@@ -360,7 +494,7 @@ describe("client drilldown", () => {
   it("surfaces overview master search results and opens a device", async () => {
     await renderApp();
 
-    expect(await findDashboardTitle()).toBeInTheDocument();
+    expect(await openOverview()).toBeInTheDocument();
 
     fireEvent.change(screen.getAllByPlaceholderText(/search devices by name/i)[0], {
       target: { value: "North" }
