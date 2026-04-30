@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+No entries yet.
+
+## [1.5.1] - 2026-04-30
+
 ### Added
 
 - Added database-backed app settings with DB / environment / code-default
