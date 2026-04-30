@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
-import { AlertTriangle, Clock3, Database, PauseCircle, PlayCircle } from "lucide-react";
+import { useMemo } from "react";
+import { AlertTriangle, Clock3, PauseCircle, PlayCircle } from "lucide-react";
 
 import type { EffectiveAppSetting } from "../../lib/types.js";
+import { AdvancedDisclosure } from "../shared/AdvancedDisclosure.js";
 import { Card } from "../ui/card.js";
 import { SettingsSectionHeader } from "./SettingsShared.js";
 import {
@@ -32,7 +33,6 @@ export function SyncDataSection({
     [appSettings]
   );
   const { save, isSaving } = useSettingSave();
-  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const syncPaused = settings.get("sync.paused")?.value === true;
   const manualOnly = settings.get("sync.manualOnly")?.value === true;
@@ -148,32 +148,22 @@ export function SyncDataSection({
             </SettingShell>
           </div>
 
-          <details
-            open={advancedOpen}
-            onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
-            className="rounded-[var(--pc-radius)] border border-[var(--pc-border)] bg-[var(--pc-surface)]"
+          <AdvancedDisclosure
+            title="Advanced retention"
+            description="Rarely changed infrastructure cadence for the background retention worker."
           >
-            <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-[12px] font-semibold text-[var(--pc-text-secondary)] hover:bg-[var(--pc-surface-raised)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]">
-              <Database className="h-3.5 w-3.5 text-[var(--pc-accent)]" />
-              Advanced retention
-              <span className="ml-auto text-[11px] font-normal text-[var(--pc-text-muted)]">
-                {advancedOpen ? "Hide" : "Show"}
-              </span>
-            </summary>
-            <div className="border-t border-[var(--pc-border)] p-4">
-              <SettingShell setting={settingByKey(appSettings, "retention.sweepIntervalHours")}>
-                <NumberInputControl
-                  setting={settingByKey(appSettings, "retention.sweepIntervalHours")}
-                  min={0.5}
-                  max={168}
-                  step={0.5}
-                  suffix="hours"
-                  disabled={saveDisabled}
-                  onSave={save}
-                />
-              </SettingShell>
-            </div>
-          </details>
+            <SettingShell setting={settingByKey(appSettings, "retention.sweepIntervalHours")}>
+              <NumberInputControl
+                setting={settingByKey(appSettings, "retention.sweepIntervalHours")}
+                min={0.5}
+                max={168}
+                step={0.5}
+                suffix="hours"
+                disabled={saveDisabled}
+                onSave={save}
+              />
+            </SettingShell>
+          </AdvancedDisclosure>
 
           {syncPaused ? (
             <div className="flex items-start gap-2 rounded-[var(--pc-radius)] border border-[var(--pc-warning)]/30 bg-[var(--pc-warning-muted)] px-4 py-3 text-[12px] text-[var(--pc-warning)]">

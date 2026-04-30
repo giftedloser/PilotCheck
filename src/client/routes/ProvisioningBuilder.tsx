@@ -140,10 +140,13 @@ export function ProvisioningBuilderPage() {
       : null;
   const expectedGroups = data?.existingConfig?.expectedGroupNames ?? [];
   const expectedProfiles = data?.existingConfig?.expectedProfileNames ?? [];
-  const isSelectedGroupExpected = selectedGroup
+  const hasExpectedGroups = expectedGroups.length > 0;
+  const hasExpectedProfiles = expectedProfiles.length > 0;
+  const hasStrictExpectations = hasExpectedGroups || hasExpectedProfiles;
+  const isSelectedGroupExpected = selectedGroup && hasExpectedGroups
     ? expectedGroups.includes(selectedGroup.groupName)
     : null;
-  const isSelectedProfileExpected = selectedProfile
+  const isSelectedProfileExpected = selectedProfile && hasExpectedProfiles
     ? expectedProfiles.includes(selectedProfile.profileName)
     : null;
 
@@ -416,22 +419,37 @@ export function ProvisioningBuilderPage() {
                       tag.
                     </div>
                   </div>
-                  <div className="grid gap-4 px-5 py-5 lg:grid-cols-[220px_minmax(0,1fr)_minmax(0,1fr)]">
+                  <div
+                    className={cn(
+                      "grid gap-4 px-5 py-5",
+                      hasStrictExpectations
+                        ? "lg:grid-cols-[220px_minmax(0,1fr)_minmax(0,1fr)]"
+                        : "lg:grid-cols-[220px_minmax(0,1fr)]",
+                    )}
+                  >
                     <SummaryBlock
                       label="Property"
                       value={data.existingConfig.propertyLabel}
                       hint={`Tag ${data.existingConfig.groupTag}`}
                     />
-                    <ChipList
-                      title="Expected Groups"
-                      items={data.existingConfig.expectedGroupNames}
-                      emptyLabel="No expected groups configured."
-                    />
-                    <ChipList
-                      title="Expected Profiles"
-                      items={data.existingConfig.expectedProfileNames}
-                      emptyLabel="No expected profiles configured."
-                    />
+                    {hasStrictExpectations ? (
+                      <>
+                        <ChipList
+                          title="Expected Groups"
+                          items={data.existingConfig.expectedGroupNames}
+                          emptyLabel="No expected groups configured."
+                        />
+                        <ChipList
+                          title="Expected Profiles"
+                          items={data.existingConfig.expectedProfileNames}
+                          emptyLabel="No expected profiles configured."
+                        />
+                      </>
+                    ) : (
+                      <div className="rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 p-4 text-[12px] leading-relaxed text-[var(--pc-text-muted)]">
+                        No strict expected groups or profiles are configured for this tag.
+                      </div>
+                    )}
                   </div>
                 </Card>
               ) : null}
@@ -736,26 +754,32 @@ export function ProvisioningBuilderPage() {
                 tone="info"
               />
 
-              <div className="rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 p-4">
-                <div className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
-                  Expected Config Alignment
+              {hasStrictExpectations ? (
+                <div className="rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 p-4">
+                  <div className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
+                    Expected Config Alignment
+                  </div>
+                  {hasExpectedGroups ? (
+                    <CompareRow
+                      label="Selected group"
+                      state={isSelectedGroupExpected}
+                      emptyLabel="Select a group to compare it against tag_config."
+                    />
+                  ) : null}
+                  {hasExpectedProfiles ? (
+                    <CompareRow
+                      label="Selected profile"
+                      state={isSelectedProfileExpected}
+                      emptyLabel="Select a profile to compare it against tag_config."
+                    />
+                  ) : null}
+                  <div className="mt-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2 text-[11px] leading-relaxed text-[var(--pc-text-secondary)]">
+                    Stored expectations are advisory reference values from
+                    `tag_config`. They help Windows admins spot drift before
+                    validating the chain.
+                  </div>
                 </div>
-                <CompareRow
-                  label="Selected group"
-                  state={isSelectedGroupExpected}
-                  emptyLabel="Select a group to compare it against tag_config."
-                />
-                <CompareRow
-                  label="Selected profile"
-                  state={isSelectedProfileExpected}
-                  emptyLabel="Select a profile to compare it against tag_config."
-                />
-                <div className="mt-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2 text-[11px] leading-relaxed text-[var(--pc-text-secondary)]">
-                  Stored expectations are advisory reference values from
-                  `tag_config`. They help Windows admins spot drift before
-                  validating the chain.
-                </div>
-              </div>
+              ) : null}
             </div>
           </Card>
 
@@ -819,15 +843,19 @@ export function ProvisioningBuilderPage() {
                           ),
                         },
                         { label: "Group ID", value: selectedGroup.groupId },
-                        {
-                          label: "Expected config",
-                          value:
-                            isSelectedGroupExpected === null
-                              ? "Not checked"
-                              : isSelectedGroupExpected
-                                ? "Matches stored expected group"
-                                : "Not listed in stored expected groups",
-                        },
+                        ...(hasExpectedGroups
+                          ? [
+                              {
+                                label: "Expected config",
+                                value:
+                                  isSelectedGroupExpected === null
+                                    ? "Not checked"
+                                    : isSelectedGroupExpected
+                                      ? "Matches stored expected group"
+                                      : "Not listed in stored expected groups",
+                              },
+                            ]
+                          : []),
                       ]
                     : []
                 }
@@ -865,15 +893,19 @@ export function ProvisioningBuilderPage() {
                           label: "Profile ID",
                           value: selectedProfile.profileId,
                         },
-                        {
-                          label: "Expected config",
-                          value:
-                            isSelectedProfileExpected === null
-                              ? "Not checked"
-                              : isSelectedProfileExpected
-                                ? "Matches stored expected profile"
-                                : "Not listed in stored expected profiles",
-                        },
+                        ...(hasExpectedProfiles
+                          ? [
+                              {
+                                label: "Expected config",
+                                value:
+                                  isSelectedProfileExpected === null
+                                    ? "Not checked"
+                                    : isSelectedProfileExpected
+                                      ? "Matches stored expected profile"
+                                      : "Not listed in stored expected profiles",
+                              },
+                            ]
+                          : []),
                       ]
                     : []
                 }

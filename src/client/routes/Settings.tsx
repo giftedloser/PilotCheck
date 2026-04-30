@@ -1,20 +1,17 @@
-﻿import { useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import {
   Cable,
   CheckCircle2,
   Download,
-  Plus,
-  Search,
   Tag,
   ToggleLeft,
   ToggleRight,
-  Trash2,
   Upload,
   XCircle,
 } from "lucide-react";
 
 import { useToast } from "../components/shared/toast.js";
-import { ConfirmDialog } from "../components/shared/ConfirmDialog.js";
 
 import { PageHeader } from "../components/layout/PageHeader.js";
 import { LogViewerSection } from "../components/settings/LogViewerSection.js";
@@ -30,17 +27,14 @@ import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { SourceBadge } from "../components/shared/SourceBadge.js";
 import { Button } from "../components/ui/button.js";
 import { Card } from "../components/ui/card.js";
-import { Input } from "../components/ui/input.js";
 import { useAuthStatus } from "../hooks/useAuth.js";
 import {
-  usePreviewTagConfig,
   useSetFeatureFlag,
   useSettings,
   useTagConfigMutations,
 } from "../hooks/useSettings.js";
 import type { TagConfigRecord } from "../lib/types.js";
 import {
-  PreviewMetric,
   SettingsJumpNav,
   SettingsReadinessBanner,
   SettingsSectionHeader,
@@ -57,33 +51,10 @@ export function SettingsPage() {
   const settings = useSettings();
   const auth = useAuthStatus();
   const mutations = useTagConfigMutations();
-  const preview = usePreviewTagConfig();
   const featureFlagMutation = useSetFeatureFlag();
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
-
-  const [form, setForm] = useState({
-    groupTag: "",
-    propertyLabel: "",
-    expectedProfileNames: "",
-    expectedGroupNames: "",
-  });
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-
-  const buildFormRecord = (): TagConfigRecord => ({
-    groupTag: form.groupTag.trim(),
-    propertyLabel: form.propertyLabel.trim(),
-    expectedProfileNames: form.expectedProfileNames
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-    expectedGroupNames: form.expectedGroupNames
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-  });
 
   if (settings.isLoading) return <LoadingState label="Loading settings…" />;
   if (settings.isError || !settings.data) {
@@ -446,7 +417,7 @@ export function SettingsPage() {
         <SettingsSectionHeader
           index="9"
           title="Tag Mapping"
-          detail="Expected property, group, and profile per group tag"
+          detail="Bulk import/export only; edit individual mappings in Tags"
           actions={
             <div className="flex flex-wrap items-center gap-2">
               <input
@@ -488,347 +459,29 @@ export function SettingsPage() {
         />
 
         <Card className="p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Plus className="h-4 w-4 text-[var(--pc-accent)]" />
-            <div className="text-[13px] font-semibold text-[var(--pc-text)]">
-              Add mapping
-            </div>
-            {!isAuthed ? (
-              <span className="ml-auto text-[11px] text-[var(--pc-warning)]">
-                Admin sign-in required to change mappings.
-              </span>
-            ) : null}
-          </div>
-          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-[var(--pc-text-muted)]">
-                Group tag
-              </label>
-              <Input
-                placeholder="e.g. CG-LOBBY"
-                value={form.groupTag}
-                onChange={(event) =>
-                  setForm((previous) => ({
-                    ...previous,
-                    groupTag: event.target.value,
-                  }))
-                }
-                onBlur={() => setTouched((p) => ({ ...p, groupTag: true }))}
-                aria-invalid={touched.groupTag && !form.groupTag.trim()}
-                className="w-full"
-              />
-              {touched.groupTag && !form.groupTag.trim() && (
-                <p className="text-[11px] text-[var(--pc-critical)]">
-                  Group tag is required.
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--pc-accent-muted)]">
+                <Tag className="h-4 w-4 text-[var(--pc-accent-hover)]" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[13px] font-semibold text-[var(--pc-text)]">
+                  Bulk mapping exchange
+                </div>
+                <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-[var(--pc-text-muted)]">
+                  Keep JSON import/export here for fleet handoff and backup. Day-to-day mapping edits now live with the tag inventory so Settings stays calm.
                 </p>
-              )}
+              </div>
             </div>
-            <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-[var(--pc-text-muted)]">
-                Property label
-              </label>
-              <Input
-                placeholder="e.g. Casino Grand Lobby"
-                value={form.propertyLabel}
-                onChange={(event) =>
-                  setForm((previous) => ({
-                    ...previous,
-                    propertyLabel: event.target.value,
-                  }))
-                }
-                onBlur={() =>
-                  setTouched((p) => ({ ...p, propertyLabel: true }))
-                }
-                aria-invalid={
-                  touched.propertyLabel && !form.propertyLabel.trim()
-                }
-                className="w-full"
-              />
-              {touched.propertyLabel && !form.propertyLabel.trim() && (
-                <p className="text-[11px] text-[var(--pc-critical)]">
-                  Property label is required.
-                </p>
-              )}
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-[var(--pc-text-muted)]">
-                Expected profiles (comma-separated)
-              </label>
-              <Input
-                placeholder="LOBBY-Kiosk, LOBBY-PoS"
-                value={form.expectedProfileNames}
-                onChange={(event) =>
-                  setForm((previous) => ({
-                    ...previous,
-                    expectedProfileNames: event.target.value,
-                  }))
-                }
-                className="w-full"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[11px] font-medium text-[var(--pc-text-muted)]">
-                Expected groups (comma-separated)
-              </label>
-              <Input
-                placeholder="LOBBY-Devices"
-                value={form.expectedGroupNames}
-                onChange={(event) =>
-                  setForm((previous) => ({
-                    ...previous,
-                    expectedGroupNames: event.target.value,
-                  }))
-                }
-                className="w-full"
-              />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="secondary"
-                disabled={
-                  !isAuthed ||
-                  !form.groupTag.trim() ||
-                  !form.propertyLabel.trim() ||
-                  preview.isPending
-                }
-                title={
-                  !isAuthed
-                    ? "Sign in as an admin to preview mappings"
-                    : undefined
-                }
-                onClick={() => preview.mutate(buildFormRecord())}
-              >
-                <Search className="h-3.5 w-3.5" />
-                {preview.isPending ? "Previewing…" : "Preview impact"}
-              </Button>
-              <Button
-                disabled={
-                  !isAuthed ||
-                  !form.groupTag.trim() ||
-                  !form.propertyLabel.trim() ||
-                  mutations.create.isPending
-                }
-                title={
-                  !isAuthed ? "Sign in as an admin to save mappings" : undefined
-                }
-                onClick={() =>
-                  mutations.create.mutate(buildFormRecord(), {
-                    onSuccess: () => {
-                      setForm({
-                        groupTag: "",
-                        propertyLabel: "",
-                        expectedProfileNames: "",
-                        expectedGroupNames: "",
-                      });
-                      setTouched({});
-                      preview.reset();
-                    },
-                  })
-                }
-              >
-                <Plus className="h-3.5 w-3.5" />
-                {mutations.create.isPending ? "Saving…" : "Save mapping"}
-              </Button>
-            </div>
+            <Link
+              to="/tags"
+              className="inline-flex h-9 shrink-0 items-center justify-center rounded-[var(--pc-radius-sm)] border border-[var(--pc-border)] bg-[var(--pc-surface)] px-3 text-[12px] font-medium text-[var(--pc-text-body)] transition-[background-color,border-color,color,transform] hover:-translate-y-px hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-raised)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+            >
+              Manage individual mappings in Tags view →
+            </Link>
           </div>
         </Card>
-
-        {preview.isError ? (
-          <Card className="border-[var(--pc-critical)]/30 bg-[var(--pc-critical-muted)]/30 p-4 text-[12px] text-[var(--pc-critical)]">
-            {preview.error instanceof Error
-              ? preview.error.message
-              : "Could not preview this mapping."}
-          </Card>
-        ) : preview.data ? (
-          <Card className="p-5">
-            <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="text-[13px] font-semibold text-[var(--pc-text)]">
-                  Preview for {preview.data.record.groupTag}
-                </div>
-                <div className="text-[11.5px] text-[var(--pc-text-muted)]">
-                  {preview.data.matchedDevices} devices currently carry this
-                  group tag.
-                </div>
-              </div>
-              <span className="rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1 text-[11px] text-[var(--pc-text-secondary)]">
-                Not saved
-              </span>
-            </div>
-
-            <div className="grid gap-2 sm:grid-cols-5">
-              <PreviewMetric
-                label="Property labels"
-                value={preview.data.impact.propertyLabelChanges}
-              />
-              <PreviewMetric
-                label="+ Tag mismatch"
-                value={preview.data.impact.addedTagMismatch}
-                tone={
-                  preview.data.impact.addedTagMismatch > 0
-                    ? "warning"
-                    : "neutral"
-                }
-              />
-              <PreviewMetric
-                label="- Tag mismatch"
-                value={preview.data.impact.clearedTagMismatch}
-                tone={
-                  preview.data.impact.clearedTagMismatch > 0
-                    ? "healthy"
-                    : "neutral"
-                }
-              />
-              <PreviewMetric
-                label="+ Target group"
-                value={preview.data.impact.addedNotInTargetGroup}
-                tone={
-                  preview.data.impact.addedNotInTargetGroup > 0
-                    ? "warning"
-                    : "neutral"
-                }
-              />
-              <PreviewMetric
-                label="- Target group"
-                value={preview.data.impact.clearedNotInTargetGroup}
-                tone={
-                  preview.data.impact.clearedNotInTargetGroup > 0
-                    ? "healthy"
-                    : "neutral"
-                }
-              />
-            </div>
-
-            {preview.data.sampleDevices.length > 0 ? (
-              <div className="mt-4 overflow-hidden rounded-[var(--pc-radius)] border border-[var(--pc-border)]">
-                <div className="border-b border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
-                  Sample changed devices
-                </div>
-                <ul className="divide-y divide-[var(--pc-border)]">
-                  {preview.data.sampleDevices.map((device) => (
-                    <li key={device.deviceKey} className="px-3 py-2.5">
-                      <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <div className="min-w-0">
-                          <div className="truncate text-[12.5px] font-semibold text-[var(--pc-text)]">
-                            {device.deviceName ??
-                              device.serialNumber ??
-                              device.deviceKey}
-                          </div>
-                          <div className="mt-0.5 text-[11px] text-[var(--pc-text-muted)]">
-                            Profile: {device.assignedProfileName ?? "none"}
-                          </div>
-                        </div>
-                        <div className="font-mono text-[10.5px] text-[var(--pc-text-muted)]">
-                          {device.currentPropertyLabel ?? "none"} -&gt;{" "}
-                          {device.nextPropertyLabel}
-                        </div>
-                      </div>
-                      {device.flagChanges.length > 0 ? (
-                        <div className="mt-1.5 flex flex-wrap gap-1">
-                          {device.flagChanges.map((change) => (
-                            <span
-                              key={change}
-                              className="rounded bg-[var(--pc-tint-subtle)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--pc-text-secondary)]"
-                            >
-                              {change}
-                            </span>
-                          ))}
-                        </div>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : (
-              <div className="mt-4 rounded-[var(--pc-radius)] border border-dashed border-[var(--pc-border)] px-4 py-3 text-[12px] text-[var(--pc-text-muted)]">
-                No device rows would change under this mapping.
-              </div>
-            )}
-          </Card>
-        ) : null}
-
-        {settings.data.tagConfig.length === 0 ? (
-          <Card className="border-dashed px-5 py-8 text-center text-[12.5px] text-[var(--pc-text-muted)]">
-            <Tag className="mx-auto mb-2 h-5 w-5 text-[var(--pc-accent)]" />
-            <div className="font-semibold text-[var(--pc-text-secondary)]">
-              No mappings yet
-            </div>
-            <div className="mx-auto mt-1 max-w-xl leading-5">
-              Without mappings, Runway cannot detect{" "}
-              <span className="text-[var(--pc-text-secondary)]">
-                tag mismatch
-              </span>{" "}
-              or{" "}
-              <span className="text-[var(--pc-text-secondary)]">
-                not in target group
-              </span>{" "}
-              conditions.
-            </div>
-          </Card>
-        ) : (
-          <div className="grid gap-3 2xl:grid-cols-2">
-            {settings.data.tagConfig.map((row) => (
-              <Card
-                key={row.groupTag}
-                className="pc-interactive-lift p-4 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-raised)]"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Tag className="h-3.5 w-3.5 text-[var(--pc-accent)]" />
-                      <div
-                        className="truncate text-[14px] font-semibold text-[var(--pc-text)]"
-                        title={row.groupTag}
-                      >
-                        {row.groupTag}
-                      </div>
-                    </div>
-                    <div
-                      className="mt-0.5 truncate text-[12px] text-[var(--pc-text-muted)]"
-                      title={row.propertyLabel}
-                    >
-                      {row.propertyLabel}
-                    </div>
-                  </div>
-                  <Button
-                    variant="destructive"
-                    className="h-8 px-2.5"
-                    disabled={!isAuthed}
-                    title={
-                      !isAuthed
-                        ? "Sign in as an admin to delete mappings"
-                        : undefined
-                    }
-                    onClick={() => setDeleteTarget(row.groupTag)}
-                    aria-label={`Delete ${row.groupTag}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-                <div className="mt-3 space-y-1.5 text-[11.5px]">
-                  <div className="flex items-start gap-1.5">
-                    <span className="text-[var(--pc-text-muted)]">
-                      Profiles:
-                    </span>
-                    <span className="text-[var(--pc-text-secondary)]">
-                      {row.expectedProfileNames.join(", ") || "—"}
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-1.5">
-                    <span className="text-[var(--pc-text-muted)]">Groups:</span>
-                    <span className="text-[var(--pc-text-secondary)]">
-                      {row.expectedGroupNames.join(", ") || "—"}
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
       </section>
-
       {/* Section 10: System health & retention */}
       <SystemHealthSection />
 
@@ -838,18 +491,6 @@ export function SettingsPage() {
       {/* Section 12: Recent logs */}
       <LogViewerSection />
 
-      <ConfirmDialog
-        open={deleteTarget !== null}
-        title="Delete tag mapping"
-        description={`Remove the mapping for group tag "${deleteTarget ?? ""}"? Devices using this tag will lose tag-mismatch and not-in-target-group detection until a new mapping is created.`}
-        confirmLabel="Delete"
-        destructive
-        onConfirm={() => {
-          if (deleteTarget) mutations.remove.mutate(deleteTarget);
-          setDeleteTarget(null);
-        }}
-        onCancel={() => setDeleteTarget(null)}
-      />
     </div>
   );
 }

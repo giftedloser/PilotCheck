@@ -492,6 +492,38 @@ describe("computeAllDeviceStates — flag detection", () => {
     expect(states[0].flags).toContain("not_in_target_group");
   });
 
+  it("does not emit expectation flags when a tag has no strict expectations", () => {
+    persistSnapshot(
+      db,
+      snapshot({
+        autopilotRows: [
+          autopilot({
+            id: "ap-empty-expectations",
+            serial_number: "SN-N",
+            group_tag: "North",
+            deployment_profile_name: "UnexpectedProfile",
+            entra_device_id: "entra-n"
+          })
+        ],
+        intuneRows: [intune({ id: "int-n", serial_number: "SN-N", entra_device_id: "entra-n" })],
+        entraRows: [entra({ id: "entra-n", serial_number: "SN-N" })],
+        tagConfigRows: [
+          {
+            groupTag: "North",
+            expectedProfileNames: [],
+            expectedGroupNames: [],
+            propertyLabel: "North"
+          }
+        ]
+      })
+    );
+
+    computeAllDeviceStates(db);
+    const states = readStates();
+    expect(states[0].flags).not.toContain("tag_mismatch");
+    expect(states[0].flags).not.toContain("not_in_target_group");
+  });
+
   it("returns a clean healthy device when all signals line up", () => {
     persistSnapshot(
       db,
