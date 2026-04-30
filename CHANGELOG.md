@@ -9,7 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-No entries yet.
+### Changed
+
+- Moved individual tag mapping edits from Settings into a Tags side drawer,
+  leaving Settings with JSON import/export and a Tags management link.
+- Demoted strict expected groups/profiles to Advanced tag mapping controls and
+  suppressed expectation warnings when no expectations are configured.
+- Unified the sidebar theme cycler and Settings theme dropdown on the
+  `display.theme` app setting.
+- Moved the retention sweep interval into a shared Advanced disclosure in
+  Sync & Data.
+
+### Removed
+
+- Removed the never-disable-confirmations toggle; destructive confirmations
+  are always enforced.
 
 ## [1.5.1] - 2026-04-30
 
