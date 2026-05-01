@@ -7,6 +7,7 @@ import {
   Clock3,
   ClipboardCopy,
   Copy,
+  ExternalLink,
   FileCheck2,
   GitBranch,
   Loader2,
@@ -25,11 +26,20 @@ import { PageHeader } from "../components/layout/PageHeader.js";
 import { ErrorState, LoadingState } from "../components/shared/ErrorState.js";
 import { SourceBadge } from "../components/shared/SourceBadge.js";
 import { StatusBadge } from "../components/shared/StatusBadge.js";
+import { WarningWithGuidance } from "../components/shared/WarningWithGuidance.js";
 import { useToast } from "../components/shared/toast.js";
 import { Button } from "../components/ui/button.js";
 import { Card } from "../components/ui/card.js";
 import { Input } from "../components/ui/input.js";
 import { apiRequest } from "../lib/api.js";
+import {
+  autopilotProfileUrl,
+  entraGroupUrl,
+  intuneAppUrl,
+  intuneCompliancePolicyUrl,
+  intuneConfigProfileUrl,
+  intuneGroupAssignmentsUrl,
+} from "../lib/deep-links.js";
 import type { HealthLevel } from "../lib/types.js";
 import { cn } from "../lib/utils.js";
 import { HardwareHashImport } from "../components/provisioning/HardwareHashImport.js";
@@ -490,70 +500,80 @@ export function ProvisioningBuilderPage() {
                         select
                       </div>
                       {data.matchingGroups.map((group) => (
-                        <button
-                          key={group.groupId}
-                          type="button"
-                          onClick={() =>
-                            setSelectedGroupId(
-                              group.groupId === selectedGroupId
-                                ? null
-                                : group.groupId,
-                            )
-                          }
-                          className={cn(
-                            "w-full rounded-xl border text-left transition-colors",
-                            compact ? "px-3 py-2" : "px-4 py-3",
-                            selectedGroupId === group.groupId
-                              ? "border-[var(--pc-accent)] bg-[var(--pc-accent-muted)]"
-                              : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-raised)]",
-                          )}
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <div
-                                className={cn(
-                                  "font-medium text-[var(--pc-text)]",
-                                  compact ? "text-[12px]" : "text-[13px]",
-                                )}
-                              >
-                                {group.groupName}
+                        <div key={group.groupId} className="flex items-stretch gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSelectedGroupId(
+                                group.groupId === selectedGroupId
+                                  ? null
+                                  : group.groupId,
+                              )
+                            }
+                            className={cn(
+                              "min-w-0 flex-1 rounded-xl border text-left transition-colors",
+                              compact ? "px-3 py-2" : "px-4 py-3",
+                              selectedGroupId === group.groupId
+                                ? "border-[var(--pc-accent)] bg-[var(--pc-accent-muted)]"
+                                : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-raised)]",
+                            )}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div
+                                  className={cn(
+                                    "truncate font-medium text-[var(--pc-text)]",
+                                    compact ? "text-[12px]" : "text-[13px]",
+                                  )}
+                                >
+                                  {group.groupName}
+                                </div>
+                                <div className="mt-1 flex flex-wrap items-center gap-2 text-[10.5px] uppercase tracking-wide text-[var(--pc-text-muted)]">
+                                  <span>
+                                    {formatMembershipType(group.membershipType)}
+                                  </span>
+                                  <span>•</span>
+                                  <span>
+                                    {selectedGroupId === group.groupId
+                                      ? "Selected"
+                                      : "Available"}
+                                  </span>
+                                  {expectedGroups.includes(group.groupName) ? (
+                                    <>
+                                      <span>•</span>
+                                      <span className="text-[var(--pc-healthy)]">
+                                        Expected
+                                      </span>
+                                    </>
+                                  ) : null}
+                                </div>
                               </div>
-                              <div className="mt-1 flex flex-wrap items-center gap-2 text-[10.5px] uppercase tracking-wide text-[var(--pc-text-muted)]">
-                                <span>
-                                  {formatMembershipType(group.membershipType)}
-                                </span>
-                                <span>•</span>
-                                <span>
-                                  {selectedGroupId === group.groupId
-                                    ? "Selected"
-                                    : "Available"}
-                                </span>
-                                {expectedGroups.includes(group.groupName) ? (
-                                  <>
-                                    <span>•</span>
-                                    <span className="text-[var(--pc-healthy)]">
-                                      Expected
-                                    </span>
-                                  </>
-                                ) : null}
-                              </div>
+                              <SelectionBadge
+                                active={selectedGroupId === group.groupId}
+                              />
                             </div>
-                            <SelectionBadge
-                              active={selectedGroupId === group.groupId}
-                            />
-                          </div>
-                          {!compact && (
-                            <div className="mt-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2">
-                              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
-                                Membership Rule
+                            {!compact && (
+                              <div className="mt-3 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2">
+                                <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--pc-text-muted)]">
+                                  Membership Rule
+                                </div>
+                                <div className="font-mono text-[11px] leading-relaxed text-[var(--pc-text-secondary)]">
+                                  {group.membershipRule ??
+                                    "No dynamic rule stored for this group."}
+                                </div>
                               </div>
-                              <div className="font-mono text-[11px] leading-relaxed text-[var(--pc-text-secondary)]">
-                                {group.membershipRule ??
-                                  "No dynamic rule stored for this group."}
-                              </div>
-                            </div>
-                          )}
-                        </button>
+                            )}
+                          </button>
+                          <a
+                            href={entraGroupUrl(group.groupId)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 text-[var(--pc-text-muted)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-[var(--pc-accent)]"
+                            aria-label={`Open ${group.groupName} in Entra`}
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                        </div>
                       ))}
                     </div>
                   )}
@@ -604,66 +624,79 @@ export function ProvisioningBuilderPage() {
                           )?.groupName ?? profile.viaGroupId;
 
                         return (
-                          <button
+                          <div
                             key={`${profile.profileId}-${profile.viaGroupId}`}
-                            type="button"
-                            onClick={() =>
-                              setSelectedProfileId(
-                                profile.profileId === selectedProfileId
-                                  ? null
-                                  : profile.profileId,
-                              )
-                            }
-                            className={cn(
-                              "w-full rounded-xl border text-left transition-colors",
-                              compact ? "px-3 py-2" : "px-4 py-3",
-                              selectedProfileId === profile.profileId
-                                ? "border-[var(--pc-accent)] bg-[var(--pc-accent-muted)]"
-                                : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-raised)]",
-                            )}
+                            className="flex items-stretch gap-2"
                           >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <div
-                                  className={cn(
-                                    "font-medium text-[var(--pc-text)]",
-                                    compact ? "text-[12px]" : "text-[13px]",
-                                  )}
-                                >
-                                  {profile.profileName}
-                                </div>
-                                <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[var(--pc-text-secondary)]">
-                                  <span>
-                                    Assigned via{" "}
-                                    <span className="text-[var(--pc-text)]">
-                                      {viaGroup}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSelectedProfileId(
+                                  profile.profileId === selectedProfileId
+                                    ? null
+                                    : profile.profileId,
+                                )
+                              }
+                              className={cn(
+                                "min-w-0 flex-1 rounded-xl border text-left transition-colors",
+                                compact ? "px-3 py-2" : "px-4 py-3",
+                                selectedProfileId === profile.profileId
+                                  ? "border-[var(--pc-accent)] bg-[var(--pc-accent-muted)]"
+                                  : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-surface-raised)]",
+                              )}
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <div
+                                    className={cn(
+                                      "truncate font-medium text-[var(--pc-text)]",
+                                      compact ? "text-[12px]" : "text-[13px]",
+                                    )}
+                                  >
+                                    {profile.profileName}
+                                  </div>
+                                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[var(--pc-text-secondary)]">
+                                    <span>
+                                      Assigned via{" "}
+                                      <span className="text-[var(--pc-text)]">
+                                        {viaGroup}
+                                      </span>
                                     </span>
-                                  </span>
-                                  {expectedProfiles.includes(
-                                    profile.profileName,
-                                  ) ? (
-                                    <span className="rounded-full bg-[var(--pc-healthy-muted)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--pc-healthy)]">
-                                      Expected
+                                    {expectedProfiles.includes(
+                                      profile.profileName,
+                                    ) ? (
+                                      <span className="rounded-full bg-[var(--pc-healthy-muted)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--pc-healthy)]">
+                                        Expected
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                </div>
+                                <div className="flex shrink-0 items-center gap-2">
+                                  {profile.deploymentMode ? (
+                                    <span className="rounded-md bg-[var(--pc-tint-hover)] px-2 py-1 text-[10.5px] font-medium text-[var(--pc-text-secondary)]">
+                                      {formatDeploymentMode(
+                                        profile.deploymentMode,
+                                      )}
                                     </span>
                                   ) : null}
+                                  <SelectionBadge
+                                    active={
+                                      selectedProfileId === profile.profileId
+                                    }
+                                  />
                                 </div>
                               </div>
-                              <div className="flex shrink-0 items-center gap-2">
-                                {profile.deploymentMode ? (
-                                  <span className="rounded-md bg-[var(--pc-tint-hover)] px-2 py-1 text-[10.5px] font-medium text-[var(--pc-text-secondary)]">
-                                    {formatDeploymentMode(
-                                      profile.deploymentMode,
-                                    )}
-                                  </span>
-                                ) : null}
-                                <SelectionBadge
-                                  active={
-                                    selectedProfileId === profile.profileId
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </button>
+                            </button>
+                            <a
+                              href={autopilotProfileUrl(profile.profileId)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--pc-border)] bg-[var(--pc-surface-raised)]/55 text-[var(--pc-text-muted)] transition-colors hover:border-[var(--pc-border-hover)] hover:text-[var(--pc-accent)]"
+                              aria-label={`Open ${profile.profileName} in Intune`}
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          </div>
                         );
                       })}
                     </div>
@@ -673,6 +706,7 @@ export function ProvisioningBuilderPage() {
 
               <BuildPayloadPanel
                 payload={selectedPayload}
+                selectedGroupId={selectedGroup?.groupId ?? null}
                 selectedGroupName={selectedGroup?.groupName ?? null}
               />
 
@@ -736,7 +770,10 @@ export function ProvisioningBuilderPage() {
                 status={Boolean(selectedPayload?.requiredApps.length)}
                 helper={
                   selectedPayload
-                    ? selectedPayload.requiredApps.length > 0
+                    ? selectedPayload.availability?.state &&
+                      selectedPayload.availability.state !== "available"
+                      ? selectedPayload.availability.message ?? "Assignment payload data is unavailable."
+                      : selectedPayload.requiredApps.length > 0
                       ? `${selectedPayload.requiredApps.length} required app${selectedPayload.requiredApps.length === 1 ? "" : "s"} assigned through the selected group.`
                       : "No required apps were found for the selected group."
                     : "Select a target group to inspect the app payload."
@@ -999,11 +1036,23 @@ export function ProvisioningBuilderPage() {
   );
 }
 
+function payloadWarningGuidance(warning: string) {
+  if (warning === "No required apps found for this target group.") {
+    return "This target group has no required apps assigned. If apps should deploy through this group, review app assignments in Intune.";
+  }
+  if (warning === "Payload exists on another discovered group, but not this target group.") {
+    return "Apps or policies exist for this tag through another discovered group. Devices may still receive payloads, but assignment management will be confusing. Review group assignments in Intune.";
+  }
+  return "Review the selected group assignment state before treating the build payload as ready.";
+}
+
 function BuildPayloadPanel({
   payload,
+  selectedGroupId,
   selectedGroupName,
 }: {
   payload: BuildPayloadGroup | null;
+  selectedGroupId: string | null;
   selectedGroupName: string | null;
 }) {
   const formatTimestamp = useTimestampFormatter();
@@ -1011,6 +1060,8 @@ function BuildPayloadPanel({
     (payload?.requiredApps.length ?? 0) +
     (payload?.configProfiles.length ?? 0) +
     (payload?.compliancePolicies.length ?? 0);
+  const payloadUnavailable =
+    payload?.availability?.state && payload.availability.state !== "available";
 
   return (
     <Card className="overflow-hidden">
@@ -1038,35 +1089,72 @@ function BuildPayloadPanel({
           message="No target group selected."
           guidance="Select a target group to preview required apps, configuration profiles, and compliance policies."
         />
+      ) : payloadUnavailable ? (
+        <div className="px-5 py-5">
+          <WarningWithGuidance
+            title={
+              payload.availability?.state === "not-synced"
+                ? "Assignment payload data has not been synced."
+                : "Assignment payload data is unavailable."
+            }
+            guidance={
+              payload.availability?.message ??
+              "Run a successful Graph sync before treating this group as empty."
+            }
+            link={
+              selectedGroupId
+                ? {
+                    label: "Review group assignments in Intune",
+                    url: intuneGroupAssignmentsUrl(selectedGroupId),
+                  }
+                : undefined
+            }
+          />
+        </div>
       ) : (
         <div className="space-y-4 px-5 py-5">
           <div className="grid gap-4 lg:grid-cols-3">
             <PayloadSection
               title="Required Apps"
               icon={Package}
+              itemUrl={intuneAppUrl}
               items={payload.requiredApps}
               emptyLabel="No required apps assigned."
             />
             <PayloadSection
               title="Configuration"
               icon={Settings2}
+              itemUrl={intuneConfigProfileUrl}
               items={payload.configProfiles}
               emptyLabel="No configuration profiles assigned."
             />
             <PayloadSection
               title="Compliance"
               icon={FileCheck2}
+              itemUrl={intuneCompliancePolicyUrl}
               items={payload.compliancePolicies}
               emptyLabel="No compliance policies assigned."
             />
           </div>
 
           {payload.warnings.length > 0 ? (
-            <IssueList
-              title="Payload Warnings"
-              items={payload.warnings}
-              tone="warning"
-            />
+            <div className="space-y-2">
+              {payload.warnings.map((warning) => (
+                <WarningWithGuidance
+                  key={warning}
+                  title={warning}
+                  guidance={payloadWarningGuidance(warning)}
+                  link={
+                    selectedGroupId
+                      ? {
+                          label: "Review group assignments in Intune",
+                          url: intuneGroupAssignmentsUrl(selectedGroupId),
+                        }
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
           ) : null}
         </div>
       )}
@@ -1077,11 +1165,13 @@ function BuildPayloadPanel({
 function PayloadSection({
   title,
   icon: Icon,
+  itemUrl,
   items,
   emptyLabel,
 }: {
   title: string;
   icon: typeof Package;
+  itemUrl: (id: string) => string;
   items: BuildPayloadItem[];
   emptyLabel: string;
 }) {
@@ -1108,8 +1198,19 @@ function PayloadSection({
         <div className="divide-y divide-[var(--pc-border)]">
           {items.map((item) => (
             <div key={item.payloadId} className="px-3 py-2.5">
-              <div className="truncate text-[12px] font-medium text-[var(--pc-text)]">
-                {item.payloadName}
+              <div className="flex items-center gap-1.5">
+                <div className="min-w-0 truncate text-[12px] font-medium text-[var(--pc-text)]">
+                  {item.payloadName}
+                </div>
+                <a
+                  href={itemUrl(item.payloadId)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 text-[var(--pc-text-muted)] hover:text-[var(--pc-accent)]"
+                  aria-label={`Open ${item.payloadName} in Intune`}
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </a>
               </div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-[10.5px] uppercase tracking-wide text-[var(--pc-text-muted)]">
                 <span>{item.intent ?? item.targetType}</span>

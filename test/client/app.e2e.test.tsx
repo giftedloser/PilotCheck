@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const dashboardPayload = {
@@ -394,6 +394,17 @@ describe("client drilldown", () => {
         });
       if (url.includes("/api/auth/status"))
         return jsonResponse({ authenticated: true, user: "test@example.com" });
+      if (url.includes("/api/graph/users"))
+        return jsonResponse([
+          {
+            id: "graph-user-1",
+            displayName: "Alex Rivera",
+            userPrincipalName: "alex@example.test",
+            mail: "alex.rivera@example.test"
+          }
+        ]);
+      if (url.includes("/api/actions/ap:auto-1/change-primary-user") && init?.method === "POST")
+        return jsonResponse({ success: true, status: 204, message: "Primary user updated." });
       if (url.includes("/api/devices/ap:auto-1/related-devices")) return jsonResponse([]);
       if (url.includes("/api/devices/ap:auto-1/history")) return jsonResponse({ entries: [] });
       if (url.includes("/api/devices/ap:auto-1")) return jsonResponse(deviceDetailPayload);
@@ -571,6 +582,36 @@ describe("client drilldown", () => {
     expect(screen.getByRole("button", { name: /sync now/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /change primary user/i })).toBeDisabled();
     expect(screen.getByRole("button", { name: /factory wipe/i })).toBeDisabled();
+  });
+
+  it("changes primary user through the picker flow against mocked Graph", async () => {
+    await renderApp();
+
+    fireEvent.click((await screen.findAllByText("Critical Devices"))[0]);
+    fireEvent.click(await screen.findByText("DESKTOP-North-001"));
+    await screen.findAllByText("Device Diagnostics", {}, { timeout: 3000 });
+    const actionTabs = screen.getAllByRole("button", { name: /^actions$/i });
+    fireEvent.click(actionTabs[actionTabs.length - 1]);
+    expect(await screen.findByText("Remote Actions")).toBeInTheDocument();
+
+    const changeButtons = await screen.findAllByRole("button", { name: /change primary user/i });
+    fireEvent.click(changeButtons[0]);
+    const picker = await screen.findByPlaceholderText("Search users by name, UPN, or mail");
+    fireEvent.change(picker, { target: { value: "alex" } });
+    fireEvent.click(await screen.findByText("Alex Rivera"));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText(/Confirm assignment to/)).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Change Primary User" }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/actions/ap:auto-1/change-primary-user",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ userId: "graph-user-1" })
+        })
+      );
+    });
   });
 
   it("opens the admin sign-in shell before navigating to Microsoft", async () => {

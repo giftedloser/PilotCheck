@@ -53,6 +53,10 @@ export interface BuildPayloadGroup {
   compliancePolicies: BuildPayloadItem[];
   warnings: string[];
   syncedAt: string | null;
+  availability?: {
+    state: "available" | "not-synced" | "error";
+    message: string | null;
+  };
 }
 
 export interface ValidateResult {

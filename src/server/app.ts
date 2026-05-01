@@ -16,6 +16,7 @@ import { authRouter } from "./routes/auth.js";
 import { dashboardRouter } from "./routes/dashboard.js";
 import { devicesRouter } from "./routes/devices.js";
 import { groupsRouter } from "./routes/groups.js";
+import { graphRouter } from "./routes/graph.js";
 import { healthRouter, healthzHandler } from "./routes/health.js";
 import { bitlockerRouter } from "./routes/bitlocker.js";
 import { lapsRouter } from "./routes/laps.js";
@@ -89,6 +90,7 @@ export function createApp(db: Database.Database) {
   app.use("/api/devices", devicesRouter(db));
   app.use("/api/profiles", profilesRouter(db));
   app.use("/api/groups", groupsRouter(db));
+  app.use("/api/graph", graphRouter());
   app.use("/api/sync", syncRouter(db));
   app.use("/api/settings", settingsRouter(db));
   app.use("/api/rules", rulesRouter(db));

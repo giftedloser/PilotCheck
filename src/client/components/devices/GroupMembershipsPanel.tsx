@@ -1,7 +1,8 @@
-import { Users } from "lucide-react";
+import { ExternalLink, Users } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 import type { DeviceDetailResponse } from "../../lib/types.js";
+import { entraGroupUrl } from "../../lib/deep-links.js";
 import { Card } from "../ui/card.js";
 
 export function GroupMembershipsPanel({ device }: { device: DeviceDetailResponse }) {
@@ -26,17 +27,32 @@ export function GroupMembershipsPanel({ device }: { device: DeviceDetailResponse
       ) : (
         <div className="space-y-1.5">
           {groupMemberships.map((g) => (
-            <Link
+            <div
               key={g.groupId}
-              to="/groups"
-              search={{ groupId: g.groupId }}
-              className="flex items-center justify-between rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3.5 py-2.5 transition-[background-color,border-color,transform] duration-150 hover:border-[var(--pc-accent)]/40 hover:bg-[var(--pc-surface-overlay)] hover:translate-x-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+              className="flex items-center justify-between gap-2 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3.5 py-2.5 transition-[background-color,border-color,transform] duration-150 hover:border-[var(--pc-accent)]/40 hover:bg-[var(--pc-surface-overlay)] hover:translate-x-0.5"
             >
-              <span className="truncate text-[12.5px] text-[var(--pc-text)]">{g.groupName}</span>
-              <span className="shrink-0 rounded-md bg-[var(--pc-tint-subtle)] px-1.5 py-0.5 text-[10px] font-medium capitalize text-[var(--pc-text-muted)]">
-                {g.membershipType}
-              </span>
-            </Link>
+              <Link
+                to="/groups"
+                search={{ groupId: g.groupId }}
+                className="min-w-0 flex-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+              >
+                <span className="truncate text-[12.5px] text-[var(--pc-text)]">{g.groupName}</span>
+              </Link>
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="rounded-md bg-[var(--pc-tint-subtle)] px-1.5 py-0.5 text-[10px] font-medium capitalize text-[var(--pc-text-muted)]">
+                  {g.membershipType}
+                </span>
+                <a
+                  href={entraGroupUrl(g.groupId)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[var(--pc-text-muted)] hover:text-[var(--pc-accent)]"
+                  aria-label={`Open ${g.groupName} in Entra`}
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
           ))}
         </div>
       )}

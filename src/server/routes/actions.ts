@@ -381,7 +381,7 @@ export function actionsRouter(db: Database.Database) {
           const userId = request.body?.userId;
           if (typeof userId !== "string" || !userId.trim()) {
             response.status(400).json({
-              message: "userId is required (Entra user object ID or UPN)."
+              message: "A selected Entra user is required."
             });
             return;
           }

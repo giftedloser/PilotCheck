@@ -25,6 +25,7 @@ function buildMsalAuth(clientId: string, authority: string) {
 
 export const DELEGATED_SCOPES = [
   "User.Read",
+  "User.ReadBasic.All",
   "DeviceLocalCredential.Read.All",
   "BitLockerKey.Read.All",
   "DeviceManagementManagedDevices.ReadWrite.All",

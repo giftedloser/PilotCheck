@@ -31,6 +31,12 @@ export interface BuildPayloadGroup {
   compliancePolicies: BuildPayloadItem[];
   warnings: string[];
   syncedAt: string | null;
+  availability: BuildPayloadAvailability;
+}
+
+export interface BuildPayloadAvailability {
+  state: "available" | "not-synced" | "error";
+  message: string | null;
 }
 
 interface GraphAssignmentQueryRow {
@@ -43,13 +49,14 @@ interface GraphAssignmentQueryRow {
   synced_at: string;
 }
 
-function emptyPayloadGroup(): BuildPayloadGroup {
+function emptyPayloadGroup(availability: BuildPayloadAvailability): BuildPayloadGroup {
   return {
     requiredApps: [],
     configProfiles: [],
     compliancePolicies: [],
     warnings: [],
-    syncedAt: null
+    syncedAt: null,
+    availability
   };
 }
 
@@ -151,9 +158,41 @@ export function countDevicesForProvisioningTag(
   ).count;
 }
 
+function getPayloadAvailability(db: Database.Database): BuildPayloadAvailability {
+  const latestSync = db
+    .prepare("SELECT completed_at, errors FROM sync_log WHERE completed_at IS NOT NULL ORDER BY id DESC LIMIT 1")
+    .get() as { completed_at: string | null; errors: string | null } | undefined;
+  if (!latestSync) {
+    return {
+      state: "not-synced",
+      message: "Assignment data has not been synced yet."
+    };
+  }
+
+  const graphAssignmentCount = (
+    db.prepare("SELECT COUNT(*) AS count FROM graph_assignments").get() as { count: number }
+  ).count;
+  let errors: string[] = [];
+  try {
+    errors = latestSync.errors ? (JSON.parse(latestSync.errors) as string[]) : [];
+  } catch {
+    errors = [];
+  }
+
+  if (graphAssignmentCount === 0 && errors.length > 0) {
+    return {
+      state: "error",
+      message: "The last sync reported an error before assignment payload data was available."
+    };
+  }
+
+  return { state: "available", message: null };
+}
+
 export function payloadForGroups(db: Database.Database, groupIds: string[]) {
+  const availability = getPayloadAvailability(db);
   const payloadByGroupId: Record<string, BuildPayloadGroup> = Object.fromEntries(
-    groupIds.map((groupId) => [groupId, emptyPayloadGroup()])
+    groupIds.map((groupId) => [groupId, emptyPayloadGroup(availability)])
   );
 
   if (groupIds.length === 0) return payloadByGroupId;

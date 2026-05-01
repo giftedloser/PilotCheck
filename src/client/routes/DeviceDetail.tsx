@@ -50,6 +50,11 @@ import { StatusBadge } from "../components/shared/StatusBadge.js";
 import { useDevice } from "../hooks/useDevices.js";
 import { useSettings } from "../hooks/useSettings.js";
 import { openExternalUrl } from "../lib/desktop.js";
+import {
+  autopilotDeviceUrl,
+  entraDeviceUrl,
+  intuneDeviceUrl,
+} from "../lib/deep-links.js";
 import type { FlagCode, FlagExplanation, HealthLevel } from "../lib/types.js";
 import { cn } from "../lib/utils.js";
 
@@ -275,14 +280,6 @@ function TabHeading({
   );
 }
 
-function intuneDeviceUrl(intuneId: string) {
-  return `https://intune.microsoft.com/#view/Microsoft_Intune_Devices/DeviceSettingsMenuBlade/~/overview/mdmDeviceId/${encodeURIComponent(intuneId)}`;
-}
-
-function entraDeviceUrl(entraId: string) {
-  return `https://entra.microsoft.com/#view/Microsoft_AAD_Devices/DeviceDetailsMenuBlade/~/Properties/objectId/${encodeURIComponent(entraId)}`;
-}
-
 function openUrlInBrowser(url: string) {
   const anchor = document.createElement("a");
   anchor.href = url;
@@ -297,9 +294,11 @@ function openUrlInBrowser(url: string) {
 function DevicePortalLinks({
   intuneId,
   entraId,
+  autopilotId,
 }: {
   intuneId: string | null;
   entraId: string | null;
+  autopilotId: string | null;
 }) {
   const toast = useToast();
   const links = [
@@ -313,6 +312,12 @@ function DevicePortalLinks({
       ? {
           label: "Open in Entra",
           url: entraDeviceUrl(entraId),
+        }
+      : null,
+    autopilotId
+      ? {
+          label: "Open Autopilot",
+          url: autopilotDeviceUrl(autopilotId),
         }
       : null,
   ].filter(Boolean) as Array<{ label: string; url: string }>;
@@ -520,6 +525,7 @@ export function DeviceDetailPage() {
             <DevicePortalLinks
               intuneId={data.identity.intuneId}
               entraId={data.identity.entraId}
+              autopilotId={data.identity.autopilotId}
             />
             <StatusBadge health={data.summary.health} />
             <p

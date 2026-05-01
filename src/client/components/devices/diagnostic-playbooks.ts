@@ -1,4 +1,13 @@
 import type { FlagCode } from "../../lib/types.js";
+import {
+  entraGroupsUrl,
+  intuneAllDevicesUrl,
+  intuneAutopilotDevicesUrl,
+  intuneAutopilotProfilesUrl,
+  intuneConnectorUrl,
+  intuneDeviceUrl,
+  intuneEnrollmentStatusUrl,
+} from "../../lib/deep-links.js";
 
 /**
  * A "playbook step" is a concrete next action a tech can take to resolve a
@@ -47,7 +56,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
     {
       type: "portal",
       label: "Open Autopilot devices in MEM",
-      payload: "https://intune.microsoft.com/#view/Microsoft_Intune_Enrollment/AutopilotDevicesBlade"
+      payload: intuneAutopilotDevicesUrl
     },
     {
       type: "powershell",
@@ -64,7 +73,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
     {
       type: "portal",
       label: "Open Autopilot deployment profiles",
-      payload: "https://intune.microsoft.com/#view/Microsoft_Intune_Enrollment/AutopilotProfilesBlade"
+      payload: intuneAutopilotProfilesUrl
     },
     {
       type: "graph",
@@ -79,8 +88,8 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
       type: "portal",
       label: "Open the device in MEM",
       payload: ctx.intuneId
-        ? `https://intune.microsoft.com/#view/Microsoft_Intune_Devices/DeviceSettingsMenuBlade/~/overview/mdmDeviceId/${ctx.intuneId}`
-        : "https://intune.microsoft.com/#view/Microsoft_Intune_Devices/DevicesMenu/~/allDevices"
+        ? intuneDeviceUrl(ctx.intuneId)
+        : intuneAllDevicesUrl
     },
     {
       type: "powershell",
@@ -92,7 +101,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
     {
       type: "portal",
       label: "Check enrollment status in MEM",
-      payload: "https://intune.microsoft.com/#view/Microsoft_Intune_Enrollment/EnrollmentMenu/~/enrollmentStatus"
+      payload: intuneEnrollmentStatusUrl
     },
     {
       type: "doc",
@@ -109,7 +118,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
     {
       type: "portal",
       label: "Intune Connector for AD health",
-      payload: "https://intune.microsoft.com/#view/Microsoft_Intune_Enrollment/AutopilotIntuneConnectorBlade"
+      payload: intuneConnectorUrl
     },
     {
       type: "doc",
@@ -122,7 +131,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
       type: "portal",
       label: "Open device in MEM",
       payload: ctx.intuneId
-        ? `https://intune.microsoft.com/#view/Microsoft_Intune_Devices/DeviceSettingsMenuBlade/~/overview/mdmDeviceId/${ctx.intuneId}`
+        ? intuneDeviceUrl(ctx.intuneId)
         : "https://intune.microsoft.com"
     },
     {
@@ -136,7 +145,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
       type: "portal",
       label: "Open device in MEM (change primary user)",
       payload: ctx.intuneId
-        ? `https://intune.microsoft.com/#view/Microsoft_Intune_Devices/DeviceSettingsMenuBlade/~/properties/mdmDeviceId/${ctx.intuneId}`
+        ? intuneDeviceUrl(ctx.intuneId, "properties")
         : "https://intune.microsoft.com"
     }
   ],
@@ -144,7 +153,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
     {
       type: "portal",
       label: "Inspect dynamic group rules in Entra",
-      payload: "https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/AllGroups"
+      payload: entraGroupsUrl
     },
     {
       type: "graph",
@@ -163,7 +172,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
     {
       type: "portal",
       label: "Open Autopilot deployment profiles",
-      payload: "https://intune.microsoft.com/#view/Microsoft_Intune_Enrollment/AutopilotProfilesBlade"
+      payload: intuneAutopilotProfilesUrl
     },
     {
       type: "graph",
@@ -182,7 +191,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
     {
       type: "portal",
       label: "Edit device group tag in Autopilot",
-      payload: "https://intune.microsoft.com/#view/Microsoft_Intune_Enrollment/AutopilotDevicesBlade"
+      payload: intuneAutopilotDevicesUrl
     },
     {
       type: "powershell",
@@ -199,7 +208,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
     {
       type: "portal",
       label: "Open Autopilot devices in MEM",
-      payload: "https://intune.microsoft.com/#view/Microsoft_Intune_Enrollment/AutopilotDevicesBlade"
+      payload: intuneAutopilotDevicesUrl
     },
     {
       type: "powershell",
@@ -234,7 +243,7 @@ const PLAYBOOKS: Partial<Record<FlagCode, PlaybookBuilder>> = {
       type: "portal",
       label: "Open device compliance in MEM",
       payload: ctx.intuneId
-        ? `https://intune.microsoft.com/#view/Microsoft_Intune_Devices/DeviceSettingsMenuBlade/~/compliance/mdmDeviceId/${ctx.intuneId}`
+        ? intuneDeviceUrl(ctx.intuneId, "compliance")
         : "https://intune.microsoft.com/#view/Microsoft_Intune_DeviceCompliance/DevicesComplianceBlade"
     },
     {

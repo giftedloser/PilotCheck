@@ -1,17 +1,20 @@
-import { ClipboardList } from "lucide-react";
+import { ClipboardList, ExternalLink } from "lucide-react";
 
 import type { DeviceDetailResponse } from "../../lib/types.js";
+import { entraUserUrl } from "../../lib/deep-links.js";
 import { Card } from "../ui/card.js";
 import { SourceBadge } from "../shared/SourceBadge.js";
 
 function Field({
   label,
   value,
-  source
+  source,
+  linkUser
 }: {
   label: string;
   value: string | null | undefined;
   source: "autopilot" | "intune";
+  linkUser?: boolean;
 }) {
   return (
     <div className="rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-3">
@@ -25,7 +28,21 @@ function Field({
         className="text-[12.5px] leading-snug text-[var(--pc-text)] break-words"
         title={value ?? undefined}
       >
-        {value ?? <span className="text-[var(--pc-text-muted)]">—</span>}
+        {value && linkUser ? (
+          <a
+            href={entraUserUrl(value)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex max-w-full items-center gap-1.5 hover:text-[var(--pc-accent)]"
+          >
+            <span className="truncate">{value}</span>
+            <ExternalLink className="h-3 w-3 shrink-0 text-[var(--pc-text-muted)]" />
+          </a>
+        ) : value ? (
+          value
+        ) : (
+          <span className="text-[var(--pc-text-muted)]">—</span>
+        )}
       </div>
     </div>
   );
@@ -57,11 +74,13 @@ export function AssignmentPanel({ device }: { device: DeviceDetailResponse }) {
           label="Autopilot User"
           value={device.summary.autopilotAssignedUserUpn}
           source="autopilot"
+          linkUser
         />
         <Field
           label="Intune Primary User"
           value={device.summary.intunePrimaryUserUpn}
           source="intune"
+          linkUser
         />
       </div>
 

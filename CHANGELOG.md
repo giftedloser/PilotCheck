@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Added a delegated user EntityPicker for Change Primary User so admins can
+  search by display name, UPN, or mail while the existing action still receives
+  the selected Graph user ID.
+- Added What now guidance to Build Payload warnings for missing required apps
+  and payloads found through another discovered group.
+- Centralized Microsoft portal deep-link helpers for device detail,
+  provisioning, Build Payload, and playbook links; portal URL patterns were
+  checked on 2026-05-01.
+- Build Payload now distinguishes no selected group, unsynced assignment data,
+  sync/error-unavailable assignment data, and a confirmed empty payload.
 - Moved individual tag mapping edits from Settings into a Tags side drawer,
   leaving Settings with JSON import/export and a Tags management link.
 - Demoted strict expected groups/profiles to Advanced tag mapping controls and

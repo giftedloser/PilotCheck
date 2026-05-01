@@ -198,6 +198,58 @@ describe("GET /api/provisioning/discover", () => {
     );
   });
 
+  it("marks build payload unavailable when assignment data has never synced", async () => {
+    db.prepare("DELETE FROM graph_assignments").run();
+    db.prepare("DELETE FROM sync_log").run();
+
+    const app = createApp(db);
+    const res = await request(app)
+      .get("/api/provisioning/discover?groupTag=North")
+      .expect(200);
+
+    expect(res.body.buildPayloadByGroupId["grp-north-devices"].availability).toMatchObject({
+      state: "not-synced"
+    });
+  });
+
+  it("distinguishes actual empty build payload from unavailable assignment data", async () => {
+    db.prepare("DELETE FROM graph_assignments").run();
+
+    const app = createApp(db);
+    const res = await request(app)
+      .get("/api/provisioning/discover?groupTag=North")
+      .expect(200);
+
+    const payload = res.body.buildPayloadByGroupId["grp-north-devices"];
+    expect(payload.availability).toMatchObject({ state: "available" });
+    expect(payload.requiredApps).toHaveLength(0);
+    expect(payload.configProfiles).toHaveLength(0);
+    expect(payload.compliancePolicies).toHaveLength(0);
+  });
+
+  it("marks build payload as an error when the last sync failed before assignments were available", async () => {
+    db.prepare("DELETE FROM graph_assignments").run();
+    db.prepare("DELETE FROM sync_log").run();
+    db.prepare(
+      "INSERT INTO sync_log (sync_type, started_at, completed_at, devices_synced, errors) VALUES (?, ?, ?, ?, ?)"
+    ).run(
+      "manual",
+      "2026-05-01T10:00:00.000Z",
+      "2026-05-01T10:01:00.000Z",
+      0,
+      JSON.stringify(["Graph request failed: 503 Service Unavailable"])
+    );
+
+    const app = createApp(db);
+    const res = await request(app)
+      .get("/api/provisioning/discover?groupTag=North")
+      .expect(200);
+
+    expect(res.body.buildPayloadByGroupId["grp-north-devices"].availability).toMatchObject({
+      state: "error"
+    });
+  });
+
   it("returns deviceCount and group/profile arrays for a tag with matches", async () => {
     const app = createApp(db);
     const res = await request(app)

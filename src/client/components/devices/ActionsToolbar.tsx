@@ -20,6 +20,7 @@ import { Button } from "../ui/button.js";
 import { Card } from "../ui/card.js";
 import { Input } from "../ui/input.js";
 import { ConfirmDialog } from "../shared/ConfirmDialog.js";
+import { EntityPicker, type EntityPickerSelection } from "../shared/EntityPicker.js";
 import { useToast } from "../shared/toast.js";
 
 interface ActionSpec {
@@ -63,7 +64,7 @@ const ACTIONS: ActionSpec[] = [
     label: "Change Primary User",
     icon: UserRound,
     description:
-      "Update the Intune primary user reference. Enter an Entra user object ID or UPN, then confirm the assignment.",
+      "Update the Intune primary user reference. Search Entra users, select the intended account, then confirm the assignment.",
     needsInput: "primaryUser"
   },
   {
@@ -149,7 +150,8 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
   const [pending, setPending] = useState<ActionSpec | null>(null);
   const [typedConfirm, setTypedConfirm] = useState("");
   const [newName, setNewName] = useState("");
-  const [primaryUserId, setPrimaryUserId] = useState("");
+  const [selectedPrimaryUser, setSelectedPrimaryUser] =
+    useState<EntityPickerSelection | null>(null);
 
   const isAuthed = auth.data?.authenticated === true;
   const deviceName = device.summary.deviceName ?? device.summary.serialNumber ?? "this device";
@@ -157,7 +159,7 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
   const handleRequest = (spec: ActionSpec) => {
     setTypedConfirm("");
     setNewName(device.summary.deviceName ?? "");
-    setPrimaryUserId(device.summary.intunePrimaryUserUpn ?? "");
+    setSelectedPrimaryUser(null);
     setPending(spec);
   };
 
@@ -169,7 +171,9 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
         spec.needsInput === "newName"
           ? { deviceName: newName.trim() }
           : spec.needsInput === "primaryUser"
-          ? { userId: primaryUserId.trim() }
+          ? selectedPrimaryUser
+            ? { userId: selectedPrimaryUser.id }
+            : undefined
           : undefined;
       const result = await action.mutateAsync({
         deviceKey: device.summary.deviceKey,
@@ -203,7 +207,7 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
     pending?.needsInput === "newName"
       ? !newName.trim()
       : pending?.needsInput === "primaryUser"
-      ? !primaryUserId.trim()
+      ? !selectedPrimaryUser
       : false;
 
   return (
@@ -287,22 +291,49 @@ export function ActionsToolbar({ device }: { device: DeviceDetailResponse }) {
       >
         {pending?.needsInput ? (
           <div className="space-y-1.5">
-            <label className="block text-[11px] font-medium uppercase tracking-wide text-[var(--pc-text-muted)]">
-              {pending.needsInput === "newName" ? "New device name" : "Primary user"}
-            </label>
-            <Input
-              value={pending.needsInput === "newName" ? newName : primaryUserId}
-              onChange={(event) =>
-                pending.needsInput === "newName"
-                  ? setNewName(event.target.value)
-                  : setPrimaryUserId(event.target.value)
-              }
-              placeholder={
-                pending.needsInput === "newName" ? "e.g. CG-LOBBY-001" : "user@contoso.com or object ID"
-              }
-              className="mt-1.5 w-full"
-              autoFocus
-            />
+            {pending.needsInput === "newName" ? (
+              <>
+                <label className="block text-[11px] font-medium uppercase tracking-wide text-[var(--pc-text-muted)]">
+                  New device name
+                </label>
+                <Input
+                  value={newName}
+                  onChange={(event) => setNewName(event.target.value)}
+                  placeholder="e.g. CG-LOBBY-001"
+                  className="mt-1.5 w-full"
+                  autoFocus
+                />
+              </>
+            ) : (
+              <>
+                {device.summary.intunePrimaryUserUpn ? (
+                  <div className="rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-3 py-2 text-[11.5px] text-[var(--pc-text-muted)]">
+                    Current Intune primary user:{" "}
+                    <span className="font-medium text-[var(--pc-text-secondary)]">
+                      {device.summary.intunePrimaryUserUpn}
+                    </span>
+                  </div>
+                ) : null}
+                <EntityPicker
+                  id="change-primary-user-picker"
+                  label="Primary user"
+                  value={selectedPrimaryUser}
+                  onSelect={setSelectedPrimaryUser}
+                  autoFocus
+                />
+                {selectedPrimaryUser ? (
+                  <div className="rounded-lg border border-[var(--pc-accent)]/25 bg-[var(--pc-accent-muted)] px-3 py-2 text-[11.5px] text-[var(--pc-text-secondary)]">
+                    Confirm assignment to{" "}
+                    <span className="font-semibold text-[var(--pc-text)]">
+                      {selectedPrimaryUser.label}
+                    </span>
+                    {selectedPrimaryUser.userPrincipalName ? (
+                      <span> ({selectedPrimaryUser.userPrincipalName})</span>
+                    ) : null}
+                  </div>
+                ) : null}
+              </>
+            )}
           </div>
         ) : null}
       </ConfirmDialog>
