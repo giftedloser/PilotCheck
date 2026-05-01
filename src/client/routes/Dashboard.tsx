@@ -191,13 +191,13 @@ export function DashboardPage() {
         </Card>
         <Card className="min-h-[112px] px-3 py-3 sm:px-4">
           <div className="text-[12px] font-medium text-[var(--pc-text-muted)]">
-            Attention
+            Need attention
           </div>
           <div className="mt-1 text-3xl font-semibold tabular-nums text-[var(--pc-text)]">
             {impactedDevices}
           </div>
           <div className="mt-1 text-[11px] text-[var(--pc-text-muted)]">
-            Outside target
+            Critical, warning, or info
           </div>
         </Card>
         <Card className="min-h-[112px] px-3 py-3 sm:px-4">

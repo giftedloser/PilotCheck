@@ -6,11 +6,23 @@ import { useSyncStatus, useTriggerSync } from "../../hooks/useSync.js";
 import { useTimestampFormatter } from "../../hooks/useTimestampFormatter.js";
 import { Button } from "../ui/button.js";
 
-function minutesAgo(iso: string | null) {
+function humanizeAge(iso: string | null): string | null {
   if (!iso) return null;
   const diff = Date.now() - new Date(iso).getTime();
-  if (!Number.isFinite(diff) || diff < 0) return 0;
-  return Math.max(0, Math.round(diff / 60000));
+  if (!Number.isFinite(diff) || diff < 0) return "just now";
+  const seconds = Math.round(diff / 1000);
+  if (seconds < 45) return "just now";
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.round(days / 7);
+  if (weeks < 5) return `${weeks}w ago`;
+  const months = Math.round(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.round(days / 365)}y ago`;
 }
 
 export function SyncStatusPill() {
@@ -18,7 +30,7 @@ export function SyncStatusPill() {
   const trigger = useTriggerSync();
   const formatTimestamp = useTimestampFormatter();
   const [open, setOpen] = useState(false);
-  const minuteAge = minutesAgo(status.data?.lastCompletedAt ?? null);
+  const age = humanizeAge(status.data?.lastCompletedAt ?? null);
 
   const state = useMemo(() => {
     if (status.data?.inProgress) {
@@ -35,7 +47,7 @@ export function SyncStatusPill() {
         className: "border-[var(--pc-critical)]/35 bg-[var(--pc-critical-muted)] text-[var(--pc-critical)]"
       };
     }
-    if (minuteAge === null) {
+    if (age === null) {
       return {
         label: "Never synced",
         icon: <AlertTriangle className="h-3.5 w-3.5 text-[var(--pc-warning)]" />,
@@ -43,11 +55,11 @@ export function SyncStatusPill() {
       };
     }
     return {
-      label: `Synced ${minuteAge} min ago`,
+      label: `Synced ${age}`,
       icon: <CheckCircle2 className="h-3.5 w-3.5 text-[var(--pc-healthy)]" />,
       className: "border-[var(--pc-healthy)]/35 bg-[var(--pc-healthy-muted)] text-[var(--pc-healthy)]"
     };
-  }, [minuteAge, status.data?.inProgress, status.data?.lastError]);
+  }, [age, status.data?.inProgress, status.data?.lastError]);
 
   return (
     <div className="relative">
