@@ -5,6 +5,15 @@
 **Scope:** Honest UX review of the post-v1.6 surface area. Tiny copy/IA fixes
 applied; no features, no schema, no auth changes, no design-system swap.
 
+> **Update note (second pass):** the original review leaned on a code-mapping
+> agent's summary for three surfaces I hadn't read directly. On follow-up
+> reads I confirmed the agent was wrong on three counts: the bulk action bar
+> *does* go through a real per-action confirm modal, ProvisioningBuilder
+> warnings render once per warning (not three times), and the Custom Rules
+> section is a fully built rule authoring + preview + CRUD UI, not a
+> placeholder. Those claims are retracted below. The corresponding fixes I
+> would have justified by them weren't made.
+
 ---
 
 ## Verdict
@@ -94,14 +103,26 @@ real-tenant pilot.
   Enrollment = critical-red, Drift = warning-amber. Looks like a severity
   scale but isn't. Either pick neutral category colours, or label the
   severity explicitly.
-- **Custom Rules section (10) renders even when empty/WIP.** If the editor
-  has no content yet, the section header still claims a "Custom Rules" slot.
-  Either remove until it ships or add a "Coming soon — custom rule authoring"
-  banner so admins don't think they're missing a feature.
-- **Provisioning Builder warning copy repeats itself.** Same payload-warning
-  guidance string is rendered up to three times in the build flow. Already
-  factored into a helper but printed verbatim each time. Show once, link a
-  "What does this mean?" disclosure.
+- **Two existing inconsistencies worth a future cleanup:** the "Show hidden
+  help tips again" button sits inside Display & Behavior next to typography
+  prefs and feels like an odd-one-out; and `AppSettingControls` renders the
+  default-value hint differently per control type, which adds visual noise
+  on Settings rows. Neither blocks tenant testing.
+
+### Retracted (agent claims I couldn't reproduce)
+
+- ~~"Bulk rotate-LAPS sits next to bulk sync with no extra confirmation."~~
+  False. `components/devices/BulkActionConfirm.tsx` is a per-action modal
+  with destructive flag, action-specific warning copy, and a two-phase
+  confirm/run flow. Reboot is correctly marked destructive; rotate-LAPS is
+  correctly marked non-destructive (it just rotates a password).
+- ~~"Provisioning Builder warning copy repeats itself up to three times."~~
+  False. `payload.warnings.map(...)` renders one `WarningWithGuidance` per
+  warning, with `payloadWarningGuidance` called once per warning. No
+  duplication.
+- ~~"Custom Rules section is empty/WIP."~~ False. `RulesSection` is a fully
+  built rule authoring form (field/op/value with type coercion), preview
+  matches against the live snapshot, and CRUD with confirm-delete.
 
 ---
 
@@ -120,32 +141,36 @@ pass. Reasons:
   ScrollSpy logic, deep-link IDs (`#display-behavior`, `#graph`, etc.), and
   every section component's expected layout. Not a tiny fix.
 
-### What I would do *next* pass (small, high-leverage)
+### What I did this pass (small, high-leverage)
 
-1. **Reorder so related sections are adjacent.** Today the order is
-   Display → Graph → Sync → Tags → **Rules-and-Thresholds** → Access → SCCM
-   → Sources → Health → **Custom Rules** → Logs → About. The two rules
-   sections are six apart. Bring "Custom Rules" up to sit immediately under
-   "Rules & Thresholds". Same logic for Logs — it's a diagnostic and belongs
-   next to System Health.
+Both done on this branch in commit `b8e7bd2`:
 
-   Proposed order:
+1. **Reordered so related sections are adjacent.** Custom Rules moved from
+   slot 10 to slot 6, immediately under Rules & Thresholds. Recent Logs stays
+   at slot 11, next to System Health & Retention at slot 10. Final order:
+
    1. Display & Behavior
    2. Graph Integration
-   3. Sync Data
+   3. Sync & Data
    4. Tag Mapping
    5. Rules & Thresholds
    6. Custom Rules *(moved up from 10)*
-   7. Access & Security
-   8. SCCM / ConfigMgr Signal
-   9. Data Sources
-   10. System Health & Retention
-   11. Recent Logs *(stays)*
+   7. Access & Security *(was 6)*
+   8. SCCM / ConfigMgr Signal *(was 7)*
+   9. Data Sources *(was 8)*
+   10. System Health & Retention *(was 9)*
+   11. Recent Logs
    12. About
 
-2. **Rename two JumpNav labels** so they match the section titles users see:
+2. **Renamed two JumpNav labels** to match the section titles users see:
    - "Thresholds" → "Rules" *(matches "Rules & Thresholds" header)*
    - "Rules" → "Custom rules" *(disambiguates the second rules section)*
+
+3. **Converted RulesSection and SystemHealthSection headers** to use the
+   shared `SettingsSectionHeader` component instead of hand-rolled `09. ...`
+   / `10. ...` headers. Both sections now match the rest of Settings
+   visually (mono accent index + uppercase title + helper line) and section
+   numbering is consistent across the page.
 
 ### If you ever do go to top-tabs
 
@@ -170,18 +195,18 @@ Six tabs, every existing section assigned, no orphans. But again, not now.
 | Display & Behavior | **Keep** | Mixed prefs but cohesive enough; "Show hidden help tips again" is the only odd-one-out and it's tiny. |
 | Graph Integration | **Keep** | Load-bearing. The .env-restart wording is honest. |
 | Sync Data | **Keep** | Make this the canonical sync trigger (see above). |
-| Tag Mapping | **Keep, renamed** ✓ | Already done on this branch — "Import / export tag mappings". |
-| Rules & Thresholds | **Keep, JumpNav rename** | Suggest "Rules" in JumpNav; keep "Rules & Thresholds" as section title. |
-| Access & Security | **Keep** | The delegated-scopes pill list is actually one of the best disclosures in the app. Don't demote it. |
-| SCCM / ConfigMgr Signal | **Keep** | Single feature flag, honestly labeled. Could be folded under "Data Sources" later if the flag stays binary forever. |
-| Data Sources | **Keep** | Pure disclosure; valuable for "what does Runway actually read?" |
-| System Health & Retention | **Keep** | Director-demo gold. |
-| Custom Rules | **Demote OR ship** | If still WIP, gate behind a "Coming soon" banner or hide. Don't ship empty section headers. |
-| Recent Logs | **Keep, move next to Health** | Diagnostic neighbour. |
+| Tag Mapping | **Keep, renamed** ✓ | Done on this branch — "Import / export tag mappings". |
+| Rules & Thresholds | **Keep, JumpNav renamed** ✓ | Done on this branch — JumpNav reads "Rules"; section title still "Rules & Thresholds". |
+| Custom Rules | **Keep, moved up + JumpNav renamed** ✓ | Done on this branch — moved to slot 6 next to Rules & Thresholds; JumpNav reads "Custom rules". The section is fully built (authoring + preview + CRUD), not WIP. |
+| Access & Security | **Keep, renumbered to 7** ✓ | The delegated-scopes pill list is one of the best disclosures in the app. Don't demote it. |
+| SCCM / ConfigMgr Signal | **Keep, renumbered to 8** ✓ | Single feature flag, honestly labeled. Could fold under "Data Sources" later if it stays binary forever. |
+| Data Sources | **Keep, renumbered to 9** ✓ | Pure disclosure; valuable for "what does Runway actually read?" |
+| System Health & Retention | **Keep, renumbered to 10** ✓ | Director-demo gold. Header now uses the shared `SettingsSectionHeader`. |
+| Recent Logs | **Keep** | Already adjacent to System Health (slot 11). |
 | About | **Keep** | Standard. |
 
-Net: nothing to cut today, one to clarify (Custom Rules), two reorders, two
-JumpNav label tweaks. All next-pass.
+Net: nothing cut, six sections renumbered, two reordered, two JumpNav
+labels renamed, two custom headers normalised. All applied on this branch.
 
 ---
 
@@ -189,11 +214,9 @@ JumpNav label tweaks. All next-pass.
 
 **Yes — with these caveats:**
 
-- **Confirm Custom Rules state before a director demo.** If it's truly WIP,
-  hide it or label it. An empty section will be the first thing a sceptical
-  IT director clicks.
 - **Decide the canonical "Run sync" affordance** so support docs can point
-  one place.
+  one place. (Sync is wired in three: setup step 2, Sync Data section, Sync
+  route.)
 - **Pre-populate the readiness banner expectations** — make sure the demo
   tenant has at least one tag mapping before the walkthrough so the banner
   shows "Live testing readiness looks good" instead of the warning state.
@@ -213,6 +236,8 @@ chrome.
 
 ## Tiny fixes made on this branch
 
+### Commit `9868035` — copy / setup IA
+
 | File | Change |
 |---|---|
 | [src/client/routes/setup.tsx](../src/client/routes/setup.tsx) | Merged steps 2 and 3 into a single "Run the initial sync" step. Updated `activeStep` derivation, `StepShell` numbering, page header description, and `STEPPER_LABELS`. |
@@ -220,23 +245,45 @@ chrome.
 | [src/client/routes/DeviceDetail.tsx](../src/client/routes/DeviceDetail.tsx) | Renamed user-visible "breakpoint chips" copy to "problem-area chips". Internal `BreakpointKey` type intentionally unchanged. |
 | [src/client/routes/Settings.tsx](../src/client/routes/Settings.tsx) | Renamed "Bulk mapping exchange" to "Import / export tag mappings"; tightened Settings page header description. |
 
-All in one commit (`9868035`) so reverting the copy pass is a one-line
-operation if you want to bikeshed wording before merge.
+### Commit `f50fe56` — sync pill + stat clarity
+
+| File | Change |
+|---|---|
+| [src/client/components/layout/SyncStatusPill.tsx](../src/client/components/layout/SyncStatusPill.tsx) | Replaced minutes-only formatter with a laddered humanizer (just-now / Xm / Xh / Xd / Xw / Xmo / Xy ago). Stops a 4-day-old mock-data sync from rendering as "5922 min ago". |
+| [src/client/routes/Dashboard.tsx](../src/client/routes/Dashboard.tsx) | "Attention / Outside target" stat → "Need attention / Critical, warning, or info". Matches the underlying count and reads as a label. |
+
+### Commit `b8e7bd2` — Settings IA
+
+| File | Change |
+|---|---|
+| [src/client/routes/Settings.tsx](../src/client/routes/Settings.tsx) | Reordered JSX so `RulesSection` renders right after `RulesThresholdsSection`. Renumbered inline section headers (SCCM 7→8, Sources 8→9). |
+| [src/client/components/settings/AccessSecuritySection.tsx](../src/client/components/settings/AccessSecuritySection.tsx) | Index 6 → 7. |
+| [src/client/components/settings/SystemHealthSection.tsx](../src/client/components/settings/SystemHealthSection.tsx) | Replaced hand-rolled "09. System Health & Retention" header with `SettingsSectionHeader index="10"`; refresh button moved into the `actions` slot. |
+| [src/client/components/settings/RulesSection.tsx](../src/client/components/settings/RulesSection.tsx) | Replaced hand-rolled "10. Custom Rules" header with `SettingsSectionHeader index="6"`. |
+| [src/client/components/settings/SettingsShared.tsx](../src/client/components/settings/SettingsShared.tsx) | `SETTINGS_NAV` reordered to match new section order; "Thresholds" → "Rules" and the second "Rules" → "Custom rules". |
+| [src/client/routes/ProfileAudit.tsx](../src/client/routes/ProfileAudit.tsx) | Empty state now matches the dashed-border pattern used elsewhere; copy clarified to "No deployment profiles in the local cache. Run a sync to pull profile data from Intune." |
+
+Each pass is a separate commit so any one of them can be reverted in
+isolation.
 
 ---
 
 ## Tests run
 
-- `npm run lint` — clean
-- `npm run typecheck` — clean
+- `npm run lint` — clean (after each commit)
+- `npm run typecheck` — clean (after each commit)
 - Live preview verification on the running dev server (`/setup`, `/`,
-  `/settings`) — text snapshots confirm all four edits render and no console
+  `/settings`, `/profiles`) — text snapshots and DOM-text assertions confirm
+  all changes render in the right order with the right copy and no console
   errors. The `preview_screenshot` transport timed out repeatedly so visual
-  verification fell back to accessibility-tree snapshots and DOM text
-  assertions, which is the more reliable path for copy changes anyway.
+  verification fell back to accessibility-tree snapshots, which is the more
+  reliable path for copy changes anyway.
 - `npm run build` was **not** run because no compiled-output paths were
-  touched — only client TSX copy strings.
-- No new unit/e2e tests added (no behavior change).
+  touched — only client TSX (copy, JSX order, and a small humanizer helper).
+- No new unit/e2e tests added (no behavior change). The merged setup-step
+  introduced a tiny conditional (`syncReady = hasSync && hasDeviceRows`) that
+  could pick up a unit test in a future testing sprint per the existing
+  test-suite gate.
 
 ---
 
@@ -248,9 +295,6 @@ operation if you want to bikeshed wording before merge.
 - **Did not rename the internal `BreakpointKey` type / `BREAKPOINT_BUCKETS`
   const.** Those are code vocabulary, not user vocabulary. Renaming would
   bloat the diff with no UX win.
-- **Did not move the Custom Rules section.** That's a content/IA decision
-  pending a product call on whether the feature is live, WIP, or cut. Flagged
-  in the report instead.
 - **Did not touch the four-bucket colour scheme** even though I think it's
   misleading (severity colours on category buckets). That's a visual-design
   decision that affects the icon palette consistency across the app — not a
@@ -261,6 +305,15 @@ operation if you want to bikeshed wording before merge.
 - **Did not gate Action Audit's pre-sign-in card behind richer copy.** That
   needs a product call on whether to show schema previews to unauthenticated
   users.
+- **Did not consolidate the three "Run sync" affordances.** Each one lives
+  in a context that justifies it (first-run setup, Settings, Sync route).
+  Picking a canonical one is a product call, not a copy fix.
+- **Trusted but didn't write coverage for** the merged setup-step
+  conditional. Per the existing test-priority guidance the testing sprint
+  comes later; flagged it in the test section.
+- **Tested only the system theme** in the preview. Other themes
+  (light / OLED / slate / studio) and narrow-width breakpoints were not
+  exercised. Worth a tab-through in QA before the v1.7 cut.
 
 ---
 
