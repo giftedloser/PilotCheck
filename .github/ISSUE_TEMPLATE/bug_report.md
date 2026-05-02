@@ -30,7 +30,9 @@ If applicable, add screenshots or paste the relevant pino log lines.
 - Run mode (`npm run dev` / desktop / built server):
 - Data mode (mock / live Graph):
 - App-access gate (`APP_ACCESS_MODE`):
-- Affected signal (Autopilot / Intune / Entra / ConfigMgr presence / engine / UI):
+- Setup state (first-run incomplete / complete):
+- Affected surface (Setup / Sync pill / Tags / Provisioning Builder / Build Payload / Devices / Device Detail / Remote actions / LAPS / BitLocker / Action Audit / Settings / engine):
+- Affected signal (Autopilot / Intune / Entra / Graph assignments / ConfigMgr presence):
 
 **Additional context**
 Anything else that might help — recent sync output, the rule the device

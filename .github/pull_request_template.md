@@ -23,6 +23,14 @@
 - [ ] Added a `CHANGELOG.md` entry under `## Unreleased`
 - [ ] Confirmed no secrets, SQLite files, build outputs, or local app data are staged
 
+## Risks
+
+<!--
+List anything that could go wrong: schema migrations, destructive
+actions, Graph permission changes, breaking UI flows, or rollback
+concerns. Note "none" if there are no notable risks.
+-->
+
 ## Screenshots
 
 <!-- Drag-and-drop screenshots if the PR has UI impact. -->

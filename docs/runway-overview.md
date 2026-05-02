@@ -111,14 +111,14 @@ acknowledged dependency advisories — is in
 
 ## Quality status
 
-- **256 / 256 tests passing** (unit + API integration), covering the
-  rule engine, sync service, auth flow, remote actions, idempotency,
-  rate limiting, and route coverage.
-- **TypeScript clean** (`tsc --noEmit`).
-- **Lint clean** (`eslint .`).
-- **Build clean** — production client (~400 KB) and server (~234 KB)
-  bundle without warnings.
-- **Mock mode** is loud and obvious (amber banner, "Mock mode — showing
+- The CI pipeline runs lint, type-check, unit / API tests, end-to-end
+  tests, and the production build.
+- The rule engine is a pure function; existing tests cover the built-in
+  flag set, sync orchestration, auth boundaries, action dispatch,
+  idempotency replay, and rate limiting. New built-in flags are expected
+  to ship with both firing and non-firing test cases per
+  [CONTRIBUTING.md](../CONTRIBUTING.md).
+- Mock mode is loud and obvious (amber banner, "Mock mode — showing
   seeded sample data") so demo data can never be mistaken for live data.
 
 ## Where it goes from here

@@ -42,16 +42,24 @@ The Tauri desktop shell loads the local app runtime and uses limited window cont
 
 - Read-only sync is app-only and separate from delegated admin actions.
 - Remote actions require delegated sign-in.
-- Bulk actions are capped at 200 devices per request and limited to non-destructive or fully reversible operations (`sync`, `reboot`, `rotate-laps`). Retire, wipe, Autopilot reset, rename, and the `delete-*` cleanups remain single-device clicks. All actions are audited.
+- Bulk actions are capped at 200 devices per request and limited to non-destructive or fully reversible operations (`sync`, `reboot`, `rotate-laps`). Retire, wipe, Autopilot reset, rename, change primary user, and the `delete-*` cleanups remain single-device clicks. All actions are audited.
+- Destructive actions require typed confirmation. The confirmation step is always enforced — there is no toggle to disable it.
+- Idempotency keys on destructive actions: client-generated UUIDs are accepted as `Idempotency-Key` and a duplicate within 24h replays the cached Graph result rather than re-dispatching.
+- Change Primary User uses an EntityPicker that resolves Entra users by display name, UPN, or mail to a Graph user ID, removing the need for admins to handle raw GUIDs.
 - Dangerous operations should be validated only on lab devices before production use.
 - LAPS passwords are fetched on demand, auto-hide in the UI, and are not persisted to disk.
 - SCCM / ConfigMgr support is visibility-only and Graph-derived. Runway does not store SCCM credentials, connect to a Configuration Manager site server, or execute SCCM actions.
 
 ## Local Storage
 
-- SQLite database: device state, raw source snapshots, history, settings, and audit logs.
+- SQLite database: device state, raw source snapshots (including
+  Autopilot, Intune, Entra, and Graph assignment data), history, app
+  settings, custom rules, saved views, and audit logs. Schema migrations
+  and retention sweeps take a checkpoint-then-copy snapshot into
+  `<db-dir>/snapshots/`; the most recent three per reason are retained.
 - `.env`: tenant/app IDs, client secret, session secret, and runtime configuration.
-- Logs: local server/runtime logs only.
+- Logs: local server/runtime logs only, exposed in-app via the Recent
+  Logs panel and `GET /api/health/logs` for ops investigations.
 
 Recommended controls:
 

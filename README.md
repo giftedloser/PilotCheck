@@ -23,35 +23,33 @@ hopping is too heavy for quick triage, the Intune admin centre is too slow to
 work from all day, and PowerShell scripts are how everyone is currently getting
 by.
 
-Runway is intentionally **not** a full Intune replacement, **not** a
-multi-tenant tool, and does **not** attempt to manage iOS, Android, or macOS.
-Those are non-goals — the product is laser-focused on the Windows triage loop
-and stays honest about that scope.
+Runway is laser-focused on the Windows triage loop and stays honest about
+that scope. See [What it intentionally does not do](#what-it-intentionally-does-not-do)
+below for the full non-goal list.
 
-## 1.0 Readiness
+## Tenant testing warning
 
-Runway is ready for controlled live testing when:
+Runway is intended for controlled tenant testing. Before pointing it at a
+real tenant:
 
-- Graph app credentials are configured and `SEED_MODE=none` is used for a
-  clean live-data validation pass.
-- `SESSION_SECRET` is present in `.env` (Runway auto-generates one on first
-  boot if missing; verify it has not been wiped).
-- The Entra app access gate is enabled, or an explicit local/dev exception is
-  documented. Note: every `/api/*` route now requires the desktop token,
-  a delegated session, or an app-access session even when the gate is
-  disabled — there is no anonymous access path on the loopback API.
-- At least five known devices match expected Autopilot, Intune, Entra, and
-  ConfigMgr/SCCM states.
-- Admin sign-in, sign-out, and one low-risk delegated action such as Intune
-  device sync have been validated.
-- Tauri updater signing is configured, and Windows Authenticode signing has
-  either been wired with a real certificate or accepted as the remaining
-  SmartScreen risk for a controlled pilot. See
-  [`docs/release-signing.md`](docs/release-signing.md).
-- The security review in [`docs/security-report.md`](docs/security-report.md)
-  and the preflight in
-  [`docs/live-testing-checklist.md`](docs/live-testing-checklist.md) have been
-  accepted.
+- Run with `SEED_MODE=none` so mock seed data does not mix with live records.
+- Confirm `SESSION_SECRET` is present in `.env` — Runway auto-generates one
+  on first boot, but verify it has not been wiped before live use.
+- Keep the Entra app access gate enabled, or document an explicit
+  single-operator/dev exception. Every `/api/*` route requires the desktop
+  token, a delegated admin session, or an app-access session even when the
+  gate is disabled — there is no anonymous loopback path.
+- Validate the live data against a small known device set before trusting
+  fleet-wide counts.
+- Treat all destructive remote actions as one-click-per-device. Confirmations
+  are always enforced.
+
+The full preflight lives in
+[`docs/live-testing-checklist.md`](docs/live-testing-checklist.md). The
+security posture is summarised in
+[`docs/security-report.md`](docs/security-report.md). Tauri updater and
+Authenticode notes are in
+[`docs/release-signing.md`](docs/release-signing.md).
 
 ---
 
@@ -64,24 +62,50 @@ Runway is ready for controlled live testing when:
   state, producing typed flags (`no_profile_assigned`, `not_in_target_group`,
   `provisioning_stalled`, `compliance_drift`, …) with severity, summary, and
   the raw evidence behind each.
+- **First-run setup** — a `/setup` checklist walks tenant connection, Graph
+  permission verification through an initial sync, and the first tag mapping.
+  A non-blocking banner reminds operators while it is incomplete.
+- **Sync freshness pill** — the top bar shows last successful sync age,
+  in-progress state, and last error, and is the gated entry point for
+  manual sync.
+- **Tags view** — the source-of-truth surface for Autopilot group tags,
+  with health, device counts, and a side drawer for editing individual tag
+  mappings. Settings only handles JSON import/export.
+- **Provisioning Builder** — diagnose-and-fix workflow for a single tag's
+  group/profile/payload chain. The Build Payload panel surfaces required
+  apps, configuration profiles, and compliance policies for the selected
+  group, and warns when assignment data is missing, stale, or routed
+  through another discovered group.
+- **Diagnostic playbooks and next-best-action** — every flag has a
+  templated playbook with deep-links into Microsoft portals and Graph
+  references; device detail surfaces a next-best-action card for the
+  highest-severity subsystem.
 - **Assignment-path inspector** — for any device, walks the chain
   _Autopilot record → group membership → assigned profile → effective
   deployment mode_ and tells you exactly which link is broken.
+- **Device detail tabs** — Identity, Targeting, Enrollment, Drift, Operate,
+  History — with deep-linkable `?tab=` search params.
 - **Drift history** — transition-only `device_state_history` table, plus a
   14-day fleet-wide health trend on the dashboard.
-- **Remote actions** (delegated auth) — sync, reboot, rename, rotate LAPS,
-  Autopilot reset, retire, factory wipe — all logged to a cross-device action
-  audit timeline.
-- **LAPS retrieval** with reveal toggle, copy-to-clipboard, and 30-second
-  auto-rehide.
+- **Remote actions** (delegated auth) — single-device sync, reboot, rename,
+  rotate LAPS, Autopilot reset, retire, factory wipe, delete-from-Intune,
+  delete-from-Autopilot — destructive confirmations are always enforced and
+  every attempt is logged to the cross-device Action Audit timeline. Bulk
+  actions are restricted to `sync`, `reboot`, and `rotate-laps`.
+- **Change Primary User EntityPicker** — search Entra users by display
+  name, UPN, or mail; no raw GUID entry required.
+- **LAPS and BitLocker retrieval** — on-demand fetch with reveal toggle,
+  copy-to-clipboard, and auto-rehide. Secrets are never persisted.
 - **Custom rules** — small predicate DSL for site-specific health checks,
-  scoped globally / per-property / per-profile.
+  scoped globally / per-property / per-profile, with a preview-matches
+  dry-run before enabling.
 - **Group inspector** — Entra group membership, dynamic membership rule, the
   profiles each group resolves to, and member-level health filtering.
 - **Profile audit** — health breakdown per Autopilot profile with click-through
   to the device queue.
-- **Tag mapping dictionary** — maps Autopilot group tags to expected profiles
-  and target groups, with JSON import/export for versioning.
+- **Centralised portal deep-links** — device detail, provisioning, Build
+  Payload, and playbook links all route through one helper so portal URL
+  patterns stay consistent.
 - **ConfigMgr / SCCM client presence** — optional, presence-only signal that
   appears alongside Graph, Intune, and Entra on device detail pages. Derived
   from Intune's `managementAgent` value. Tells you whether a ConfigMgr client
@@ -94,6 +118,19 @@ Runway is ready for controlled live testing when:
   drag region, minimize/maximize/close controls, and Windows installers.
 - **Mock mode** — seeds realistic data when Graph credentials aren't
   configured, so the entire UI is explorable offline.
+
+## What it intentionally does not do
+
+- It is not a full Intune replacement, multi-tenant console, MSP platform,
+  or policy authoring tool.
+- It does not manage iOS, Android, or macOS endpoints.
+- It does not run bulk destructive actions; retire, wipe, Autopilot reset,
+  rename, and the delete cleanups are single-device clicks.
+- It does not connect to a Configuration Manager site server, store SCCM
+  credentials, or dispatch SCCM actions. The ConfigMgr signal is
+  presence-only.
+- It does not export tenant data to a Runway cloud — there is no Runway
+  cloud, no telemetry, and no third-party data processor.
 
 ---
 
@@ -329,8 +366,8 @@ file you can read.
 
 ## Documentation
 
-- **[docs/architecture.md](./docs/architecture.md)** — system architecture, data flow, schema overview
-- **[docs/user-guide.md](./docs/user-guide.md)** — comprehensive technician guide for day-to-day Runway use
+- **[docs/user-guide.md](./docs/user-guide.md)** — admin guide for first-run setup, daily triage, Tags, Provisioning Builder, Build Payload, remote actions, LAPS/BitLocker, and tenant testing
+- **[docs/architecture.md](./docs/architecture.md)** — system architecture, data flow, schema overview, sync source of truth
 - **[docs/engine.md](./docs/engine.md)** — health flags, rule DSL, custom rules
 - **[docs/graph-setup.md](./docs/graph-setup.md)** — app registration, permissions, redirect URIs
 - **[docs/troubleshooting.md](./docs/troubleshooting.md)** — live Graph troubleshooting and symptom-to-fix tables
@@ -338,6 +375,7 @@ file you can read.
 - **[docs/release-signing.md](./docs/release-signing.md)** — updater signing, Authenticode status, release artifact shape
 - **[docs/security-report.md](./docs/security-report.md)** — security posture summary for review/approval
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** — development workflow, conventions
+- **[SECURITY.md](./SECURITY.md)** — vulnerability reporting and trust boundaries
 - **[CHANGELOG.md](./CHANGELOG.md)** — release notes
 
 ---

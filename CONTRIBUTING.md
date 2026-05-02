@@ -65,11 +65,29 @@ You'll need:
 
 ## Pull requests
 
+- Branch from latest `main`. Use a descriptive prefix
+  (`feat/`, `fix/`, `docs/`, `chore/`, `codex/`).
 - Keep PRs focused. One feature or one bug fix per PR.
+- Open PRs as **draft** while CI is running, mark ready for review once
+  green.
+- Do not push directly to `main`.
 - Update tests for any behaviour change.
 - Update `docs/` if you change a flag, an env var, a permission, or the
   schema.
 - Add a `CHANGELOG.md` entry under `## Unreleased`.
+
+## CHANGELOG discipline
+
+- Every user-visible change ships with a one-line entry under
+  `## [Unreleased]`, grouped by `Added` / `Changed` / `Fixed` /
+  `Removed` / `Security` per Keep a Changelog.
+- Release commits move the unreleased entries under a dated heading and
+  add a comparison link at the bottom of the file. Do not bump
+  `package.json` or move entries out of `Unreleased` unless you are
+  cutting a release.
+- Internal-only refactors that have no operator-facing impact can be
+  omitted from the changelog; mention them in the PR description
+  instead.
 
 ## Reporting bugs
 
