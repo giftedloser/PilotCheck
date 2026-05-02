@@ -150,6 +150,34 @@ describe("app shell setup and sync status", () => {
     expect(screen.queryByText("Setup complete")).not.toBeInTheDocument();
   });
 
+  it("keeps setup on initial sync when a sync ran but no device rows imported", async () => {
+    window.history.pushState({}, "", "/setup");
+    mockShellFetch({
+      graphConfigured: true,
+      syncStatus: syncStatus({
+        lastCompletedAt: "2026-05-01T10:00:00.000Z",
+        canTriggerManualSync: true,
+        graphConfigured: true,
+      }),
+      firstRun: {
+        graphCredentialsPresent: true,
+        successfulSyncCompleted: true,
+        deviceRowsPresent: false,
+        complete: false,
+      },
+    });
+
+    await renderApp();
+
+    expect(await screen.findByText("Run the initial sync")).toBeInTheDocument();
+    expect(
+      screen.getByText("Sync completed, but no device rows imported yet. Re-sync if your tenant has Autopilot or Intune devices."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /re-sync/i })).toBeInTheDocument();
+    expect(screen.getByText("Finish setup")).toBeInTheDocument();
+    expect(screen.queryByText("Setup complete")).not.toBeInTheDocument();
+  });
+
   it("hides the first-run banner once setup is complete", async () => {
     mockShellFetch({
       syncStatus: syncStatus({ lastCompletedAt: "2026-05-01T10:00:00.000Z" }),

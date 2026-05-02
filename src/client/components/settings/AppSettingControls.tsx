@@ -65,6 +65,10 @@ export function SettingShell({
   children: ReactNode;
   help?: ReactNode;
 }) {
+  const showDefaultHint = setting.source !== "default";
+  const showEnvHint = Boolean(setting.source === "env" && setting.envVar);
+  const showMetaRow = showDefaultHint || showEnvHint || setting.restartRequired;
+
   return (
     <div className="rounded-[var(--pc-radius)] border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -81,17 +85,19 @@ export function SettingShell({
               {help}
             </div>
           ) : null}
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[var(--pc-text-muted)]">
-            <span>Default: {formatSettingValue(setting.defaultValue)}</span>
-            {setting.source === "env" && setting.envVar ? (
-              <span className="text-[var(--pc-warning)]">
-                Edit {setting.envVar} in .env and restart to change this value.
-              </span>
-            ) : null}
-            {setting.restartRequired ? (
-              <span className="text-[var(--pc-warning)]">Restart Runway for changes to take effect.</span>
-            ) : null}
-          </div>
+          {showMetaRow ? (
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-[var(--pc-text-muted)]">
+              {showDefaultHint ? <span>Default: {formatSettingValue(setting.defaultValue)}</span> : null}
+              {showEnvHint ? (
+                <span className="text-[var(--pc-warning)]">
+                  Edit {setting.envVar} in .env and restart to change this value.
+                </span>
+              ) : null}
+              {setting.restartRequired ? (
+                <span className="text-[var(--pc-warning)]">Restart Runway for changes to take effect.</span>
+              ) : null}
+            </div>
+          ) : null}
         </div>
         <div className="w-full shrink-0 sm:w-auto">{children}</div>
       </div>

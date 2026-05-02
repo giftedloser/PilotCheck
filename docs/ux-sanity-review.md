@@ -13,6 +13,12 @@ applied; no features, no schema, no auth changes, no design-system swap.
 > section is a fully built rule authoring + preview + CRUD UI, not a
 > placeholder. Those claims are retracted below. The corresponding fixes I
 > would have justified by them weren't made.
+>
+> **Codex follow-up:** closed the actionable pre-tenant-testing items from
+> this report: setup now has e2e coverage for "sync succeeded but no device
+> rows imported", the HelpTooltip reset control has its own Display &
+> Behavior row, default-value hints are hidden when a setting is still on its
+> default, and the changelog now records the UX polish.
 
 ---
 
@@ -103,11 +109,10 @@ real-tenant pilot.
   Enrollment = critical-red, Drift = warning-amber. Looks like a severity
   scale but isn't. Either pick neutral category colours, or label the
   severity explicitly.
-- **Two existing inconsistencies worth a future cleanup:** the "Show hidden
-  help tips again" button sits inside Display & Behavior next to typography
-  prefs and feels like an odd-one-out; and `AppSettingControls` renders the
-  default-value hint differently per control type, which adds visual noise
-  on Settings rows. Neither blocks tenant testing.
+- **One existing inconsistency worth a future cleanup:** the settings control
+  layout still mixes compact selects, buttons, and explanatory cards in a
+  long single page. It is coherent enough for tenant testing, but worth a
+  design pass if Settings grows again.
 
 ### Retracted (agent claims I couldn't reproduce)
 
@@ -266,24 +271,32 @@ chrome.
 Each pass is a separate commit so any one of them can be reverted in
 isolation.
 
+### Codex follow-up patch — review caveats closed
+
+| File | Change |
+|---|---|
+| [src/client/components/settings/DisplayBehaviorSection.tsx](../src/client/components/settings/DisplayBehaviorSection.tsx) | Moved "Show hidden help tips again" into a dedicated Help tips row instead of sharing the table-page-size note. |
+| [src/client/components/settings/AppSettingControls.tsx](../src/client/components/settings/AppSettingControls.tsx) | Hid default-value hints when the setting is already using its default; kept default/restart/env context when it is actionable. |
+| [test/client/shell-status.e2e.test.tsx](../test/client/shell-status.e2e.test.tsx) | Added coverage for the merged setup step when a sync has completed but no device rows imported. |
+| [CHANGELOG.md](../CHANGELOG.md) | Added the UX sanity polish to `[Unreleased]`. |
+
 ---
 
 ## Tests run
 
-- `npm run lint` — clean (after each commit)
-- `npm run typecheck` — clean (after each commit)
+- `npm run lint` — clean
+- `npm run typecheck` — clean
+- `npm run test:e2e -- --run test/client/shell-status.e2e.test.tsx test/client/settings-tags-theme.e2e.test.tsx` — clean
+- `npm run build` — clean
 - Live preview verification on the running dev server (`/setup`, `/`,
   `/settings`, `/profiles`) — text snapshots and DOM-text assertions confirm
   all changes render in the right order with the right copy and no console
   errors. The `preview_screenshot` transport timed out repeatedly so visual
   verification fell back to accessibility-tree snapshots, which is the more
   reliable path for copy changes anyway.
-- `npm run build` was **not** run because no compiled-output paths were
-  touched — only client TSX (copy, JSX order, and a small humanizer helper).
-- No new unit/e2e tests added (no behavior change). The merged setup-step
-  introduced a tiny conditional (`syncReady = hasSync && hasDeviceRows`) that
-  could pick up a unit test in a future testing sprint per the existing
-  test-suite gate.
+- A focused e2e regression now covers the merged setup-step conditional
+  (`syncReady = hasSync && hasDeviceRows`), including the "sync completed
+  but no device rows imported" recovery copy.
 
 ---
 
@@ -308,9 +321,9 @@ isolation.
 - **Did not consolidate the three "Run sync" affordances.** Each one lives
   in a context that justifies it (first-run setup, Settings, Sync route).
   Picking a canonical one is a product call, not a copy fix.
-- **Trusted but didn't write coverage for** the merged setup-step
-  conditional. Per the existing test-priority guidance the testing sprint
-  comes later; flagged it in the test section.
+- **Added focused coverage for** the merged setup-step conditional instead of
+  waiting for a broader testing sprint, because that path directly affects
+  first-run trust.
 - **Tested only the system theme** in the preview. Other themes
   (light / OLED / slate / studio) and narrow-width breakpoints were not
   exercised. Worth a tab-through in QA before the v1.7 cut.

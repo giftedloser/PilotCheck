@@ -1,4 +1,4 @@
-import { LayoutPanelTop, MonitorCog } from "lucide-react";
+import { CircleHelp, LayoutPanelTop, MonitorCog } from "lucide-react";
 
 import type { EffectiveAppSetting } from "../../lib/types.js";
 import {
@@ -143,10 +143,22 @@ export function DisplayBehaviorSection({
             <div className="min-w-0 flex-1">
               Table page size is used when a table route does not already have a page-size value in the URL.
             </div>
+          </div>
+
+          <div className="flex flex-col gap-3 rounded-[var(--pc-radius)] border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-3 text-[12px] text-[var(--pc-text-muted)] sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-start gap-2">
+              <CircleHelp className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-accent)]" />
+              <div className="min-w-0">
+                <div className="text-[12px] font-semibold text-[var(--pc-text-secondary)]">Help tips</div>
+                <div className="mt-0.5 text-[12px] leading-relaxed text-[var(--pc-text-muted)]">
+                  Restore dismissed sidebar and Provisioning Builder help tips for this install.
+                </div>
+              </div>
+            </div>
             <Button
               type="button"
               variant="secondary"
-              className="h-8 shrink-0 px-2.5 text-[11.5px]"
+              className="h-8 shrink-0 self-start px-2.5 text-[11.5px] sm:self-center"
               onClick={resetHiddenHelpTips}
             >
               Show hidden help tips again

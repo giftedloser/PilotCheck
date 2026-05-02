@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Clarified first-run setup by merging Graph permission verification and
+  initial sync into one setup step with clearer no-device-row recovery copy.
+- Renamed Dashboard and Device Detail "breakpoint" language to
+  admin-facing "problem area" copy.
+- Improved sync status pill age labels so stale data reads as days, weeks,
+  months, or years instead of large minute counts.
+- Reordered Settings so Custom Rules sits beside Rules & Thresholds,
+  normalized section headers, and reduced default-value hint noise on
+  settings already using defaults.
+- Renamed the Settings tag mapping bulk card to "Import / export tag
+  mappings" and aligned the profile-audit empty state with the rest of the
+  app.
 - Added standard settings access tiers and server-side write enforcement for
   public-local, bootstrap, operational, and security-sensitive settings.
 - Made local display preferences, including theme, editable without delegated
