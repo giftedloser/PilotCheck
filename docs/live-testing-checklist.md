@@ -54,35 +54,105 @@ Runway does not connect directly to SCCM. It reads Intune's `managedDevice.manag
 - Confirm a device whose Intune record omits `managementAgent` shows `Not reported by Intune`, not a false SCCM failure.
 - Confirm there are no SCCM action buttons; this feature is visibility-only.
 
-## 5. App Smoke Test
+## 5. First-run Setup
+
+- On a fresh database, open `/setup` and walk all three steps.
+- Step 1: enter tenant ID, client ID, and a real client secret (or
+  certificate) through the Graph credentials wizard. Confirm the wizard
+  rejects placeholder secrets.
+- Step 2: run the initial sync and confirm at least one device row
+  appears. If the sync completes but no devices appear, the step should
+  prompt for a re-sync.
+- Step 3: add one tag mapping with group tag and property label only.
+  Leave Advanced expected groups/profiles empty unless you specifically
+  want to validate strict expectations on this run.
+- Confirm the first-run banner clears once all three steps complete.
+
+## 6. Sync Status Pill
+
+- Confirm the pill in the top bar reflects the latest sync. Acceptable
+  states: `Synced X ago`, `Syncing…`.
+- After running a sync, click the pill and verify the freshness panel
+  shows the last successful timestamp, in-progress flag, and any error.
+- If sign-in is required, confirm the pill explains that manual sync
+  needs delegated admin sign-in.
+
+## 7. App Smoke Test
 
 - Open the overview page and confirm dashboard counts load.
-- Use master search to find a device by hostname, serial, Entra ID, and user where available.
-- Open a device and confirm Graph, Intune, Entra, Autopilot, and SCCM badges match the expected source state.
-- Open the playbooks for at least two flags and confirm they expand with useful next steps and portal/Graph references.
-- Open Settings and confirm Graph configured status, app access status, admin sign-in, data sources, tag mapping, custom rules, and system health all load.
-- Test admin sign-in with a delegated admin account.
-- Test sign-out and verify privileged actions are disabled again.
+- Use master search to find a device by hostname, serial, Entra ID, and
+  user where available.
+- Open a device and confirm Graph, Intune, Entra, Autopilot, and SCCM
+  badges match the expected source state.
+- Open the playbooks for at least two flags and confirm they expand with
+  useful next steps and portal/Graph references.
+- Open the **Tags** view and confirm the discovered tag inventory loads.
+  Open the side drawer for one tag and verify the Advanced expected
+  groups/profiles disclosure is collapsed by default.
+- Open **Provisioning Builder** for one configured tag, pick a target
+  group, and confirm the **Build Payload** panel resolves apps,
+  configuration profiles, and compliance policies. Verify the panel
+  states are correct on a tag with no selection (no group), on a fresh
+  database (not synced), and on a configured tag (resolved or confirmed
+  empty).
+- Open Settings and confirm Graph configured status, app access status,
+  admin sign-in, Sync & Data, Tag Mapping (JSON import/export only),
+  rules and thresholds, custom rules, and system health all load.
+- Test admin sign-in with a delegated admin account using the sidebar
+  control.
+- Test sidebar sign-out and verify privileged actions and the Action
+  Audit gate disable cleanly.
 
-## 6. Safe Action Validation
+## 8. Safe Action Validation
 
-Do not start with destructive actions.
+Do not start with destructive actions. Confirmations are always enforced
+on destructive actions — do not look for a toggle to disable them.
 
-- Test a read-only flow first: dashboard, search, device detail, playbooks.
-- Test delegated sign-in.
+- Test a read-only flow first: dashboard, search, device detail,
+  playbooks.
+- Test delegated sign-in via the sidebar control.
 - Test LAPS or BitLocker retrieval only on a known lab device.
-- Test sync on a single known device if available.
-- Confirm action audit logs show who ran the action, when, target device, status, and error detail if any.
-- Do not test wipe, retire, Autopilot reset, or bulk actions until the read-only and low-risk flows pass.
+- Test single-device sync on a known device.
+- Test the Change Primary User EntityPicker on a lab device by searching
+  the user's display name, UPN, and mail address. Confirm the action
+  payload uses the picked Graph user ID. Do not paste raw GUIDs.
+- Confirm action audit logs show who ran the action, when, target
+  device, status, and error detail if any.
+- Defer wipe, retire, Autopilot reset, rename, the delete cleanups, and
+  bulk actions until the read-only and low-risk flows pass.
 
-## 7. Go / No-Go
+## 9. Rollback / Downgrade
+
+Pilots that started on 1.5 and moved to 1.6 should keep these notes in
+mind:
+
+- Tag mapping edits live in the Tags side drawer. Settings only handles
+  JSON import/export. To downgrade tag-mapping edits to a previous
+  build, export the full mapping JSON from Settings before the change.
+- The destructive-action confirmation toggle was removed in 1.6;
+  destructive confirmations are always enforced. There is no setting to
+  re-introduce the toggle.
+- The unified `display.theme` setting replaces the older split between
+  the sidebar theme cycler and the Settings dropdown. If a theme value
+  on disk pre-dates 1.6 and is not recognised, Runway falls back to the
+  default rather than crashing.
+
+If you need to roll back to a previous Runway version, keep a copy of
+`%LOCALAPPDATA%\com.giftedloser.pilotcheck\.env` and back up the SQLite
+database from `data/` before downgrading.
+
+## 10. Go / No-Go
 
 Ready for broader pilot when:
 
 - `npm run check` and `npm run build` pass.
 - Live sync completes without unexpected permission errors.
-- Mock-only data is not mixed into the live database unless intentionally seeded.
-- At least five known devices match expected Graph/Intune/Entra/SCCM state.
-- App access gate is enabled, or a documented single-operator/dev exception
-  has been approved.
+- Mock-only data is not mixed into the live database unless intentionally
+  seeded.
+- At least five known devices match expected Graph/Intune/Entra/SCCM
+  state.
+- The first-run setup checklist completes without manual intervention.
+- App access gate is enabled, or a documented single-operator/dev
+  exception has been approved.
+- Build Payload resolves correctly for at least one configured tag.
 - Security review in `docs/security-report.md` has been accepted.

@@ -9,6 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Refreshed README to describe the v1.6 app shape: first-run setup,
+  sync status pill, Tags view, Provisioning Builder, Build Payload
+  guidance, EntityPicker for Change Primary User, single-device
+  destructive actions, and an explicit "what Runway intentionally does
+  not do" list.
+- Light README style pass: compact "At a glance" facts table, inline
+  "Jump to" links, and collapsed reference material (`.env` keys,
+  ConfigMgr signal states, Graph permissions, full npm scripts, project
+  layout) so the GitHub landing page scans in seconds.
+- Rewrote `docs/user-guide.md` end-to-end to match the current UI.
+  Removed stale references to "Confirm destructive actions" toggle,
+  "enter user object ID" / "raw GUID" copy on Change Primary User, and
+  Settings-side individual tag mapping editing. Added Tags view, tag
+  mapping drawer, Build Payload availability states, sync status pill,
+  setup checklist, EntityPicker, tabbed device detail with `?tab=`
+  deep-links, and a tenant testing workflow.
+- Updated `docs/architecture.md` with first-run completion criteria,
+  sync status source of truth, app-only vs delegated split, Build
+  Payload data flow, `tag_config` cleanup notes, and a non-goals
+  section.
+- Expanded `docs/live-testing-checklist.md` with first-run setup, sync
+  pill, Tags, Provisioning Builder + Build Payload, EntityPicker, and
+  a 1.5 → 1.6 rollback section.
+- Tightened `docs/security-report.md` and `docs/runway-overview.md` to
+  remove fabricated benchmarks and clarify destructive-action,
+  idempotency, EntityPicker, and snapshot retention behaviour.
+- Refreshed `.github/pull_request_template.md` with a Risks section,
+  the `bug_report.md` issue template with new affected-surface options
+  for Setup / Tags / Provisioning Builder / Build Payload, and added a
+  CHANGELOG discipline section to `CONTRIBUTING.md`.
+
 ## [1.6.0] - 2026-05-02
 
 ### Changed
