@@ -33,8 +33,9 @@ export function ProfileAuditPage() {
         actions={<SourceBadge source="intune" />}
       />
       {profiles.data.length === 0 ? (
-        <div className="text-[13px] text-[var(--pc-text-muted)]">
-          No profiles found. Run a sync to pull profile data from Graph.
+        <div className="rounded-md border border-dashed border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-4 py-6 text-center text-[12px] text-[var(--pc-text-muted)]">
+          No deployment profiles in the local cache. Run a sync to pull profile
+          data from Intune.
         </div>
       ) : (
         <div className="grid gap-4 xl:grid-cols-2">

@@ -5,6 +5,7 @@ import { useRunRetention, useSystemHealth } from "../../hooks/useSystemHealth.js
 import { Button } from "../ui/button.js";
 import { Card } from "../ui/card.js";
 import { useToast } from "../shared/toast.js";
+import { SettingsSectionHeader } from "./SettingsShared.js";
 
 function formatUptime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) return "—";
@@ -75,14 +76,11 @@ export function SystemHealthSection() {
 
   return (
     <section id="health" className="scroll-mt-6 space-y-3">
-      <div className="flex items-baseline gap-2">
-        <h2 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--pc-text-secondary)]">
-          09. System Health & Retention
-        </h2>
-        <span className="text-[11px] text-[var(--pc-text-muted)]">
-          Process status, sync freshness, and data pruning
-        </span>
-        <div className="ml-auto">
+      <SettingsSectionHeader
+        index="10"
+        title="System Health & Retention"
+        detail="Process status, sync freshness, and data pruning"
+        actions={
           <Button
             variant="secondary"
             className="h-8 px-2.5 text-[11.5px]"
@@ -97,8 +95,8 @@ export function SystemHealthSection() {
             />
             Refresh
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <Card className="p-5">
         {health.isLoading ? (

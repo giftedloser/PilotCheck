@@ -14,6 +14,7 @@ import { ConfirmDialog } from "../shared/ConfirmDialog.js";
 import { Button } from "../ui/button.js";
 import { Card } from "../ui/card.js";
 import { Input } from "../ui/input.js";
+import { SettingsSectionHeader } from "./SettingsShared.js";
 
 type FieldType = "string" | "boolean" | "number" | "timestamp";
 
@@ -202,14 +203,11 @@ export function RulesSection() {
 
   return (
     <section id="rules" className="scroll-mt-6 space-y-3">
-      <div className="flex items-baseline gap-2">
-        <h2 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--pc-text-secondary)]">
-          10. Custom Rules
-        </h2>
-        <span className="text-[11px] text-[var(--pc-text-muted)]">
-          Encode your own join, configuration, and posture expectations
-        </span>
-      </div>
+      <SettingsSectionHeader
+        index="6"
+        title="Custom Rules"
+        detail="Encode your own join, configuration, and posture expectations"
+      />
 
       <Card className="p-5">
         <div className="mb-4 flex items-center justify-between gap-3">

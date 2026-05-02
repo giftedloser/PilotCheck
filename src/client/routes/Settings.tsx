@@ -332,16 +332,19 @@ export function SettingsPage() {
         adminSignedIn={isAuthed}
       />
 
+      {/* Section 6: Custom rules (moved adjacent to Rules & Thresholds) */}
+      <RulesSection />
+
       <AccessSecuritySection
         appSettings={settings.data.appSettings}
         appAccess={appAccess}
         adminSignedIn={isAuthed}
       />
 
-      {/* Section 7: SCCM / ConfigMgr */}
+      {/* Section 8: SCCM / ConfigMgr */}
       <section id="signals" className="scroll-mt-6 space-y-3">
         <SettingsSectionHeader
-          index="7"
+          index="8"
           title="SCCM / ConfigMgr Signal"
           detail="Optional ConfigMgr visibility on device pages"
         />
@@ -438,10 +441,10 @@ export function SettingsPage() {
         </Card>
       </section>
 
-      {/* Section 8: Sources */}
+      {/* Section 9: Sources */}
       <section id="sources" className="scroll-mt-6 space-y-3">
         <SettingsSectionHeader
-          index="8"
+          index="9"
           title="Data Sources"
           detail="Synced Microsoft service data"
         />
@@ -481,11 +484,8 @@ export function SettingsPage() {
         </Card>
       </section>
 
-      {/* Section 9: System health & retention */}
+      {/* Section 10: System health & retention */}
       <SystemHealthSection />
-
-      {/* Section 10: Custom rules */}
-      <RulesSection />
 
       {/* Section 11: Recent logs */}
       <LogViewerSection />
