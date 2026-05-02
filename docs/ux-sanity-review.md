@@ -19,6 +19,11 @@ applied; no features, no schema, no auth changes, no design-system swap.
 > rows imported", the HelpTooltip reset control has its own Display &
 > Behavior row, default-value hints are hidden when a setting is still on its
 > default, and the changelog now records the UX polish.
+>
+> **Pre-tenant polish:** added a visible sidebar sign-out control for active
+> admin sessions, clarified what Action Audit contains before sign-in,
+> normalized sync button copy, and softened sidebar help icons so they read
+> as theme-native controls instead of bright circular badges.
 
 ---
 
@@ -279,6 +284,15 @@ isolation.
 | [src/client/components/settings/AppSettingControls.tsx](../src/client/components/settings/AppSettingControls.tsx) | Hid default-value hints when the setting is already using its default; kept default/restart/env context when it is actionable. |
 | [test/client/shell-status.e2e.test.tsx](../test/client/shell-status.e2e.test.tsx) | Added coverage for the merged setup step when a sync has completed but no device rows imported. |
 | [CHANGELOG.md](../CHANGELOG.md) | Added the UX sanity polish to `[Unreleased]`. |
+
+### Pre-tenant polish patch
+
+| File | Change |
+|---|---|
+| [src/client/components/layout/AuthIndicator.tsx](../src/client/components/layout/AuthIndicator.tsx) | Made active admin sign-out visible as a labeled sidebar footer button. |
+| [src/client/routes/ActionAudit.tsx](../src/client/routes/ActionAudit.tsx) | Clarified the pre-sign-in gate with what Action Audit contains and why sign-in is required. |
+| [src/client/routes/setup.tsx](../src/client/routes/setup.tsx) / [src/client/routes/SyncStatus.tsx](../src/client/routes/SyncStatus.tsx) | Normalized sync button copy: Setup says "Run initial sync" for first run; Sync page says "Run sync". |
+| [src/client/components/shared/HelpTooltip.tsx](../src/client/components/shared/HelpTooltip.tsx) | Toned down sidebar help icon chrome for better theme parity. |
 
 ---
 

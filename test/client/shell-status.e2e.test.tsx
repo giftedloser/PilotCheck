@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 function jsonResponse(body: unknown, status = 200) {
@@ -228,6 +228,31 @@ describe("app shell setup and sync status", () => {
     expect(await screen.findByRole("link", { name: /property 30/i })).toBeInTheDocument();
     expect(screen.getByText("Engine")).toBeInTheDocument();
   });
+
+  it("shows a visible sidebar sign-out control for active admin sessions", async () => {
+    mockShellFetch({
+      authenticated: true,
+      syncStatus: syncStatus({ lastCompletedAt: "2026-05-01T10:00:00.000Z" }),
+      firstRun: {
+        graphCredentialsPresent: true,
+        successfulSyncCompleted: true,
+        deviceRowsPresent: true,
+        complete: true,
+      },
+    });
+
+    await renderApp();
+
+    const signOut = await screen.findByRole("button", { name: /sign out/i });
+    fireEvent.click(signOut);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/auth/logout",
+        expect.objectContaining({ method: "POST" }),
+      );
+    });
+  });
 });
 
 function syncStatus(overrides: Record<string, unknown>) {
@@ -251,12 +276,14 @@ function mockShellFetch({
   propertyCount = 0,
   graphConfigured = true,
   seedMode = "mock",
+  authenticated = false,
 }: {
   syncStatus: Record<string, unknown>;
   firstRun: Record<string, unknown>;
   propertyCount?: number;
   graphConfigured?: boolean;
   seedMode?: "mock" | "none";
+  authenticated?: boolean;
 }) {
   global.fetch = vi.fn(async (input) => {
     const url = String(input);
@@ -282,8 +309,14 @@ function mockShellFetch({
         allowedUsersConfigured: false,
         reason: "App access enforcement is disabled.",
       });
+    if (url.includes("/api/auth/logout")) return jsonResponse({ authenticated: false });
     if (url.includes("/api/auth/status"))
-      return jsonResponse({ authenticated: false, user: null, name: null, expiresAt: null });
+      return jsonResponse({
+        authenticated,
+        user: authenticated ? "admin@example.test" : null,
+        name: authenticated ? "Runway Admin" : null,
+        expiresAt: authenticated ? "2026-05-01T12:00:00.000Z" : null,
+      });
     return jsonResponse({ message: "Not found" }, 404);
   }) as typeof fetch;
 }

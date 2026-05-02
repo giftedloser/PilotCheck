@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed the Settings tag mapping bulk card to "Import / export tag
   mappings" and aligned the profile-audit empty state with the rest of the
   app.
+- Added a visible sidebar sign-out button for active admin sessions,
+  clarified the Action Audit sign-in gate, normalized sync button wording,
+  and toned down sidebar help icons across themes.
 - Added standard settings access tiers and server-side write enforcement for
   public-local, bootstrap, operational, and security-sensitive settings.
 - Made local display preferences, including theme, editable without delegated

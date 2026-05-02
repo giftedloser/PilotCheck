@@ -75,15 +75,15 @@ export function HelpTooltip({
       <button
         type="button"
         className={cn(
-          "inline-flex h-5 w-5 items-center justify-center rounded-full border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]",
+          "inline-flex items-center justify-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]",
           tone === "sidebar"
-            ? "border-[var(--pc-sidebar-border)] bg-transparent text-[var(--pc-sidebar-text)] hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-sidebar-border)] hover:text-[var(--pc-sidebar-text-active)]"
-            : "border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-muted)] hover:border-[var(--pc-border-hover)] hover:text-[var(--pc-text)]"
+            ? "h-5 w-5 rounded-md border border-transparent bg-transparent text-[var(--pc-sidebar-text)] opacity-70 hover:bg-[var(--pc-sidebar-border)] hover:text-[var(--pc-sidebar-text-active)] hover:opacity-100"
+            : "h-5 w-5 rounded-full border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] text-[var(--pc-text-muted)] hover:border-[var(--pc-border-hover)] hover:text-[var(--pc-text)]"
         )}
         aria-label="Show help"
         aria-describedby={open ? tooltipId : undefined}
       >
-        <HelpCircle aria-hidden="true" className="h-3.5 w-3.5" />
+        <HelpCircle aria-hidden="true" className={tone === "sidebar" ? "h-3 w-3" : "h-3.5 w-3.5"} />
       </button>
       {open ? (
         <span

@@ -103,7 +103,7 @@ export function ActionAuditPage() {
           title="Action Audit"
           description="Cross-device timeline of every remote action dispatched from Runway."
         />
-        <Card className="flex items-center justify-between gap-4 p-5">
+        <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--pc-warning)]" />
             <div>
@@ -111,8 +111,9 @@ export function ActionAuditPage() {
                 Admin sign-in required
               </div>
               <div className="mt-0.5 text-[11.5px] text-[var(--pc-text-muted)]">
-                The audit log includes triggered-by identity, so an
-                authenticated admin session is required to view it.
+                Action Audit shows recent remote actions, target devices,
+                operator identity, result status, and Graph errors. Sign in
+                to view operational history.
               </div>
             </div>
           </div>
@@ -120,6 +121,7 @@ export function ActionAuditPage() {
             onClick={() => login.mutate()}
             disabled={login.isPending || !login.canStart}
             title={login.blockedReason ?? undefined}
+            className="self-start sm:self-center"
           >
             {!login.canStart
               ? "Unavailable"

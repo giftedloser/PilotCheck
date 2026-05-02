@@ -45,7 +45,7 @@ export function SyncStatusPage() {
               disabled={trigger.isPending || status.data.inProgress}
             >
               <RefreshCcw className="h-3.5 w-3.5" />
-              Run Full Sync
+              Run sync
             </Button>
           </>
         }

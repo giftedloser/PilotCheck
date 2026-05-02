@@ -140,7 +140,7 @@ export function SetupPage() {
             title={sync.data?.canTriggerManualSync ? undefined : "Admin sign-in required to run sync"}
           >
             <RefreshCcw className="h-3.5 w-3.5" />
-            {sync.data?.inProgress ? "Syncing..." : syncReady ? "Re-sync" : hasSync ? "Re-sync" : "Run sync"}
+            {sync.data?.inProgress ? "Syncing..." : syncReady ? "Re-sync" : hasSync ? "Re-sync" : "Run initial sync"}
           </Button>
         </div>
         {!sync.data?.canTriggerManualSync ? (

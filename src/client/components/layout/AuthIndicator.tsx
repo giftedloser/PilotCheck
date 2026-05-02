@@ -53,8 +53,8 @@ export function AuthIndicator() {
   const initial = (auth.data.name ?? auth.data.user ?? "?").charAt(0).toUpperCase();
 
   return (
-    <div className="group relative">
-      <div className="flex items-center gap-2 rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] px-2 py-1.5">
+    <div className="rounded-lg border border-[var(--pc-border)] bg-[var(--pc-surface-raised)] p-2">
+      <div className="flex items-center gap-2">
         <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--pc-accent)] text-[10px] font-semibold text-[var(--pc-text)]">
           {initial}
         </div>
@@ -67,16 +67,16 @@ export function AuthIndicator() {
             Authenticated
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => logout.mutate()}
-          disabled={logout.isPending}
-          className="rounded p-1 text-[var(--pc-text-muted)] transition-colors hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)]"
-          title="Sign out"
-        >
-          <LogOut className="h-3 w-3" />
-        </button>
       </div>
+      <button
+        type="button"
+        onClick={() => logout.mutate()}
+        disabled={logout.isPending}
+        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-[var(--pc-border)] bg-[var(--pc-surface)] px-2 py-1 text-[10.5px] font-medium text-[var(--pc-text-secondary)] transition-colors hover:border-[var(--pc-border-hover)] hover:bg-[var(--pc-tint-hover)] hover:text-[var(--pc-text)] disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pc-accent)]"
+      >
+        <LogOut className="h-3 w-3" />
+        {logout.isPending ? "Signing out..." : "Sign out"}
+      </button>
     </div>
   );
 }
