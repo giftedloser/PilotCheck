@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   guidance, EntityPicker for Change Primary User, single-device
   destructive actions, and an explicit "what Runway intentionally does
   not do" list.
+- Light README style pass: compact "At a glance" facts table, inline
+  "Jump to" links, and collapsed reference material (`.env` keys,
+  ConfigMgr signal states, Graph permissions, full npm scripts, project
+  layout) so the GitHub landing page scans in seconds.
 - Rewrote `docs/user-guide.md` end-to-end to match the current UI.
   Removed stale references to "Confirm destructive actions" toggle,
   "enter user object ID" / "raw GUID" copy on Change Primary User, and
