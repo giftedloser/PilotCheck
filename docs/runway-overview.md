@@ -47,8 +47,11 @@ A 60-second triage flow:
 4. **Run the playbook.** Each diagnostic includes a one-click *Open* link
    into the right Intune/Entra blade and a *Copy Command* button for the
    PowerShell or Graph call that fixes it.
-5. **Take action.** Sync, reboot, rotate LAPS, retrieve BitLocker keys, or
-   bulk-act across the whole queue — all logged to the audit trail.
+5. **Take action.** Single-device sync, reboot, rename, rotate LAPS,
+   change primary user (search by name/UPN/mail), retire, wipe, Autopilot
+   reset, retrieve LAPS or BitLocker — all logged to the audit trail.
+   Bulk actions are restricted to `sync`, `reboot`, and `rotate-laps`
+   and capped at 200 devices.
 
 ## What Runway catches
 

@@ -215,41 +215,42 @@ file in the per-user app data folder:
 - Windows: `%LOCALAPPDATA%\com.giftedloser.pilotcheck\.env`
 
 <details>
-<summary><strong>Full <code>.env</code> reference</strong></summary>
+<summary><strong><code>.env</code> reference</strong></summary>
+
+The full annotated template lives in [`.env.example`](./.env.example).
+The keys most operators set:
 
 ```ini
-# Microsoft Graph (read-only ingestion)
+# Microsoft Graph (read-only ingestion). Use either a client secret or
+# a certificate (preferred); see .env.example for cert keys.
 AZURE_TENANT_ID=
 AZURE_CLIENT_ID=
 AZURE_CLIENT_SECRET=
 AZURE_REDIRECT_URI=http://localhost:3001/api/auth/callback
 
-# Session signing for delegated auth
-# Required in production. The server refuses to start outside
-# NODE_ENV=development|test if this is left at the built-in default.
-SESSION_SECRET=change-me-in-production
+# Session signing for delegated auth. Auto-generated on first boot if
+# left blank or at the built-in default. Set manually only for shared
+# multi-host installs.
+SESSION_SECRET=
+
+# Entra app-access gate. Enforced once Graph is configured; set
+# `disabled` only for documented local/dev runs.
+APP_ACCESS_MODE=entra
+APP_ACCESS_ALLOWED_USERS=
 
 # Server
 PORT=3001
 CLIENT_PORT=5173
 DATABASE_PATH=./data/pilotcheck.sqlite
-
-# Engine tunables
-SYNC_INTERVAL_MINUTES=15
-PROFILE_ASSIGNED_NOT_ENROLLED_HOURS=2
-PROVISIONING_STALLED_HOURS=8
-
-# Force mock data even when credentials are present
-SEED_MODE=mock
-
-# Entra app-access gate. Enforced by default once Graph is configured.
-APP_ACCESS_MODE=entra
-APP_ACCESS_ALLOWED_USERS=
-
-# SCCM/ConfigMgr detection is toggled in Settings.
-# It is read from Intune's managementAgent field; no SCCM connector
-# credentials or SCCM actions are configured in Runway.
+LOG_LEVEL=info
 ```
+
+Day-to-day tunables (sync interval, rule thresholds, retention windows,
+mock seed mode, theme, etc.) live in **Settings** as DB-backed app
+settings. Legacy environment overrides are still honoured for
+automation, but Settings values take precedence. SCCM / ConfigMgr
+detection is toggled in Settings — Runway reads Intune's
+`managementAgent` only and ships no SCCM connector.
 
 </details>
 
